@@ -157,4 +157,4 @@ reception or native iPhone/Android integration.
 
 ## Standalone repository
 
-This project is maintained independently in the private `amanlig/aiNavLog` repository. Run commands from this repository root; the Expo app is in `user-interface/` and GitHub workflows are in `.github/workflows/`. Local runtime databases, credentials and build outputs are excluded. The separate investment application and model projects are not part of this repository. See [CI/CD setup](docs/mobile-ci-cd.md).
+This project is maintained independently in the public `amanlig/aiNavLog` repository. Run commands from this repository root; the Expo app is in `user-interface/` and GitHub workflows are in `.github/workflows/`. Local runtime databases, credentials and build outputs are excluded. The separate investment application and model projects are not part of this repository. See [CI/CD setup](docs/mobile-ci-cd.md).
