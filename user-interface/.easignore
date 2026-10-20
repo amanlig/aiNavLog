@@ -1,0 +1,38 @@
+# Standalone UI build only. EAS_PROJECT_ROOT is set by scripts/eas-android.mjs.
+# Copy Git exclusions because .easignore overrides .gitignore.
+node_modules/
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+.metro-health-check*
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+.DS_Store
+*.pem
+.env*
+*.tsbuildinfo
+/ios
+/android
+
+# Private signing, local artifacts and development-only material.
+credentials.json
+.secrets/
+.aws/
+.codex/
+.agents/
+.git/
+builds/
+coverage/
+tests/
+README.md
+AGENTS.md
+LICENSE

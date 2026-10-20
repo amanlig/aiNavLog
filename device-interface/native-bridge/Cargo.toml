@@ -1,0 +1,11 @@
+[package]
+name = "ainavlog-native-bridge"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[dependencies]
+ainavlog-device-interface = { path = "..", default-features = false }

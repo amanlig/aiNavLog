@@ -1,0 +1,51 @@
+{
+  "cli": {
+    "version": ">= 24.13.0",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "play-internal": {
+      "distribution": "store",
+      "environment": "preview",
+      "node": "24.21.0",
+      "credentialsSource": "remote",
+      "autoIncrement": false,
+      "env": {
+        "EXPO_NO_DOTENV": "1",
+        "EXPO_PUBLIC_DEMO_MODE": "1"
+      },
+      "android": {
+        "buildType": "app-bundle"
+      }
+    },
+    "preview-apk": {
+      "extends": "play-internal",
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "testflight": {
+      "distribution": "store",
+      "environment": "preview",
+      "node": "24.21.0",
+      "credentialsSource": "remote",
+      "autoIncrement": false,
+      "env": {
+        "EXPO_NO_DOTENV": "1",
+        "EXPO_PUBLIC_DEMO_MODE": "1"
+      },
+      "ios": {
+        "simulator": false
+      }
+    }
+  },
+  "submit": {
+    "testflight": {
+      "ios": {
+        "companyName": "Kode Komplete Software Services Ltd.",
+        "ascAppId": "6823786033"
+      }
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "expo": {
+    "name": "aiNavLog",
+    "slug": "ainavlog-mobile",
+    "owner": "kode-komplete-software-services-ltd",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kodekomplete.com.ainavlog",
+      "buildNumber": "1",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.kodekomplete.com.ainavlog",
+      "versionCode": 1,
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ],
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "scheme": "ainavlog",
+    "plugins": [
+      "expo-router",
+      "expo-system-ui"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "6b2c9577-6a5b-4380-a200-d5221085458c"
+      }
+    }
+  }
+}

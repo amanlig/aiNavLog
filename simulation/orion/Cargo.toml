@@ -1,0 +1,12 @@
+[package]
+name = "ainavlog-orion-simulation"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.96"
+publish = false
+
+[dependencies]
+ainavlog-device-interface = { path = "../../device-interface" }
+aes = "0.9.3"
+ctr = "0.10.1"
+tokio = { version = "1.53.1", features = ["macros", "rt-multi-thread", "time", "signal"] }

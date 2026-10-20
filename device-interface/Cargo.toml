@@ -1,0 +1,48 @@
+[package]
+name = "ainavlog-device-interface"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.96"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[features]
+default = ["desktop", "nmea"]
+desktop = ["dep:futures-util", "dep:btleplug", "dep:tokio", "dep:dbus"]
+nmea = ["dep:nmea-kit", "dep:canboat"]
+
+[[bin]]
+name = "ainavlog-device-interface"
+path = "src/main.rs"
+required-features = ["desktop"]
+
+[[test]]
+name = "live_monitor"
+required-features = ["desktop"]
+
+[[test]]
+name = "nmea_codecs"
+required-features = ["nmea"]
+
+[[test]]
+name = "public_api"
+required-features = ["desktop"]
+
+[dependencies]
+futures-util = { version = "0.3.34", optional = true }
+rusqlite = { version = "0.40.2", default-features = false, features = ["bundled"] }
+aes = { version = "0.9.3", features = ["zeroize"] }
+ctr = { version = "0.10.1", features = ["zeroize"] }
+zeroize = "1.9.0"
+nmea-kit = { version = "0.8.9", optional = true }
+canboat = { version = "8.3.0", optional = true, default-features = false, features = ["decode"] }
+btleplug = { version = "0.13.3", optional = true }
+tokio = { version = "1.53.1", optional = true, features = ["rt-multi-thread", "macros", "time", "signal"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+dbus = { version = "0.9.12", optional = true, features = ["vendored"] }
+
+[dev-dependencies]
+tokio = { version = "1.53.1", features = ["test-util"] }

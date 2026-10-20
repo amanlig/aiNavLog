@@ -1,0 +1,42 @@
+name: aiNavLog checks
+
+on:
+  pull_request:
+    paths:
+      - 'user-interface/**'
+      - '.github/workflows/ainavlog-*.yml'
+  push:
+    paths:
+      - 'user-interface/**'
+      - '.github/workflows/ainavlog-*.yml'
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  mobile-checks:
+    name: Mobile typecheck, lint and tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: user-interface
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24.21.0'
+          cache: npm
+          cache-dependency-path: user-interface/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Tests
+        run: npm test

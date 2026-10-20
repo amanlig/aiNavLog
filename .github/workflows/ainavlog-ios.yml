@@ -1,0 +1,91 @@
+name: aiNavLog iOS TestFlight
+run-name: aiNavLog iOS build ${{ inputs.build_number }} · ${{ github.ref_name }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_number:
+        description: 'Unused iOS build number above 1 (check App Store Connect and EAS first)'
+        required: true
+        type: string
+      submit:
+        description: 'Submit the successful build to TestFlight (requires EAS-managed Apple API key)'
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ainavlog-ios-delivery
+  cancel-in-progress: false
+
+jobs:
+  checks:
+    uses: ./.github/workflows/ainavlog-checks.yml
+
+  ios:
+    name: Signed iOS build and optional TestFlight submission
+    needs: checks
+    environment: ainavlog-testflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    defaults:
+      run:
+        working-directory: user-interface
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      EAS_CLI_VERSION: '24.13.0'
+      EXPO_NO_DOTENV: '1'
+      EXPO_PUBLIC_DEMO_MODE: '1'
+      EXPO_PUBLIC_DEVICE_INTERFACE_URL: ''
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24.21.0'
+          cache: npm
+          cache-dependency-path: user-interface/package-lock.json
+      - name: Validate release configuration and set runner-only build number
+        env:
+          IOS_BUILD_NUMBER: ${{ inputs.build_number }}
+        run: node scripts/ci-ios.mjs prepare
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Confirm Expo authentication
+        run: node scripts/eas-ios.mjs whoami
+      - name: Build and wait for successful signed artifact
+        run: node scripts/eas-ios.mjs build --non-interactive --wait --json > "$RUNNER_TEMP/ainavlog-ios-build.json"
+      - name: Record exact build and source identity
+        id: build
+        env:
+          BUILD_RESULT_PATH: ${{ runner.temp }}/ainavlog-ios-build.json
+        run: node scripts/ci-ios.mjs record
+      - name: Upload build receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: ainavlog-ios-${{ inputs.build_number }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: user-interface/builds/ci-receipt.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Submit this exact build to TestFlight
+        if: ${{ inputs.submit }}
+        env:
+          EAS_BUILD_ID: ${{ steps.build.outputs.build_id }}
+        run: node scripts/eas-ios.mjs submit --id "$EAS_BUILD_ID" --non-interactive --wait
+      - name: Delivery result
+        if: success()
+        env:
+          SUBMIT_REQUESTED: ${{ inputs.submit }}
+        run: |
+          if [ "$SUBMIT_REQUESTED" = 'true' ]; then
+            echo 'Apple upload completed. TestFlight processing, tester access and iPhone installation still need verification.' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Build-only run completed; no Apple submission requested.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Failure or cancellation
+        if: ${{ failure() || cancelled() }}
+        run: echo 'Delivery did not complete. Inspect the failed step and EAS build/submission state before retrying. Cancellation may leave a cloud job running; do not assume it was stopped.' >> "$GITHUB_STEP_SUMMARY"
