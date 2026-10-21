@@ -1,8 +1,8 @@
 # aiNavLog CI/CD — iOS first
 
-Prepared October 20, 2026. Workflows are implemented locally; a GitHub run, cloud
-build, Apple upload and installed update have **not** yet been demonstrated.
-Android delivery automation follows after the iOS path is verified. The shared
+Verified October 20, 2026: shared GitHub checks, signed iOS build, exact-build
+App Store Connect upload and owner-confirmed verification on iPhone 13 have
+succeeded. Android delivery automation is next. The shared
 checks already cover the common React Native/TypeScript code for both platforms.
 
 ## Pipeline
@@ -107,17 +107,33 @@ GitHub may replace pending runs in a concurrency group. Re-running all jobs may
 attempt a duplicate build number; choose a new unused number for a new build.
 There is no automatic production publication, OTA rollout or Android submission.
 
-## Next: Android
+## Android delivery implementation
 
-Reuse the shared checks, UI-scoped Android wrapper, exact-build traceability and
-manual delivery trigger. Configure Google Play service-account/API access and an
-internal-track submission profile first. The initial manual Play release is already
-recorded; verify an automated upload and actual Android update independently.
+The local Android workflow now reuses shared checks, the UI-scoped wrapper,
+exact-build receipts and a manual trigger with optional internal-track submission.
+See [Android CI/CD setup and acceptance](android-ci-cd.md) for the GitHub environment,
+EAS-managed Google service account and first-run checklist. The initial manual Play
+release is already recorded; automated upload and an installed Android update still
+need verification.
+
+## Verified evidence — October 20, 2026
+
+- Public standalone repository: [amanlig/aiNavLog](https://github.com/amanlig/aiNavLog).
+- [Shared check run](https://github.com/amanlig/aiNavLog/actions/runs/39512899429): passed.
+- [Build-only run](https://github.com/amanlig/aiNavLog/actions/runs/39513745444):
+  passed; version 1.0.0 (2), EAS build `e9e227cf-3dcd-48c5-bf12-30b8afb60673`.
+- Owner configured EXPO_TOKEN in GitHub and confirmed EAS reports an existing
+  App Store Connect API key assigned for submission. No secret was shared in chat.
+- [Full delivery run](https://github.com/amanlig/aiNavLog/actions/runs/39515378354):
+  passed checks, signed build, receipt upload and exact-build Apple submission.
+  Version 1.0.0 (3), EAS build `3b990ab9-2a65-4c33-a40c-716e83f71553`.
+- Owner confirmed verification on physical iPhone 13 after the build-3 TestFlight
+  handoff. This is owner-reported device evidence, not independent device inspection;
+  the iOS version and detailed checklist results were not separately supplied.
 
 ## Evidence still required
 
-- GitHub workflow publication and first passing run.
-- Expo token/environment configuration and EAS-managed Apple API-key assignment.
-- Completed signed iOS pipeline build and exact-build TestFlight submission.
-- Owner-confirmed iPhone update and intentionally failed-check blocking demo.
-- Android delivery workflow and Google submission credentials.
+- Intentionally failed-check blocking demonstration.
+- Hosted Android workflow execution, Google submission credentials and installed update.
+- Native Bluetooth/Rust/phone SQLite and eventual stored-data update retention;
+  the verified binaries remain the labeled UI/demo.

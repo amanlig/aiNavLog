@@ -40,7 +40,9 @@
     "ios:archive": "node scripts/eas-ios.mjs inspect",
     "ios:build": "node scripts/eas-ios.mjs build",
     "ios:submit": "node scripts/eas-ios.mjs submit",
-    "ios:credentials": "node scripts/eas-ios.mjs credentials"
+    "ios:credentials": "node scripts/eas-ios.mjs credentials",
+    "android:submit": "node scripts/eas-android.mjs submit",
+    "android:credentials": "node scripts/eas-android.mjs credentials"
   },
   "private": true,
   "engines": {

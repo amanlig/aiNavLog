@@ -1,0 +1,355 @@
+--- /dev/null
++++ b/.github/workflows/ainavlog-android.yml
+@@ -0,0 +1,91 @@
++name: aiNavLog Android Play internal
++run-name: aiNavLog Android build ${{ inputs.version_code }} · ${{ github.ref_name }}
++
++on:
++  workflow_dispatch:
++    inputs:
++      version_code:
++        description: 'Unused Android version code above 1 (check Google Play Console and EAS first)'
++        required: true
++        type: string
++      submit:
++        description: 'Submit the successful build to Play internal testing (requires EAS-managed Google service account)'
++        required: true
++        default: false
++        type: boolean
++
++permissions:
++  contents: read
++
++concurrency:
++  group: ainavlog-android-delivery
++  cancel-in-progress: false
++
++jobs:
++  checks:
++    uses: ./.github/workflows/ainavlog-checks.yml
++
++  android:
++    name: Signed Android build and optional Play internal testing submission
++    needs: checks
++    environment: ainavlog-play-internal
++    runs-on: ubuntu-latest
++    timeout-minutes: 120
++    defaults:
++      run:
++        working-directory: user-interface
++    env:
++      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
++      EAS_CLI_VERSION: '24.13.0'
++      EXPO_NO_DOTENV: '1'
++      EXPO_PUBLIC_DEMO_MODE: '1'
++      EXPO_PUBLIC_DEVICE_INTERFACE_URL: ''
++    steps:
++      - uses: actions/checkout@v5
++        with:
++          persist-credentials: false
++      - uses: actions/setup-node@v6
++        with:
++          node-version: '24.21.0'
++          cache: npm
++          cache-dependency-path: user-interface/package-lock.json
++      - name: Validate release configuration and set runner-only version code
++        env:
++          ANDROID_VERSION_CODE: ${{ inputs.version_code }}
++        run: node scripts/ci-android.mjs prepare
++      - name: Install locked dependencies
++        run: npm ci
++      - name: Confirm Expo authentication
++        run: node scripts/eas-android.mjs whoami
++      - name: Build and wait for successful signed artifact
++        run: node scripts/eas-android.mjs build --non-interactive --wait --json > "$RUNNER_TEMP/ainavlog-android-build.json"
++      - name: Record exact build and source identity
++        id: build
++        env:
++          BUILD_RESULT_PATH: ${{ runner.temp }}/ainavlog-android-build.json
++        run: node scripts/ci-android.mjs record
++      - name: Upload build receipt
++        uses: actions/upload-artifact@v4
++        with:
++          name: ainavlog-android-${{ inputs.version_code }}-${{ github.run_id }}-${{ github.run_attempt }}
++          path: user-interface/builds/ci-receipt.json
++          if-no-files-found: error
++          retention-days: 30
++      - name: Submit this exact build to Play internal testing
++        if: ${{ inputs.submit }}
++        env:
++          EAS_BUILD_ID: ${{ steps.build.outputs.build_id }}
++        run: node scripts/eas-android.mjs submit --id "$EAS_BUILD_ID" --non-interactive --wait
++      - name: Delivery result
++        if: success()
++        env:
++          SUBMIT_REQUESTED: ${{ inputs.submit }}
++        run: |
++          if [ "$SUBMIT_REQUESTED" = 'true' ]; then
++            echo 'Google Play submission completed. Processing, tester access and Android installation still need verification.' >> "$GITHUB_STEP_SUMMARY"
++          else
++            echo 'Build-only run completed; no Google Play submission requested.' >> "$GITHUB_STEP_SUMMARY"
++          fi
++      - name: Failure or cancellation
++        if: ${{ failure() || cancelled() }}
++        run: echo 'Delivery did not complete. Inspect the failed step and EAS build/submission state before retrying. Cancellation may leave a cloud job running; do not assume it was stopped.' >> "$GITHUB_STEP_SUMMARY"
+--- /dev/null
++++ b/user-interface/scripts/ci-android.mjs
+@@ -0,0 +1,68 @@
++/** Validate runner-only release settings and record the exact completed EAS build. */
++import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
++import { dirname, resolve } from 'node:path';
++import { fileURLToPath } from 'node:url';
++
++const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
++const bundleId = 'com.kodekomplete.com.ainavlog';
++const projectId = '6b2c9577-6a5b-4380-a200-d5221085458c';
++const readJson = path => JSON.parse(readFileSync(path, 'utf8'));
++
++export function prepare(app, eas, env) {
++  if (!env.EXPO_TOKEN?.trim()) throw Error('Set EXPO_TOKEN in the ainavlog-play-internal GitHub environment secrets.');
++  const number = env.ANDROID_VERSION_CODE;
++  if (!/^[1-9]\d*$/.test(number || '') || !Number.isSafeInteger(Number(number)) || Number(number) <= 1 || Number(number) > 2100000000) {
++    throw Error('Choose an unused integer Android version code above 1, at most 2100000000.');
++  }
++  if (app.expo?.android?.package !== bundleId || app.expo?.extra?.eas?.projectId !== projectId) throw Error('Unexpected Android package or Expo project identity.');
++  if (eas.submit?.['play-internal']?.android?.track !== 'internal' || eas.submit?.['play-internal']?.android?.releaseStatus !== 'completed') throw Error('Expected completed release on the Play internal track.');
++  if (eas.cli?.appVersionSource !== 'local' || eas.build?.['play-internal']?.autoIncrement !== false || eas.build?.['play-internal']?.distribution !== 'store' || eas.build?.['play-internal']?.credentialsSource !== 'remote') {
++    throw Error('Review the Play internal versioning, distribution and remote-signing configuration.');
++  }
++  if (eas.build?.['play-internal']?.android?.buildType !== 'app-bundle') throw Error('Play requires an app bundle.');
++  return { ...app, expo: { ...app.expo, android: { ...app.expo.android, versionCode: Number(number) } } };
++}
++
++export function buildReceipt(raw, app, env) {
++  const builds = Array.isArray(raw) ? raw : [raw];
++  if (builds.length !== 1) throw Error('Expected exactly one EAS Android build result.');
++  const build = builds[0];
++  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(build?.id || '') || build.platform !== 'ANDROID' || build.status !== 'FINISHED') {
++    throw Error('EAS did not return one successfully finished Android build; submission blocked.');
++  }
++  if (build.appIdentifier !== bundleId) throw Error('Built bundle identity does not match aiNavLog.');
++  if (String(build.appBuildVersion) !== String(app.expo.android.versionCode)) throw Error('Built Android number differs from the requested number.');
++  if (build.appVersion !== app.expo.version) throw Error('Built app version differs from requested version.');
++  if (build.project?.id !== projectId) throw Error('Built Expo project differs from expected project.');
++  return {
++    build_id: build.id, platform: build.platform, status: build.status,
++    build_url: `https://expo.dev/accounts/${app.expo.owner}/projects/${app.expo.slug}/builds/${build.id}`,
++    package_name: bundleId, expo_project_id: projectId,
++    app_version: app.expo.version, android_version_code: app.expo.android.versionCode,
++    source_commit: env.GITHUB_SHA, source_ref: env.GITHUB_REF,
++    github_run: `${env.GITHUB_SERVER_URL}/${env.GITHUB_REPOSITORY}/actions/runs/${env.GITHUB_RUN_ID}`,
++    run_attempt: env.GITHUB_RUN_ATTEMPT, eas_cli_version: env.EAS_CLI_VERSION,
++  };
++}
++
++function main() {
++  const appPath = resolve(root, 'app.json');
++  if (process.argv[2] === 'prepare') {
++    const app = prepare(readJson(appPath), readJson(resolve(root, 'eas.json')), process.env);
++    writeFileSync(appPath, JSON.stringify(app, null, 2) + '\n');
++    console.log(`Prepared ${bundleId}, version ${app.expo.version}, Android build ${app.expo.android.versionCode}.`);
++  } else if (process.argv[2] === 'record') {
++    if (!process.env.BUILD_RESULT_PATH) throw Error('Missing EAS build result path.');
++    const receipt = buildReceipt(readJson(process.env.BUILD_RESULT_PATH), readJson(appPath), process.env);
++    mkdirSync(resolve(root, 'builds'), { recursive: true });
++    writeFileSync(resolve(root, 'builds/ci-receipt.json'), JSON.stringify(receipt, null, 2) + '\n');
++    if (process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, `build_id=${receipt.build_id}\n`);
++    if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY,
++      `## aiNavLog Android build\n\n- Commit: ${receipt.source_commit}\n- Version: ${receipt.app_version} (${receipt.android_version_code})\n- EAS: [${receipt.build_id}](${receipt.build_url})\n\nBuild receipt retained as a workflow artifact.\n`);
++    console.log(`Verified completed Android build ${receipt.build_id}.`);
++  } else throw Error('Usage: node scripts/ci-android.mjs prepare|record');
++}
++
++if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
++  try { main(); } catch (error) { console.error(error.message); process.exitCode = 1; }
++}
+--- a/user-interface/scripts/eas-android.mjs
++++ b/user-interface/scripts/eas-android.mjs
+@@ -9,17 +9,20 @@
+   EXPO_NO_DOTENV: '1', EXPO_PUBLIC_DEMO_MODE: '1', EXPO_PUBLIC_DEVICE_INTERFACE_URL: '' };
+ const actions = {
+   configure: ['init'],
++  whoami: ['whoami'],
++  credentials: ['credentials', '--platform', 'android'],
++  submit: ['submit', '--platform', 'android', '--profile', 'play-internal'],
+   build: ['build', '--platform', 'android', '--profile', 'play-internal'],
+   apk: ['build', '--platform', 'android', '--profile', 'preview-apk'],
+   inspect: ['build:inspect', '--platform', 'android', '--profile', 'play-internal',
+     '--stage', 'archive', '--output', resolve(projectRoot, 'builds/archive')],
+ };
+ if (!actions[action]) {
+-  console.error('Usage: node scripts/eas-android.mjs configure|build|apk|inspect');
++  console.error('Usage: node scripts/eas-android.mjs configure|build|apk|inspect|whoami|credentials|submit');
+   process.exit(2);
+ }
+ const child = spawn(process.platform === 'win32' ? 'npx.cmd' : 'npx',
+-  ['--yes', 'eas-cli@latest', ...actions[action], ...process.argv.slice(3)],
++  ['--yes', `eas-cli@${process.env.EAS_CLI_VERSION || 'latest'}`, ...actions[action], ...process.argv.slice(3)],
+   { cwd: projectRoot, env: commonEnv, stdio: 'inherit' });
+ child.on('error', () => { console.error('Could not start EAS CLI. Check Node/npm installation.'); process.exitCode = 1; });
+ child.on('exit', code => { process.exitCode = code ?? 1; });
+--- a/user-interface/eas.json
++++ b/user-interface/eas.json
+@@ -46,6 +46,12 @@
+         "companyName": "Kode Komplete Software Services Ltd.",
+         "ascAppId": "6823786033"
+       }
++    },
++    "play-internal": {
++      "android": {
++        "track": "internal",
++        "releaseStatus": "completed"
++      }
+     }
+   }
+ }
+--- a/user-interface/package.json
++++ b/user-interface/package.json
+@@ -40,7 +40,9 @@
+     "ios:archive": "node scripts/eas-ios.mjs inspect",
+     "ios:build": "node scripts/eas-ios.mjs build",
+     "ios:submit": "node scripts/eas-ios.mjs submit",
+-    "ios:credentials": "node scripts/eas-ios.mjs credentials"
++    "ios:credentials": "node scripts/eas-ios.mjs credentials",
++    "android:submit": "node scripts/eas-android.mjs submit",
++    "android:credentials": "node scripts/eas-android.mjs credentials"
+   },
+   "private": true,
+   "engines": {
+--- /dev/null
++++ b/user-interface/tests/ci-android.test.mjs
+@@ -0,0 +1,79 @@
++import assert from 'node:assert/strict';
++import { chmodSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
++import { tmpdir } from 'node:os';
++import { delimiter, join } from 'node:path';
++import { spawnSync } from 'node:child_process';
++import { fileURLToPath } from 'node:url';
++import test from 'node:test';
++import { prepare, buildReceipt } from '../scripts/ci-android.mjs';
++
++const app = JSON.parse(readFileSync(new URL('../app.json', import.meta.url), 'utf8'));
++const eas = JSON.parse(readFileSync(new URL('../eas.json', import.meta.url), 'utf8'));
++const env = { EXPO_TOKEN: 'test-token', ANDROID_VERSION_CODE: '2', GITHUB_SHA: 'source-sha' };
++const build = { id: '12345678-1234-1234-1234-123456789abc', platform: 'ANDROID', status: 'FINISHED', appBuildVersion: '2', appIdentifier: app.expo.android.package, appVersion: app.expo.version, project: { id: app.expo.extra.eas.projectId } };
++
++test('prepare changes only the runner Android number, preserving iOS and source objects', () => {
++  const result = prepare(app, eas, env);
++  assert.equal(result.expo.android.versionCode, 2);
++  assert.equal(app.expo.android.versionCode, 1);
++  assert.deepEqual(result.expo.ios, app.expo.ios);
++});
++
++test('credentials, invalid numbers and wrong application identity block release', () => {
++  assert.throws(() => prepare(app, eas, {}), /EXPO_TOKEN/);
++  for (const number of ['1', '0', '-2', '2;echo unsafe', '2.0', '999999999999999999999']) {
++    assert.throws(() => prepare(app, eas, { ...env, ANDROID_VERSION_CODE: number }), /unused integer/);
++  }
++  const wrong = structuredClone(app); wrong.expo.android.package = 'other';
++  assert.throws(() => prepare(wrong, eas, env), /identity/);
++});
++
++test('receipt retains exact successful build and source without tokens', () => {
++  const result = buildReceipt([build], prepare(app, eas, env), env);
++  assert.equal(result.build_id, build.id);
++  assert.equal(result.source_commit, env.GITHUB_SHA);
++  assert.ok(!JSON.stringify(result).includes(env.EXPO_TOKEN));
++});
++
++test('failed, ambiguous, wrong-platform or wrong-version builds cannot be submitted', () => {
++  const prepared = prepare(app, eas, env);
++  for (const raw of [[], [build, build], { ...build, status: 'ERRORED' }, { ...build, platform: 'IOS' }, { ...build, id: 'bad\noutput=1' }, { ...build, appBuildVersion: '1' }, { ...build, appIdentifier: 'wrong' }, { ...build, appVersion: '9' }, { ...build, project: { id: 'wrong' } }, { ...build, appBuildVersion: undefined }, { ...build, appIdentifier: undefined }]) {
++    assert.throws(() => buildReceipt(raw, prepared, env));
++  }
++});
++
++test('EAS wrapper keeps release source app-scoped and forwards the exact build ID', { skip: process.platform === 'win32' }, () => {
++  const temp = mkdtempSync(join(tmpdir(), 'ainavlog-ci-'));
++  try {
++    const mock = join(temp, 'npx');
++    writeFileSync(mock, `#!/usr/bin/env node
++require('node:fs').writeFileSync(process.env.CI_CAPTURE_FILE, JSON.stringify({ args: process.argv.slice(2), cwd: process.cwd(), root: process.env.EAS_PROJECT_ROOT, vcs: process.env.EAS_NO_VCS, demo: process.env.EXPO_PUBLIC_DEMO_MODE, endpoint: process.env.EXPO_PUBLIC_DEVICE_INTERFACE_URL }));
++`);
++    chmodSync(mock, 0o755);
++    const child = spawnSync(process.execPath, [fileURLToPath(new URL('../scripts/eas-android.mjs', import.meta.url)), 'submit', '--id', build.id, '--non-interactive', '--wait'], {
++      cwd: temp, encoding: 'utf8', env: { ...process.env, PATH: temp + delimiter + process.env.PATH, EAS_CLI_VERSION: '24.13.0', CI_CAPTURE_FILE: join(temp, 'capture.json'), EXPO_PUBLIC_DEVICE_INTERFACE_URL: 'must-not-ship' },
++    });
++    assert.equal(child.status, 0, child.stderr);
++    const capture = JSON.parse(readFileSync(join(temp, 'capture.json'), 'utf8'));
++    assert.equal(capture.cwd, fileURLToPath(new URL('../', import.meta.url)).replace(/\/$/, ''));
++    assert.equal(capture.root, capture.cwd);
++    assert.equal(capture.vcs, '1');
++    assert.equal(capture.demo, '1');
++    assert.equal(capture.endpoint, '');
++    assert.deepEqual(capture.args, ['--yes', 'eas-cli@24.13.0', 'submit', '--platform', 'android', '--profile', 'play-internal', '--id', build.id, '--non-interactive', '--wait']);
++  } finally { rmSync(temp, { recursive: true, force: true }); }
++});
++
++test('unsafe build or submission profiles block preparation', () => {
++  for (const change of [
++    config => { config.submit['play-internal'].android.track = 'production'; },
++    config => { config.submit['play-internal'].android.releaseStatus = 'draft'; },
++    config => { config.build['play-internal'].autoIncrement = true; },
++    config => { config.build['play-internal'].android.buildType = 'apk'; },
++    config => { config.cli.appVersionSource = 'remote'; },
++  ]) {
++    const config = structuredClone(eas); change(config);
++    assert.throws(() => prepare(app, config, env));
++  }
++  assert.throws(() => prepare(app, eas, { ...env, ANDROID_VERSION_CODE: '2100000001' }));
++});
+--- /dev/null
++++ b/docs/android-ci-cd.md
+@@ -0,0 +1,52 @@
++# Android CI/CD — Play internal testing
++
++Prepared October 20, 2026, following owner verification of iOS 1.0.0 build 3
++on iPhone 13. Android automation has not yet been demonstrated against Play.
++
++The manual **aiNavLog Android Play internal** workflow runs shared checks before
++using the `ainavlog-play-internal` environment. It builds an AAB with EAS CLI
++24.13.0, waits for completion, validates package/project/version/code, retains a
++sanitized source/build receipt for 30 days, and optionally submits that exact ID.
++Submission defaults off. No production track or automatic push-triggered release.
++The Android version code changes only on the runner; iOS numbering is preserved.
++These builds remain the labeled demo; native Bluetooth/Rust/SQLite is separate.
++
++## Private setup
++
++1. Publish the reviewed workflow and helpers on main so GitHub exposes Run workflow.
++2. Create the GitHub environment `ainavlog-play-internal`, configure allowed branches
++   and any desired reviewers, and privately add EXPO_TOKEN with access to the
++   existing Expo organization/project. The iOS environment secret is not automatically
++   available to this different environment.
++3. Follow [Expo's Android submission guide](https://docs.expo.dev/submit/android/)
++   and its linked Google service-account setup guide. Enable Android Publisher API,
++   grant the service account appropriate app-level Play testing-release permissions,
++   and assign its JSON key to this app's **EAS Submit** service credentials via the
++   EAS dashboard or `npm run android:credentials` (choose play-internal).
++   Keep the key out of chat, Git and the UI archive. This workflow uses the key
++   stored by EAS; no service-account JSON GitHub secret or source path is needed.
++4. Confirm the existing EAS Android upload keystore matches Play's active upload
++   certificate. Preserve it; do not generate or reset keys. A manual first Play
++   release is already recorded, but confirm current app/API eligibility and status.
++5. Check every Play track and EAS for used version codes. Choose a fresh integer
++   greater than all existing codes, at most 2100000000. Preflight validates format
++   and configuration; it cannot prove remote version-code availability.
++
++## Acceptance and retries
++
++Run once with Submit unchecked and inspect the exact EAS ID, source SHA and
++version code in the receipt. For delivery choose Submit with another fresh code;
++then verify Play processing, internal tester access and an actual Android update.
++Record device/OS/version/code and demo navigation/reopen results independently.
++Also demonstrate that a failing shared check skips the release job on an isolated
++branch. A successful upload alone proves neither installation nor native features.
++
++If submission fails after a successful build, repair credentials and submit that
++exact receipt ID with `npm run android:submit -- --id <BUILD_ID> --non-interactive --wait`.
++Inspect Play and EAS before retrying; avoid rebuilding an already accepted code.
++Timeout/cancellation may leave cloud work running. Releases are serialized with
++cancellation disabled; GitHub may replace pending runs. Re-running the whole
++workflow can attempt a duplicate code; dispatch a fresh code for a new build.
++
++References: [EAS submission profiles](https://docs.expo.dev/submit/eas-json/) and
++[CI builds](https://docs.expo.dev/build/building-on-ci/).

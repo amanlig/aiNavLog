@@ -46,6 +46,12 @@
         "companyName": "Kode Komplete Software Services Ltd.",
         "ascAppId": "6823786033"
       }
+    },
+    "play-internal": {
+      "android": {
+        "track": "internal",
+        "releaseStatus": "completed"
+      }
     }
   }
 }

@@ -1,0 +1,91 @@
+name: aiNavLog Android Play internal
+run-name: aiNavLog Android build ${{ inputs.version_code }} · ${{ github.ref_name }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_code:
+        description: 'Unused Android version code above 1 (check Google Play Console and EAS first)'
+        required: true
+        type: string
+      submit:
+        description: 'Submit the successful build to Play internal testing (requires EAS-managed Google service account)'
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ainavlog-android-delivery
+  cancel-in-progress: false
+
+jobs:
+  checks:
+    uses: ./.github/workflows/ainavlog-checks.yml
+
+  android:
+    name: Signed Android build and optional Play internal testing submission
+    needs: checks
+    environment: ainavlog-play-internal
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    defaults:
+      run:
+        working-directory: user-interface
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      EAS_CLI_VERSION: '24.13.0'
+      EXPO_NO_DOTENV: '1'
+      EXPO_PUBLIC_DEMO_MODE: '1'
+      EXPO_PUBLIC_DEVICE_INTERFACE_URL: ''
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24.21.0'
+          cache: npm
+          cache-dependency-path: user-interface/package-lock.json
+      - name: Validate release configuration and set runner-only version code
+        env:
+          ANDROID_VERSION_CODE: ${{ inputs.version_code }}
+        run: node scripts/ci-android.mjs prepare
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Confirm Expo authentication
+        run: node scripts/eas-android.mjs whoami
+      - name: Build and wait for successful signed artifact
+        run: node scripts/eas-android.mjs build --non-interactive --wait --json > "$RUNNER_TEMP/ainavlog-android-build.json"
+      - name: Record exact build and source identity
+        id: build
+        env:
+          BUILD_RESULT_PATH: ${{ runner.temp }}/ainavlog-android-build.json
+        run: node scripts/ci-android.mjs record
+      - name: Upload build receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: ainavlog-android-${{ inputs.version_code }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: user-interface/builds/ci-receipt.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Submit this exact build to Play internal testing
+        if: ${{ inputs.submit }}
+        env:
+          EAS_BUILD_ID: ${{ steps.build.outputs.build_id }}
+        run: node scripts/eas-android.mjs submit --id "$EAS_BUILD_ID" --non-interactive --wait
+      - name: Delivery result
+        if: success()
+        env:
+          SUBMIT_REQUESTED: ${{ inputs.submit }}
+        run: |
+          if [ "$SUBMIT_REQUESTED" = 'true' ]; then
+            echo 'Google Play submission completed. Processing, tester access and Android installation still need verification.' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Build-only run completed; no Google Play submission requested.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Failure or cancellation
+        if: ${{ failure() || cancelled() }}
+        run: echo 'Delivery did not complete. Inspect the failed step and EAS build/submission state before retrying. Cancellation may leave a cloud job running; do not assume it was stopped.' >> "$GITHUB_STEP_SUMMARY"
