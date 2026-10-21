@@ -10,7 +10,7 @@ import { prepare, buildReceipt } from '../scripts/ci-android.mjs';
 const app = JSON.parse(readFileSync(new URL('../app.json', import.meta.url), 'utf8'));
 const eas = JSON.parse(readFileSync(new URL('../eas.json', import.meta.url), 'utf8'));
 const env = { EXPO_TOKEN: 'test-token', ANDROID_VERSION_CODE: '2', GITHUB_SHA: 'source-sha' };
-const build = { id: '12345678-1234-1234-1234-123456789abc', platform: 'ANDROID', status: 'FINISHED', appBuildVersion: '2', appIdentifier: app.expo.android.package, appVersion: app.expo.version, project: { id: app.expo.extra.eas.projectId } };
+const build = { id: '12345678-1234-1234-1234-123456789abc', platform: 'ANDROID', status: 'FINISHED', appBuildVersion: '2', appIdentifier: app.expo.android.package, appVersion: app.expo.version, app: { id: app.expo.extra.eas.projectId } };
 
 test('prepare changes only the runner Android number, preserving iOS and source objects', () => {
   const result = prepare(app, eas, env);
@@ -37,7 +37,7 @@ test('receipt retains exact successful build and source without tokens', () => {
 
 test('failed, ambiguous, wrong-platform or wrong-version builds cannot be submitted', () => {
   const prepared = prepare(app, eas, env);
-  for (const raw of [[], [build, build], { ...build, status: 'ERRORED' }, { ...build, platform: 'IOS' }, { ...build, id: 'bad\noutput=1' }, { ...build, appBuildVersion: '1' }, { ...build, appIdentifier: 'wrong' }, { ...build, appVersion: '9' }, { ...build, project: { id: 'wrong' } }, { ...build, appBuildVersion: undefined }, { ...build, appIdentifier: undefined }]) {
+  for (const raw of [[], [build, build], { ...build, status: 'ERRORED' }, { ...build, platform: 'IOS' }, { ...build, id: 'bad\noutput=1' }, { ...build, appBuildVersion: '1' }, { ...build, appIdentifier: 'wrong' }, { ...build, appVersion: '9' }, { ...build, app: { id: 'wrong' } }, { ...build, appBuildVersion: undefined }, { ...build, appIdentifier: undefined }]) {
     assert.throws(() => buildReceipt(raw, prepared, env));
   }
 });
@@ -76,4 +76,15 @@ test('unsafe build or submission profiles block preparation', () => {
     assert.throws(() => prepare(app, config, env));
   }
   assert.throws(() => prepare(app, eas, { ...env, ANDROID_VERSION_CODE: '2100000001' }));
+});
+
+// EAS CLI 24.13.0 BuildFragment returns app.id, not project.id.
+test('receipt requires EAS app.id even when legacy project.id matches', () => {
+  const prepared = prepare(app, eas, env);
+  assert.equal(buildReceipt(build, prepared, env).expo_project_id, app.expo.extra.eas.projectId);
+  for (const raw of [
+    { ...build, app: undefined },
+    { ...build, app: undefined, project: { id: app.expo.extra.eas.projectId } },
+    { ...build, app: { id: 'wrong' }, project: { id: app.expo.extra.eas.projectId } },
+  ]) assert.throws(() => buildReceipt(raw, prepared, env), /Expo project/);
 });

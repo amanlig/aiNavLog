@@ -33,7 +33,7 @@ export function buildReceipt(raw, app, env) {
   if (build.appIdentifier !== bundleId) throw Error('Built bundle identity does not match aiNavLog.');
   if (String(build.appBuildVersion) !== String(app.expo.android.versionCode)) throw Error('Built Android number differs from the requested number.');
   if (build.appVersion !== app.expo.version) throw Error('Built app version differs from requested version.');
-  if (build.project?.id !== projectId) throw Error('Built Expo project differs from expected project.');
+  if (build.app?.id !== projectId) throw Error('Built Expo project differs from expected project.');
   return {
     build_id: build.id, platform: build.platform, status: build.status,
     build_url: `https://expo.dev/accounts/${app.expo.owner}/projects/${app.expo.slug}/builds/${build.id}`,

@@ -2,6 +2,26 @@
 
 Deferred ideas and investigations to revisit as aiNavLog develops. These entries are not committed delivery plans. Explicit scope decisions are noted per entry.
 
+## CI/CD maintenance todo
+
+Capture actionable workflow notices here as they appear, with a source, next action
+and completion evidence. Track informational notices without treating them as failures.
+
+- [ ] **Verify Ubuntu 26.04 runner compatibility.** Added October 20, 2026,
+  from the annotation on [Android run 39523673243](https://github.com/amanlig/aiNavLog/actions/runs/39523673243).
+  Owner also observed the same notice in the iOS build; this applies to both
+  mobile delivery paths and their shared checks.
+  GitHub is migrating `ubuntu-latest` from Ubuntu 24.04 to 26.04 between
+  October 19 and November 19, 2026; see [runner-images announcement #14748](https://github.com/actions/runner-images/issues/14748).
+  Review `.github/workflows/ainavlog-checks.yml`, `ainavlog-android.yml` and
+  `ainavlog-ios.yml`. Verify shared checks and EAS CLI invocation on an explicitly
+  selected `ubuntu-26.04` runner in a review branch; reuse release evidence when
+  available rather than triggering unnecessary signed builds or store submissions.
+  Record the actual runner image and passing run links, then decide whether to keep
+  `ubuntu-latest` or pin a validated image. If compatibility fails, consider
+  `ubuntu-24.04` temporarily and retain a migration follow-up.
+  **Done when:** compatibility evidence and the runner-version decision are recorded.
+
 ## Maritime positioning and marketing
 
 - **Status:** Planned later; direction agreed October 12, 2026.
