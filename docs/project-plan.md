@@ -287,7 +287,7 @@ review for Oct 30; cross-platform qualification review follows Nov 13.
 
 ### Next week: Android and iOS CI/CD (Oct 19–23)
 
-**October 20 implementation update:** shared UI check workflow and manual iOS EAS build / optional TestFlight workflow are prepared locally. Typecheck, lint and tests pass locally. Publication, CI credentials, first hosted run and iPhone update evidence remain pending. Android delivery automation follows the iOS proof. See [CI/CD setup](mobile-ci-cd.md).
+**October 20 verified update:** shared hosted checks and both manual delivery workflows are operationally demonstrated. iOS 1.0.0 build 3 reached TestFlight and was owner-verified on iPhone 13. Android 1.0.0 code 3 passed signed build, receipt and exact-build Play internal submission; owner confirmed emulator update plus launch/navigation/demo/reopen checks. Physical Android verification, deliberate failed-check blocking evidence and Ubuntu runner migration follow-up remain open. Native Electrical integration remains separate. See [CI/CD evidence](mobile-ci-cd.md).
 
 Continue this under deployment workstream 2, in parallel
 with native Electrical. Proposed tooling is GitHub Actions for repository checks

@@ -35,3 +35,6 @@ credentials.json
 *.sqlite3-*
 *.db
 *.db-*
+
+# Local Google Play submission service-account key.
+/ainavlog-641a352352eb.json

@@ -1,8 +1,9 @@
-# aiNavLog CI/CD — iOS first
+# aiNavLog mobile CI/CD
 
 Verified October 20, 2026: shared GitHub checks, signed iOS build, exact-build
 App Store Connect upload and owner-confirmed verification on iPhone 13 have
-succeeded. Android delivery automation is next. The shared
+succeeded. Android signed build, exact-build Play internal submission and owner-confirmed
+emulator update to version code 3 have also succeeded. The shared
 checks already cover the common React Native/TypeScript code for both platforms.
 
 ## Pipeline
@@ -105,16 +106,20 @@ A workflow timeout/cancellation does not guarantee cancellation of a running EAS
 cloud build/submission. Release jobs are serialized with cancellation disabled;
 GitHub may replace pending runs in a concurrency group. Re-running all jobs may
 attempt a duplicate build number; choose a new unused number for a new build.
-There is no automatic production publication, OTA rollout or Android submission.
+There is no automatic production publication or OTA rollout. Android submission
+is available through its separate manual workflow.
 
 ## Android delivery implementation
 
-The local Android workflow now reuses shared checks, the UI-scoped wrapper,
+The published Android workflow reuses shared checks, the UI-scoped wrapper,
 exact-build receipts and a manual trigger with optional internal-track submission.
 See [Android CI/CD setup and acceptance](android-ci-cd.md) for the GitHub environment,
 EAS-managed Google service account and first-run checklist. The initial manual Play
-release is already recorded; automated upload and an installed Android update still
-need verification.
+release is already recorded. [Run 39525703279](https://github.com/amanlig/aiNavLog/actions/runs/39525703279)
+passed signed build, receipt and exact-build Google Play submission for 1.0.0,
+version code 3. Owner supplied ADB confirmation of code 3 installed on the emulator
+and confirmed launch, navigation, Electrical demo and close/reopen checks.
+Physical Android validation remains pending.
 
 ## Verified evidence — October 20, 2026
 
@@ -134,6 +139,7 @@ need verification.
 ## Evidence still required
 
 - Intentionally failed-check blocking demonstration.
-- Hosted Android workflow execution, Google submission credentials and installed update.
+- Physical Android install/update verification.
+- Ubuntu 26.04 runner compatibility follow-up in [backlog](backlog.md).
 - Native Bluetooth/Rust/phone SQLite and eventual stored-data update retention;
   the verified binaries remain the labeled UI/demo.

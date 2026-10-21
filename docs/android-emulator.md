@@ -51,3 +51,31 @@ availability blocker is superseded for this installation. Launch, navigation,
 demo readings, background/resume and installed version still need validation;
 physical-device installation remains a separate milestone. See the
 [October 16 handoff](status/status-2026-10-16.md).
+
+## CI update verification — October 20, 2026
+
+Owner confirmed update from version code 1 to code 3 (versionName 1.0.0)
+using ADB on `emulator-5554`. Owner subsequently confirmed code-3 launch/navigation/demo/reopen checks passed; see below.
+If ADB lists no devices, relaunch the emulator and retry from a new Windows
+PowerShell terminal; this recovered detection in this session.
+
+Open the app's Play Store page directly when needed:
+
+```powershell
+& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" -s emulator-5554 shell am start -a android.intent.action.VIEW -d "market://details?id=com.kodekomplete.com.ainavlog" -p com.android.vending
+```
+
+Check the installed version:
+
+```powershell
+& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" -s emulator-5554 shell dumpsys package com.kodekomplete.com.ainavlog | Select-String "versionCode|versionName"
+```
+
+## Android code-3 emulator checks passed — October 20, 2026
+
+Owner confirmed launch, navigation, Electrical demo and close/reopen checks pass
+for installed version 1.0.0, Android version code 3 on `aiNavLog_Pixel`
+(`emulator-5554`). This completes owner-reported emulator acceptance for the
+first automated Android internal-testing delivery (run 39525703279).
+Physical Android verification and native Bluetooth/Rust/phone SQLite validation
+remain separate; this is the demo-mode UI build.

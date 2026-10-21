@@ -1,7 +1,7 @@
 # Android CI/CD — Play internal testing
 
 Prepared October 20, 2026, following owner verification of iOS 1.0.0 build 3
-on iPhone 13. Android automation has not yet been demonstrated against Play.
+on iPhone 13. Android automation was demonstrated against Play later the same day; see the verified evidence below.
 
 The manual **aiNavLog Android Play internal** workflow runs shared checks before
 using the `ainavlog-play-internal` environment. It builds an AAB with EAS CLI
@@ -50,3 +50,38 @@ workflow can attempt a duplicate code; dispatch a fresh code for a new build.
 
 References: [EAS submission profiles](https://docs.expo.dev/submit/eas-json/) and
 [CI builds](https://docs.expo.dev/build/building-on-ci/).
+
+## Android full delivery verified — October 20, 2026
+
+[Run 39525703279](https://github.com/amanlig/aiNavLog/actions/runs/39525703279)
+passed shared checks, signed Android build, corrected receipt validation, artifact
+upload and exact-build submission to Google Play internal testing. Source commit:
+`4452c54eac2445ae7e7c91c4275cc0c41bca66e2`; version 1.0.0, Android code 3.
+[EAS build 545a1817-6886-4b8a-9c4d-ebfd9fcac284](https://expo.dev/accounts/kode-komplete-software-services-ltd/projects/ainavlog-mobile/builds/545a1817-6886-4b8a-9c4d-ebfd9fcac284).
+[EAS submission 78f899fc-bd3d-4252-9bb8-dab34c6b4f69](https://expo.dev/accounts/kode-komplete-software-services-ltd/projects/ainavlog-mobile/submissions/78f899fc-bd3d-4252-9bb8-dab34c6b4f69).
+Job logs explicitly confirmed submission to Google Play. Play processing, tester
+availability and an installed Android update remain unverified. Demo builds do
+not establish native Bluetooth/Rust/phone SQLite functionality.
+
+## Android emulator updated to CI build 3 — October 20, 2026
+
+Owner supplied ADB output from `emulator-5554` confirming the installed package
+`com.kodekomplete.com.ainavlog` has `versionCode=3` and `versionName=1.0.0`,
+after opening its Play Store page and updating from code 1. This establishes
+owner-reported emulator installation of the version delivered by CI run
+39525703279. Launch/navigation/close-and-reopen checks for code 3 remain pending;
+physical Android and native Bluetooth/Rust/SQLite verification remain separate.
+
+ADB initially showed no connected devices. Restarting the ADB server alone did
+not resolve it; after emulator relaunch, the owner used a new Windows PowerShell
+terminal and ADB detected the emulator. When navigating the emulator UI was
+difficult, an ADB VIEW intent opened aiNavLog's Play Store page directly.
+
+## Android code-3 emulator checks passed — October 20, 2026
+
+Owner confirmed launch, navigation, Electrical demo and close/reopen checks pass
+for installed version 1.0.0, Android version code 3 on `aiNavLog_Pixel`
+(`emulator-5554`). This completes owner-reported emulator acceptance for the
+first automated Android internal-testing delivery (run 39525703279).
+Physical Android verification and native Bluetooth/Rust/phone SQLite validation
+remain separate; this is the demo-mode UI build.
