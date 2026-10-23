@@ -1,17 +1,41 @@
 # aiNavLog vertical implementation plan
 
-**Created:** October 5, 2026. **Rebaselined:** October 16, 2026.
+**Created:** October 5, 2026. **Rebaselined:** October 16, 2026. **Status updated:** October 23, 2026,
+using recorded evidence through October 23.
 **Target:** implementation foundation for the 2027 mobile beta. Dates use
 America/Vancouver. Feature windows are two calendar weeks, with Friday reviews.
 These are planning targets, not confirmed delivery or public-store release dates.
+
+## Completion checkpoint — October 23
+
+| Workstream | Recorded status | Remaining work |
+| --- | --- | --- |
+| Desktop/core/UI foundation | Complete: replay → Rust decoder/normalizer → host SQLite → HTTP → Electrical UI; host-tested C bridge | Mobile target packaging and native integration are separate |
+| First signed installs | Complete October 16: Android emulator and physical iPhone 13 | Physical Android verification |
+| Shared CI and both delivery workflows | Implemented and demonstrated October 20: hosted checks, signed builds, source/build receipts and exact-build store submission | Deliberately failing-check demonstration; Ubuntu runner compatibility review/migration |
+| iOS delivery acceptance | Build 3 CI delivery verified Oct 20; latest build-4 UI update owner-reported passed on iPhone 13 Oct 23 (build/device inferred from context) | Native-enabled update, phone-data retention and detailed native/lifecycle checks |
+| Android delivery acceptance | Code 3 CI delivery verified Oct 20; latest code-4 UI update owner-reported passed Oct 23 (build/emulator inferred from context) | Physical Android, radio/native integration and phone-data retention |
+| Native Electrical | Incomplete: distributed builds remain demo mode; no recorded mobile Rust/Bluetooth/phone SQLite completion | Packaging gate, native receiver/adapter, persistence and end-to-end device acceptance |
+| Engine, Route, Authentication, Route story | Planned; no completed vertical-slice acceptance recorded | Dependencies and acceptance described below |
+
+Evidence: [October 20 handoff](status/status-2026-10-20.md),
+[iOS CI run 39515378354](https://github.com/amanlig/aiNavLog/actions/runs/39515378354)
+and [Android CI run 39525703279](https://github.com/amanlig/aiNavLog/actions/runs/39525703279).
+See also [October 23 UI/build and owner acceptance](status/status-2026-10-23.md).
+Build 4 used direct EAS delivery; device acceptance is owner-reported, not independently observed.
+
+**Next session (owner-selected October 23):** integrate and test the Windows BMV
+simulator path on mobile. Current passed iOS/Android UI tests used app-generated
+demo data. Phone Bluetooth/Rust/SQLite prerequisites must be completed before
+claiming a simulator-to-phone pass. See [handoff](status/status-2026-10-23.md#next-session--windows-bmv-simulator-to-phone).
 
 ## Schedule
 
 | Slice | Revised window | Demo / review milestone | Working outcome |
 | --- | --- | --- | --- |
 | 1. Electrical — native completion | Oct 19–Nov 1, 2026; desktop/core/UI work from Oct 5–18 retained | Fri Oct 23 native packaging gate; Fri Oct 30 end-to-end review | BMV simulator Bluetooth → phone receiver → Rust decoder → phone SQLite → House/Starter UI, with failure and restart checks |
-| 2. Store deployment / beta distribution — parallel | Initial build/install milestone achieved Oct 16; updates and qualification ongoing | Fri Oct 30 native-build update review; Fri Nov 13 cross-platform evidence review | Reuse signed build paths; validate updates and data retention once native storage exists; finish Android runtime/device checks |
-| 2a. Android + iOS CI/CD — parallel deployment task | Oct 19–23, 2026 | Fri Oct 23 pipeline demonstration | Automated checks and controlled signed builds; Android internal testing and iOS TestFlight delivery paths, subject to store/API credential readiness |
+| 2. Store deployment / beta distribution — parallel | Initial installs achieved Oct 16; demo CI delivery/update acceptance achieved Oct 20; native qualification ongoing | Fri Oct 30 native-build update review; Fri Nov 13 cross-platform evidence review | Reuse signed build paths; validate updates and data retention once native storage exists; finish physical Android and native runtime checks |
+| 2a. Android + iOS CI/CD — delivery demonstrated | Oct 19–20, 2026 achieved; remaining acceptance open | Both delivery paths verified Oct 20; failed-check gate demonstration still pending | Hosted shared checks, signed builds, receipts and exact-build Play/TestFlight submissions complete; iPhone and emulator acceptance recorded |
 | 3. Engine | Nov 2–15, 2026 | Fri Nov 13 | Selected measurements through the shared pipeline; simulated-only scope if hardware/gateway remains unresolved |
 | 4. Route | Nov 16–29, 2026 | Fri Nov 27 | Record, save, reopen and display a route; permissions and location gaps explicit |
 | 5. Authentication / authorization | Nov 30–Dec 13, 2026 | Fri Dec 11 | Agreed ownership policy, provider/session flows and enforced local-record access |
@@ -29,7 +53,7 @@ Nov 2 represents work through Nov 1. Review diamonds occur within their windows.
 
 ```mermaid
 gantt
-    title aiNavLog — October 16 revised baseline
+    title aiNavLog — status October 23; evidence through October 20
     dateFormat YYYY-MM-DD
     axisFormat %b %d
     todayMarker off
@@ -37,12 +61,13 @@ gantt
     Desktop/core/UI foundation          :done, baseline, 2026-10-05, 2026-10-17
     First Android and iPhone installs    :milestone, done, installed, 2026-10-16, 0d
     section Parallel deployment
-    Android and iOS CI/CD                :cicd, 2026-10-19, 2026-10-24
-    Pipeline review                     :milestone, cicd_review, 2026-10-23, 0d
+    CI/CD implementation and delivery   :done, cicd, 2026-10-19, 2026-10-21
+    Both platform delivery accepted     :milestone, done, delivery_accepted, 2026-10-20, 0d
+    Failed-check proof and runner review :cicd_remaining, 2026-10-23, 2026-10-31
     Distribution and update checks      :delivery, 2026-10-19, 2027-02-01
     section Feature implementation
-    Native Electrical completion        :electrical, 2026-10-19, 2026-11-02
-    Native packaging gate               :milestone, native_gate, 2026-10-23, 0d
+    Native Electrical completion at risk :crit, electrical, 2026-10-19, 2026-11-02
+    Native packaging gate unverified    :milestone, crit, native_gate, 2026-10-23, 0d
     Electrical demo                     :milestone, electrical_demo, 2026-10-30, 0d
     Engine                              :engine, 2026-11-02, 2026-11-16
     Engine demo                         :milestone, engine_demo, 2026-11-13, 0d
@@ -60,7 +85,11 @@ gantt
 ```
 
 The delivery bar spans the programme but does not assume full holiday staffing.
-The Oct 23 review checks both CI/CD progress and its impact on native Electrical.
+CI/CD delivery was demonstrated Oct 20; failed-check blocking proof remains open.
+The Oct 23 native-packaging gate has no recorded completion evidence. Electrical
+Oct 30 and downstream dates remain provisional and at risk; reassess scope/capacity
+before treating Engine Nov 2 as a committed start. No replacement dates are assumed.
+The Oct 23–30 CI follow-up bar is a review target, not completion evidence.
 Public-store release is outside these scheduled milestones.
 
 ### October 16 checkpoint and reason for change
@@ -90,7 +119,7 @@ submission or purchase is triggered by this plan update.
 
 | Target | Evidence required |
 | --- | --- |
-| Oct 23 | Android/iOS CI/CD: passing check run, traceable signed build on each platform and gated internal distribution demonstrated; any missing submission credential remains explicit |
+| Oct 20 achieved; Oct 23 follow-up open | Both platforms passed hosted checks, signed build, receipt and exact-build internal delivery; owner device/emulator acceptance recorded. Demonstrate a deliberately failing check blocking delivery; review runner compatibility |
 | Oct 23 | Rust target-library packaging and Expo native adapter build feasibility demonstrated; platform permission/scanner design chosen; Electrical event-history additions sized |
 | Oct 30 | Physical iPhone simulator-to-native-UI path, denied Bluetooth/stale/recovery behaviour, and phone-local persistence across restart; remaining Android/physical-BMV gaps explicitly recorded |
 | Oct 30 | Deliver a native-enabled build through established distribution; verify updating the installed demo. Claim stored-reading retention only after phone storage exists and an update test passes |
@@ -122,10 +151,14 @@ platform verification must stay visible as a beta qualification gap.
 
 ## 1. Electrical
 
-**Status — October 16, 2026:** **Native completion in progress; Oct 16
+**Status — October 23, 2026:** **Native completion pending; Oct 16
 end-to-end goal rebaselined to Oct 30.** The mobile shell is distributed and
 installed. The iPhone 13 demo, navigation and reopen checks passed by owner
 confirmation. Demo readings do not establish Bluetooth reception or persistence.
+
+The Oct 23 native packaging gate remains unverified in the recorded evidence.
+The Oct 30 target is at risk; confirm a feasible remaining scope before starting Engine.
+Both CI-delivered builds still use demo data.
 
 **Prerequisites resolved:** Apple Developer membership is active; Google account
 verification and first signed build/distribution paths are established. Both
@@ -251,92 +284,53 @@ for the repeatable demonstration and browser test.
 
 ## 2. Store deployment and beta distribution
 
-**Status — October 16, 2026:** **First signed distribution/install milestone
-achieved; repeat-update and native-data retention qualification remain open.**
-Google Play internal release 1.0.0/code 1 is accepted; Android emulator installation
-and Home launch are confirmed. Apple membership is active; TestFlight build
-1.0.0 (1) was installed on a physical iPhone 13, and the owner confirmed Electrical
-demo/navigation/reopen checks passed. Installed iOS version and app build number
-were not separately read from the phone. Android physical-device and full runtime
-checks have not been reported.
+**Status — October 23, 2026:** initial signed installs and automated demo-build
+delivery/update acceptance are achieved. iOS 1.0.0 build 3 reached TestFlight and
+was owner-verified on physical iPhone 13. Android 1.0.0 code 3 reached Play internal
+testing; the owner confirmed the emulator update via ADB and passed launch,
+navigation, Electrical demo and close/reopen checks. Physical Android verification,
+native-enabled updates and phone-local record retention remain open.
 
-The shared package/bundle ID is `com.kodekomplete.com.ainavlog`. App Store Connect
-ID is `6823786033`. EAS builds both platforms; Android uses manual Play Console
-AAB upload, while iOS uses EAS Submit and TestFlight. Preserve the accepted signing
-keys/team and verify counters before future builds. The initial Android signing
-mismatch is historical and resolved, not a current blocker.
+The shared package/bundle ID is `com.kodekomplete.com.ainavlog`; App Store Connect
+ID is `6823786033`. EAS Build/Submit and GitHub Actions now provide both delivery
+paths. Expo and store submission credentials were configured privately and successful
+hosted submissions demonstrated their use. Preserve signing identities. Future builds
+must use unused counters above 3 after checking EAS and the relevant store; do not
+rerun a successful release simply to inspect status.
 
-See [October 16 evidence](status/status-2026-10-16.md),
-[build/deployment architecture](mobile-build-deployment.md),
-[Android deployment](android-manual-deployment.md) and
+### CI/CD completed and remaining acceptance
+
+Completed October 20:
+
+- Shared hosted UI checks: locked dependency installation, typecheck, lint and tests.
+- Manual iOS/Android workflows with checks dependencies, serialized release jobs,
+  explicit build counters and optional submission.
+- Signed builds, sanitized source/build receipts and submission of the exact validated
+  build ID to TestFlight and Google Play internal testing.
+- Owner-reported iPhone 13 verification and Android emulator update/runtime acceptance.
+
+Remaining:
+
+- Demonstrate intentionally failing checks blocking delivery on an isolated branch.
+- Review Ubuntu 26.04 runner compatibility and migration for both delivery paths.
+- Verify physical Android independently; emulator acceptance does not qualify Bluetooth.
+- Package and distribute native Electrical, then verify permissions, recovery and
+  phone-local persistence across restart and update on each supported platform.
+- Add mobile Rust-target checks when native integration is available. Current hosted
+  shared checks cover UI/workflow paths, not Rust formatting/Clippy/mobile compilation.
+
+Workflows use paths relative to this standalone repository (`user-interface/` and
+`.github/workflows/`). Release archives remain scoped to the UI. Manual dispatch is
+the demonstrated trigger; additional environment reviewer/branch protection is not
+claimed as verified. Public-store publication remains a separate decision.
+
+See [October 20 evidence](status/status-2026-10-20.md),
+[shared/iOS CI/CD](mobile-ci-cd.md), [Android CI/CD](android-ci-cd.md),
+[build/deployment architecture](mobile-build-deployment.md) and
 [iOS workflow](ios-testflight.md).
 
-**Objective:** establish an environment where a tested change can be built, installed
-and released to testers quickly and repeatedly. This workstream starts with the app
-shell and continues through all feature slices; it does not wait for Electrical completion.
-
-**Initial setup (Oct 5–16):** completed account/signing configuration, scoped UI
-upload wrappers, signed artifacts, Android emulator install and physical iPhone
-UI/demo validation. These are build/install milestones, not native Electrical completion.
-
-**Oct 19–Nov 1:** distribute the native Electrical increment, confirm installed-app
-updates on iPhone and the Android test environment, and test durable readings
-across restart/update once phone storage is implemented. Record Android physical
-hardware and untested lifecycle conditions separately. Target the native-update
-review for Oct 30; cross-platform qualification review follows Nov 13.
-
-### Next week: Android and iOS CI/CD (Oct 19–23)
-
-**October 20 verified update:** shared hosted checks and both manual delivery workflows are operationally demonstrated. iOS 1.0.0 build 3 reached TestFlight and was owner-verified on iPhone 13. Android 1.0.0 code 3 passed signed build, receipt and exact-build Play internal submission; owner confirmed emulator update plus launch/navigation/demo/reopen checks. Physical Android verification, deliberate failed-check blocking evidence and Ubuntu runner migration follow-up remain open. Native Electrical integration remains separate. See [CI/CD evidence](mobile-ci-cd.md).
-
-Continue this under deployment workstream 2, in parallel
-with native Electrical. Proposed tooling is GitHub Actions for repository checks
-and orchestration, with Expo EAS Build/Submit for native builds and store uploads.
-Confirm repository access and runner/credential requirements during implementation.
-The existing scoped UI wrappers and accepted signing identities are the baseline.
-
-| Day / checkpoint | Planned work |
-| --- | --- |
-| Mon Oct 19 | Define workflow triggers, paths, environments, artifact scope and credential ownership; establish protected internal-release configuration |
-| Tue Oct 20 | CI: UI typecheck/lint/tests and relevant JS exports; Rust formatting/Clippy/tests and bridge smoke checks on affected changes |
-| Wed Oct 21 | CD build: signed Android AAB and iOS IPA through EAS; deliberate version/build increments, serialized releases and traceable artifact/build IDs |
-| Thu Oct 22 | Connect gated delivery to Google Play internal testing and App Store Connect/TestFlight; preserve manual fallback where store API access is unfinished |
-| Fri Oct 23 | Demonstrate check failure blocking delivery, successful builds, approved internal delivery and failure reporting; record remaining gaps and capacity impact |
-
-**CI behaviour:** run on relevant pull requests and main-branch changes, with
-monorepo path filters for `aiNavLog/`. Separate checks that require no secrets
-from authenticated release jobs. Build archives must remain rooted in the UI;
-never upload sibling investment data, model credentials or private local files.
-Add mobile Rust-target checks as native integration becomes available; the
-host-tested C bridge alone is not proof of mobile compilation.
-
-**CD behaviour:** begin with explicit/manual or release-tag triggering and a
-protected approval gate for internal distribution. Build and submit the same
-verified artifact, record source commit, package ID, version/build, checksum,
-EAS build/submission IDs and destination track/group. Retain internal releases
-on Google Play and TestFlight; public production publication is a separate
-owner decision. Do not silently select the latest unrelated build for submission.
-A failed check, build or upload must not be reported as tester availability.
-
-**Credentials and prerequisites:** scope Expo authentication and any Google Play
-service account/App Store Connect API key to the required jobs and stores. Keep
-secrets in protected CI/EAS configuration, not Git or logs. Reuse existing Android
-upload signing and the iOS team/bundle ID `com.kodekomplete.com.ainavlog`;
-iOS App Store Connect ID is `6823786033`. Configure service/API access during
-next week's implementation; no new credentials or external account changes are
-created by this planning entry. Android's current manual upload remains the
-fallback until automated Play submission is verified.
-
-**Acceptance:** show a passing CI run and a deliberately failing check blocking
-release; verify signed artifacts for both platforms and internal-track/TestFlight
-delivery where credentials allow. Confirm an installed-app update as the native
-increment becomes ready. Test preservation of phone-local records only after
-that storage exists. If credentials prevent automated upload, record build-only
-completion and an open CD gap rather than calling the pipeline finished.
-
-**Capacity:** this is additional work next week, not spare capacity assumed free.
-Review its impact on the Oct 23 native-packaging gate and Oct 30 Electrical demo;
-if either is threatened, explicitly replan priorities/dates at the Oct 23 review.
+The Oct 30 native-update and Nov 13 cross-platform reviews remain targets, dependent
+on native integration. Current demo acceptance establishes no phone-data retention.
 
 **Repeatable release workflow:** validate a concrete change → produce a versioned,
 signed artifact → install and smoke-test → distribute to the selected testers →
@@ -346,7 +340,7 @@ installation times so we can measure and reduce release turnaround. Add automati
 for repeatable checks/build steps as they are validated. Reuse this workflow during
 each feature slice rather than reserving distribution for its end.
 
-**Done for initial setup:** reproducible build commands/configuration are documented;
+**Distribution acceptance criteria (partly achieved; native-data retention open):** reproducible build commands/configuration are documented;
 traceable signed artifacts install on the target devices; testers can receive builds;
 and a second build updates successfully with local data retained. Target-platform
 gaps remain explicit. Completion depends on observed installs/updates, not only a
@@ -463,8 +457,8 @@ to assign; access, budgets and supplier commitments are not assumed confirmed.
 
 | ID / priority | External dependency | Risk and affected outcome | Mitigation / fallback | Proposed owner / resolution checkpoint |
 | --- | --- | --- | --- | --- |
-| RISK-01 / High | Apple Developer Program, App Store Connect, signing and TestFlight/App Review. **Initial setup resolved Oct 16:** membership active, signed TestFlight build and iPhone 13 install/demo checks confirmed; updates and later review remain open. | Enrollment or account access, signing failures, review rejection or resubmission can delay iPhone installs and distribution. Reviewers may be unable to exercise hardware-dependent screens. | Establish account ownership and signing during Electrical; prove a signed install early. Prepare accurate privacy/permission disclosures and reviewer demo access with clearly labeled simulated data. Reserve review/rework contingency; distinguish internal testing, external beta approval and public publication. | Product owner: accounts/access; developer: signing/submission. Initial install achieved Oct 16; native-build/update review Oct 30; final readiness review Jan 29. |
-| RISK-02 / High | Google Play Console, account verification, app signing, testers and review. **Confirmed Oct 13:** organization developer account created, paid and verified; internal release available Oct 14; emulator install/Home launch confirmed Oct 16; physical Android, native reception and production review remain pending. | Later native builds, signing compatibility, tester access or store review can delay Android delivery. This is an organization account; do not apply personal-account waiting periods as a current project blocker. | Preserve the accepted upload key and package. Test installed-app updates, complete Android runtime/device evidence and recruit representative beta testers. Review production requirements when public submission is planned. | Product owner: account/tester coordination; developer: artifacts/submission. Initial account/distribution achieved; native-update checkpoint Oct 30; Android qualification review Nov 13; production readiness separately. |
+| RISK-01 / High | Apple Developer Program, App Store Connect, signing and TestFlight/App Review. **Initial setup resolved Oct 16; CI delivery verified Oct 20:** TestFlight build 3 owner-verified on iPhone 13; native updates and later review remain open. | Enrollment or account access, signing failures, review rejection or resubmission can delay iPhone installs and distribution. Reviewers may be unable to exercise hardware-dependent screens. | Establish account ownership and signing during Electrical; prove a signed install early. Prepare accurate privacy/permission disclosures and reviewer demo access with clearly labeled simulated data. Reserve review/rework contingency; distinguish internal testing, external beta approval and public publication. | Product owner: accounts/access; developer: signing/submission. Initial install achieved Oct 16; native-build/update review Oct 30; final readiness review Jan 29. |
+| RISK-02 / High | Google Play Console, account verification, app signing, testers and review. **Confirmed Oct 13:** organization developer account created, paid and verified; internal release available Oct 14; emulator install confirmed Oct 16; CI-delivered code 3 update/runtime checks passed Oct 20; physical Android, native reception and production review remain pending. | Later native builds, signing compatibility, tester access or store review can delay Android delivery. This is an organization account; do not apply personal-account waiting periods as a current project blocker. | Preserve the accepted upload key and package. Test installed-app updates, complete Android runtime/device evidence and recruit representative beta testers. Review production requirements when public submission is planned. | Product owner: account/tester coordination; developer: artifacts/submission. Initial account/distribution achieved; native-update checkpoint Oct 30; Android qualification review Nov 13; production readiness separately. |
 | RISK-03 / High | Engine manufacturer, installed engine/ECU, available sensors and compatible gateway | **The engine device interface is currently unknown.** Signals may be analog, proprietary or available only through an unconfirmed gateway. Missing public protocol documentation, unsupported measurements, no beta-compatible Bluetooth path, cost or procurement delays can prevent a real engine vertical slice within two weeks. | Identify engine make/model/year, existing instruments, connectors, protocols and required measurements. Verify vendor documentation and a feasible read-only Bluetooth gateway before claiming support. Build a simulator behind the same interface. If unresolved, deliver a clearly simulated engine UI and explicitly defer/replan physical integration; do not silently substitute Wi-Fi or infer compatibility. | Product owner: boat/engine details and access; developer: protocol/gateway feasibility. Discovery Oct 23; source/simulated-only scope decision Oct 30 before Engine starts Nov 2. |
 | RISK-04 / High | Victron BMV-712 hardware, firmware, owner setup and boat access | Simulator success may not match actual broadcasts, auxiliary starter voltage or installed shunt measurements. Key provisioning, configuration or unavailable boat access can delay qualification. | Validate the actual model/firmware and advertisement key; configure auxiliary voltage and battery parameters; compare house and starter readings with reference measurements. Keep simulator and live data visibly distinct. Physical qualification remains a release prerequisite, with dates assigned once access is known. | Product owner: hardware/access; developer: interoperability. Access plan Oct 23; physical session target assigned at Oct 30 review; evidence required before beta acceptance. |
 | RISK-05 / High | iOS/Android native Bluetooth/location APIs, device permissions and mobile build tooling | Rust bridge/packaging or OS permission/lifecycle restrictions may prevent reliable reception, recording or background behavior despite passing desktop tests. Build service availability or required native tooling may delay installs. | Choose the build/install workflow in Electrical; demonstrate BLE-to-UI on the physical iPhone early and validate Android separately. Test denied permissions, stale data, reconnect and restart. Explicitly limit unsupported background behavior rather than assume parity. | Developer. Native packaging gate Oct 23; end-to-end Electrical Oct 30; location/lifecycle Nov 27. |

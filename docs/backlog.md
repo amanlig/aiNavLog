@@ -2,6 +2,23 @@
 
 Deferred ideas and investigations to revisit as aiNavLog develops. These entries are not committed delivery plans. Explicit scope decisions are noted per entry.
 
+## In-app version checks and updates
+
+- [ ] **Add Profile → Check for updates.**
+- **Status:** Shelved at the owner's request, October 23, 2026; no delivery date.
+- **Desired flow:** Check → show current / available version → confirm update →
+  download → restart, with useful offline, failure and cancellation states.
+- **Investigate:** Expo EAS Update for compatible JavaScript/assets on both platforms;
+  native/runtime changes still require new signed store builds. Enabling OTA requires
+  an initial native build, runtime compatibility policy and tested release channels.
+  Android full-binary updates may use Google Play's in-app update flow; iPhone
+  native beta updates continue through TestFlight. Do not promise silent native installs.
+- **Done when:** Agreed scope works on physical iPhone/Android, handles no-update,
+  offline/error and incompatible-runtime cases, and preserves local preferences/data.
+
+The provisional store-opening Profile item was removed when this work was shelved.
+No OTA configuration, publishing or new release build was initiated for this feature.
+
 ## CI/CD maintenance todo
 
 Capture actionable workflow notices here as they appear, with a source, next action

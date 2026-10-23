@@ -141,3 +141,5 @@ The Electrical home card links to Historical Usage (`/elec/history`) and
 Maintenance Logs (`/elec/maintenance`). These screens currently show explicit empty
 states; historical storage/charts and maintenance recording remain unimplemented.
 The Electrical heading opens the existing battery overview.
+
+In-app version checks and updates are deferred; see [backlog](../docs/backlog.md#in-app-version-checks-and-updates).
