@@ -125,3 +125,19 @@ unavailable service shows a retry message, and receipt timestamps older than fiv
 seconds hide readings. The bridge reads existing SQLite data without creating the
 database. Starter amps/SOC remain unavailable. Demo mode is selected only by leaving
 `EXPO_PUBLIC_DEVICE_INTERFACE_URL` unset.
+
+### Home overview and preferences
+
+Home summarizes fresh Electrical readings using the same data client and freshness
+rules as `/elec`; Engine and Routes remain placeholders. Tap the boat name in the
+header to open the boat profile and rename it (1–40 characters). Open Settings
+inside the profile to choose White or Black.
+Save persists both preferences locally on this device/browser using AsyncStorage;
+Cancel discards edits. Preferences apply across the app and do not sync to an account.
+The added native storage dependency requires a new native build for existing store
+installs. Web validation does not establish native-device acceptance.
+
+The Electrical home card links to Historical Usage (`/elec/history`) and
+Maintenance Logs (`/elec/maintenance`). These screens currently show explicit empty
+states; historical storage/charts and maintenance recording remain unimplemented.
+The Electrical heading opens the existing battery overview.

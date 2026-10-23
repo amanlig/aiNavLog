@@ -1,3 +1,4 @@
+import { usePreferences } from '../../preferences/Preferences';
 import { AppHeader } from '../../components/AppHeader';
 import { Link } from 'expo-router';
 import Svg, { Circle, Path } from 'react-native-svg';
@@ -9,9 +10,13 @@ import { useElectrical } from '../../electrical/use-electrical';
 
 const C = { background: '#f0f6fb', panel: '#FFFFFF', ink: '#092443', muted: '#536780', line: '#e3edf5', accent: '#16887f', amber: '#925D13' };
 function Metric({ label, value, unit }: { label: string; value: string; unit: string }) {
+  const { colors: C } = usePreferences();
+  const s = makeStyles(C);
   return <View style={s.metric}><Text style={s.label}>{label}</Text><Text style={s.metricValue}>{value} <Text style={s.unit}>{unit}</Text></Text></View>;
 }
 export default function ElectricalScreen() {
+  const { colors: C } = usePreferences();
+  const s = makeStyles(C);
   const wide = useWindowDimensions().width > 560;
   const { sample, now, error, live } = useElectrical();
   const fresh = isFresh(sample, now);
@@ -50,17 +55,19 @@ function Icon({ name, size = 18 }: { name: 'compass' | 'house' | 'power' | 'arro
   </Svg>;
 }
 function BatteryGauge({ charge, label }: { charge: number | null | undefined; label: string }) {
+  const { colors: C } = usePreferences();
+  const s = makeStyles(C);
   const available = charge != null && Number.isFinite(charge);
   return <View accessible accessibilityLabel={available ? `${label} battery: ${charge.toFixed(1)} percent charge` : `${label} battery charge unavailable`} style={s.gauge}>
     <View style={s.terminal} /><View style={s.well}><View style={[s.fill, { width: `${available ? Math.min(100, Math.max(0, charge)) : 0}%` }]} /></View>
     <View style={s.gaugeIcon}>{available ? <Icon name="zap" size={26} /> : <Text style={s.unavailable}>—</Text>}</View>
   </View>;
 }
-const s = StyleSheet.create({
+const makeStyles = (C: ReturnType<typeof usePreferences>['colors']) => StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#153b5e' }, scroll: { backgroundColor: C.background }, page: { paddingHorizontal: 22, paddingVertical: 32, maxWidth: 1680, width: '100%', alignSelf: 'center', gap: 18 }, back: { color: C.accent, paddingVertical: 12, fontSize: 16 },
   shell: { backgroundColor: C.background }, header: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 12, paddingVertical: 20, paddingHorizontal: 26, backgroundColor: C.panel, borderBottomWidth: 1, borderBottomColor: C.line }, brandRow: { flexDirection: 'row', alignItems: 'center', gap: 9 }, brand: { color: C.ink, fontSize: 17, fontWeight: '600', letterSpacing: -0.5 }, badge: { color: C.muted, fontSize: 11, fontWeight: '600', letterSpacing: 1 },
   body: { gap: 18 }, eyebrow: { color: C.muted, letterSpacing: 1.8, fontSize: 11, fontWeight: '600', marginTop: 8 }, title: { color: C.ink, fontSize: 32, fontWeight: '700', letterSpacing: -0.8, textAlign: 'center' }, wideTitle: { fontSize: 48 }, subtitle: { color: C.muted, fontSize: 18, lineHeight: 27, textAlign: 'center' }, grid: { gap: 20, marginTop: 10 }, wideGrid: { flexDirection: 'row', gap: 28 }, batteryCard: { flex: 1, minWidth: 0, padding: 28, borderRadius: 12, backgroundColor: C.panel, borderWidth: 1, borderColor: C.line }, cardTitle: { fontSize: 26, fontWeight: '700', color: C.ink }, purpose: { fontSize: 12, color: C.muted, marginTop: 5, marginLeft: 27 },
-  gauge: { width: 164, height: 102, borderWidth: 2, borderColor: C.line, borderRadius: 14, padding: 7, alignSelf: 'center', marginTop: 34, marginBottom: 22 }, terminal: { position: 'absolute', right: -9, top: 32, width: 6, height: 32, backgroundColor: C.line, borderTopRightRadius: 4, borderBottomRightRadius: 4 }, well: { flex: 1, backgroundColor: '#e7eeeb', borderRadius: 7, overflow: 'hidden' }, fill: { height: '100%', backgroundColor: C.accent, borderRadius: 6, opacity: 0.85 }, gaugeIcon: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }, unavailable: { color: C.muted, fontSize: 28 }, statusRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, minHeight: 40, marginBottom: 16 }, direction: { color: C.muted, fontSize: 12, lineHeight: 20, flexShrink: 1 },
-  metrics: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, borderTopWidth: 1, borderTopColor: C.line, paddingTop: 20 }, metric: { flexGrow: 1, minWidth: 70, gap: 8 }, label: { color: C.muted, fontSize: 11 }, metricValue: { fontSize: 23, letterSpacing: -0.8, color: C.ink, fontVariant: ['tabular-nums'], fontWeight: '600' }, unit: { fontSize: 12, color: C.muted, fontWeight: '400', letterSpacing: 0 }, footRow: { flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, paddingTop: 18 }, note: { fontSize: 14, lineHeight: 21, color: '#637c95' }, warning: { color: C.amber, fontSize: 13, lineHeight: 20 },
+  gauge: { width: 164, height: 102, borderWidth: 2, borderColor: C.line, borderRadius: 14, padding: 7, alignSelf: 'center', marginTop: 34, marginBottom: 22 }, terminal: { position: 'absolute', right: -9, top: 32, width: 6, height: 32, backgroundColor: C.line, borderTopRightRadius: 4, borderBottomRightRadius: 4 }, well: { flex: 1, backgroundColor: C.line, borderRadius: 7, overflow: 'hidden' }, fill: { height: '100%', backgroundColor: C.accent, borderRadius: 6, opacity: 0.85 }, gaugeIcon: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }, unavailable: { color: C.muted, fontSize: 28 }, statusRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, minHeight: 40, marginBottom: 16 }, direction: { color: C.muted, fontSize: 12, lineHeight: 20, flexShrink: 1 },
+  metrics: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, borderTopWidth: 1, borderTopColor: C.line, paddingTop: 20 }, metric: { flexGrow: 1, minWidth: 70, gap: 8 }, label: { color: C.muted, fontSize: 11 }, metricValue: { fontSize: 23, letterSpacing: -0.8, color: C.ink, fontVariant: ['tabular-nums'], fontWeight: '600' }, unit: { fontSize: 12, color: C.muted, fontWeight: '400', letterSpacing: 0 }, footRow: { flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, paddingTop: 18 }, note: { fontSize: 14, lineHeight: 21, color: C.muted }, warning: { color: C.amber, fontSize: 13, lineHeight: 20 },
 
 });
