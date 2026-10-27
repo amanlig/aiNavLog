@@ -25,6 +25,24 @@ int32_t ainavlog_ingest(uint64_t handle, const char *source, uint16_t company,
  * Native wrapper must map absent values to JS null and retain received_ms for
  * UI freshness checks. Source/live-vs-simulated metadata belongs to the adapter. */
 int32_t ainavlog_latest(uint64_t handle, ainavlog_electrical_sample *output);
+/* Mobile feature: foreground public Windows BMV simulator only (product 1234).
+ * start opens/reopens its private SQLite session and launches btleplug scanning.
+ * Stop before closing/replacing its handle. All functions run off the UI thread.
+ * status: 0 stopped, 10 starting/scanning, 11 receiving, -2 retrying after error.
+ * Read freshness from received_ms; status 11 alone does not establish freshness.
+ * stop joins the scanner and closes its session. Only one scanner is supported. */
+int32_t ainavlog_simulator_start(const char *path, uint64_t *handle);
+int32_t ainavlog_simulator_stop(void);
+int32_t ainavlog_simulator_status(void);
+typedef struct {
+    uint64_t packets, samples, source_changes;
+} ainavlog_simulator_counters;
+/* Current session counters; stopped sessions return zero counters. */
+int32_t ainavlog_simulator_diagnostics(ainavlog_simulator_counters *output);
+#ifdef __ANDROID__
+/* Call on a Java-entered thread after permissions, before start; env is JNIEnv*. */
+int32_t ainavlog_android_init(void *env);
+#endif
 #ifdef __cplusplus
 }
 #endif

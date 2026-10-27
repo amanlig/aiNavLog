@@ -1,0 +1,3 @@
+-keep class com.nonpolynomial.btleplug.** { *; }
+-keep class io.github.gedgygedgy.rust.** { *; }
+-keep class expo.modules.ainavlog.Bridge { *; }

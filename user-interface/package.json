@@ -4,10 +4,10 @@
   "main": "expo-router/entry",
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
-    "expo": "~57.0.28",
-    "expo-constants": "~57.0.21",
-    "expo-linking": "~57.0.12",
-    "expo-router": "~57.0.26",
+    "expo": "~57.0.31",
+    "expo-constants": "~57.0.22",
+    "expo-linking": "~57.0.13",
+    "expo-router": "~57.0.29",
     "expo-status-bar": "~57.0.1",
     "expo-system-ui": "~57.0.4",
     "react": "19.2.3",
@@ -43,7 +43,10 @@
     "ios:submit": "node scripts/eas-ios.mjs submit",
     "ios:credentials": "node scripts/eas-ios.mjs credentials",
     "android:submit": "node scripts/eas-android.mjs submit",
-    "android:credentials": "node scripts/eas-android.mjs credentials"
+    "android:credentials": "node scripts/eas-android.mjs credentials",
+    "eas-build-pre-install": "node scripts/build-native.mjs",
+    "native:prepare": "node scripts/prepare-native.mjs",
+    "eas-build-post-install": "node scripts/check-native-link.mjs"
   },
   "private": true,
   "engines": {

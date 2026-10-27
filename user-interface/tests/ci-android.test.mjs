@@ -13,9 +13,10 @@ const env = { EXPO_TOKEN: 'test-token', ANDROID_VERSION_CODE: '2', GITHUB_SHA: '
 const build = { id: '12345678-1234-1234-1234-123456789abc', platform: 'ANDROID', status: 'FINISHED', appBuildVersion: '2', appIdentifier: app.expo.android.package, appVersion: app.expo.version, app: { id: app.expo.extra.eas.projectId } };
 
 test('prepare changes only the runner Android number, preserving iOS and source objects', () => {
+  const original = structuredClone(app);
   const result = prepare(app, eas, env);
   assert.equal(result.expo.android.versionCode, 2);
-  assert.equal(app.expo.android.versionCode, 1);
+  assert.deepEqual(app, original);
   assert.deepEqual(result.expo.ios, app.expo.ios);
 });
 
@@ -58,7 +59,7 @@ require('node:fs').writeFileSync(process.env.CI_CAPTURE_FILE, JSON.stringify({ a
     assert.equal(capture.cwd, fileURLToPath(new URL('../', import.meta.url)).replace(/\/$/, ''));
     assert.equal(capture.root, capture.cwd);
     assert.equal(capture.vcs, '1');
-    assert.equal(capture.demo, '1');
+    assert.equal(capture.demo, '0');
     assert.equal(capture.endpoint, '');
     assert.deepEqual(capture.args, ['--yes', 'eas-cli@24.13.0', 'submit', '--platform', 'android', '--profile', 'play-internal', '--id', build.id, '--non-interactive', '--wait']);
   } finally { rmSync(temp, { recursive: true, force: true }); }

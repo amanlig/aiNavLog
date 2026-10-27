@@ -31,8 +31,14 @@ credentials.json
 .agents/
 .git/
 builds/
+**/target/
 coverage/
 tests/
 README.md
 AGENTS.md
 LICENSE
+
+# Cargo validates test paths declared by the shared crate, even for --lib builds.
+!modules/ainavlog/rust/device-interface/tests/
+!modules/ainavlog/rust/device-interface/tests/**
+!modules/ainavlog/rust/device-interface/vendor/README.md

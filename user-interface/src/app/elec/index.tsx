@@ -2,7 +2,7 @@ import { usePreferences } from '../../preferences/Preferences';
 import { AppHeader } from '../../components/AppHeader';
 import { Link } from 'expo-router';
 import Svg, { Circle, Path } from 'react-native-svg';
-import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { isFresh, reading } from '../../electrical/model';
@@ -18,7 +18,7 @@ export default function ElectricalScreen() {
   const { colors: C } = usePreferences();
   const s = makeStyles(C);
   const wide = useWindowDimensions().width > 560;
-  const { sample, now, error, live } = useElectrical();
+  const { sample, now, error, diagnostics, live, native, connected, busy, connect, disconnect } = useElectrical();
   const fresh = isFresh(sample, now);
   const charge = fresh ? sample?.houseCharge : null;
   const current = fresh ? sample?.houseCurrent : null;
@@ -28,6 +28,14 @@ export default function ElectricalScreen() {
     <View style={s.shell}>
       <View style={s.body}>
         <Text style={s.eyebrow}>ONBOARD ELECTRICAL</Text><Text accessibilityRole="header" style={[s.title, wide && s.wideTitle]}>Your power, at a glance.</Text><Text style={s.subtitle}>House and starter battery monitoring.</Text>
+        {native && <View style={s.batteryCard}>
+          <Text style={s.cardTitle}>Windows BMV simulator</Text>
+          <Text style={s.note}>Receives simulated battery readings over Bluetooth while aiNavLog is open. Keep the Windows simulator broadcasting nearby.</Text>
+          <Pressable accessibilityRole="button" disabled={busy} onPress={() => { void (connected ? disconnect() : connect()); }} style={s.back}>
+            <Text style={{ color: C.accent }}>{busy ? 'Please wait…' : connected ? 'Disconnect simulator' : 'Connect simulator'}</Text>
+          </Pressable>
+          {connected && diagnostics && <Text style={s.note}>Receiver details: {diagnostics.packets} packets · {diagnostics.samples} updates · {diagnostics.sourceChanges} source changes</Text>}
+        </View>}
         <View style={[s.grid, wide && s.wideGrid]}>
           <View style={s.batteryCard}>
             <View style={s.brandRow}><Icon name="house" /><Text accessibilityRole="header" style={s.cardTitle}>House battery</Text></View><Text style={s.purpose}>Cabin lights, fridge & electronics</Text>

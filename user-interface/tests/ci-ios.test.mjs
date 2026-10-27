@@ -13,9 +13,10 @@ const env = { EXPO_TOKEN: 'test-token', IOS_BUILD_NUMBER: '2', GITHUB_SHA: 'sour
 const build = { id: '12345678-1234-1234-1234-123456789abc', platform: 'IOS', status: 'FINISHED', appBuildVersion: '2' };
 
 test('prepare changes only the runner iOS number, preserving Android and source objects', () => {
+  const original = structuredClone(app);
   const result = prepare(app, eas, env);
   assert.equal(result.expo.ios.buildNumber, '2');
-  assert.equal(app.expo.ios.buildNumber, '1');
+  assert.deepEqual(app, original);
   assert.deepEqual(result.expo.android, app.expo.android);
 });
 
@@ -58,7 +59,7 @@ require('node:fs').writeFileSync(process.env.CI_CAPTURE_FILE, JSON.stringify({ a
     assert.equal(capture.cwd, fileURLToPath(new URL('../', import.meta.url)).replace(/\/$/, ''));
     assert.equal(capture.root, capture.cwd);
     assert.equal(capture.vcs, '1');
-    assert.equal(capture.demo, '1');
+    assert.equal(capture.demo, '0');
     assert.equal(capture.endpoint, '');
     assert.deepEqual(capture.args, ['--yes', 'eas-cli@24.13.0', 'submit', '--platform', 'ios', '--profile', 'testflight', '--id', build.id, '--non-interactive', '--wait']);
   } finally { rmSync(temp, { recursive: true, force: true }); }

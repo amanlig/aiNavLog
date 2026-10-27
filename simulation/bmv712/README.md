@@ -5,7 +5,9 @@ current and state-of-charge UI. No physical BMV, real device key or charger is
 required. Shares the Windows publisher with the Orion simulator; the Rust Orion
 CLI remains Orion-only. The production decoder and monitor now support battery
 records and SQLite ingestion; the Windows broadcaster does not itself write SQLite.
-An iPhone app and GATT pairing/control are not implemented.
+Native iPhone/Android btleplug receiver builds are in preparation; phone acceptance
+remains pending. GATT pairing/control is not implemented. See the
+[phone test checklist](../../docs/bmv-phone-test.md).
 
 In Windows PowerShell, open this directory and run:
 

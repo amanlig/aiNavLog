@@ -416,7 +416,7 @@ flowchart LR
     UI["User interface"]
     subgraph Interface["Device Interface"]
         Connections["Connection manager"]
-        Transport["Bluetooth adapter (beta)"]
+        Transport["Bluetooth adapter (beta): btleplug"]
         Protocol["Device protocol adapters"]
         Normalizer["Observation normalizer"]
         Connections -->|"Connect / disconnect"| Transport
@@ -432,9 +432,18 @@ flowchart LR
 | Module | Responsibility | Interfaces |
 | --- | --- | --- |
 | Connection manager | Track selected device, availability, connection lifecycle, and reconnection policy. | UI commands/status; transport lifecycle. |
-| Transport adapters | Encapsulate supported Bluetooth access and platform permissions for beta. | Received frames and transport errors to protocol adapters. |
-| Device protocol adapters | Decode supported NMEA 0183 and NMEA 2000 messages and identify source readings. | Raw frames in; typed readings or decoding errors out. |
+| Transport adapters | Encapsulate supported Bluetooth access through Rust btleplug and platform permissions for beta. | Received frames and transport errors to protocol adapters. |
+| Device protocol adapters | Decode Victron Instant Readout and supported NMEA 0183 and NMEA 2000 messages and identify source readings. | Raw frames in; typed readings or decoding errors out. |
 | Observation normalizer | Produce a common measurement envelope with source, observation/receipt time, quantity, unit, value, and quality status. | Validated envelope to Data capture. |
+
+**Mobile implementation decision (October 26, 2026):** Retain the existing Rust
+btleplug adapter for iPhone and Android. On iPhone, btleplug uses Apple's
+CoreBluetooth internally; on Android it uses its Java/JNI backend. Small Swift
+and Kotlin Expo modules connect the app to Rust and manage platform integration;
+they do not implement separate Bluetooth scanners. Foreground Windows BMV simulator
+reception is the first mobile acceptance path. Native build success and physical
+phone reception must be verified separately; installed demo builds are not evidence
+of either. Real-device selection and private advertisement-key setup remain separate.
 
 Instrument readings flow into aiNavLog. Connection setup may require protocol handshakes or subscriptions, but this design exposes no boat-equipment control commands. Unsupported protocols and stale or invalid readings must be visible rather than presented as current measurements. Device models, adapters/gateways, sampling, buffering, and reconnect limits remain TBD; no specific Heart Interface protocol is assumed.
 

@@ -15,4 +15,4 @@ with tempfile.TemporaryDirectory(prefix="ainavlog-native-") as work:
                     "-L", str(library), "-lainavlog_native_bridge", "-lm",
                     f"-Wl,-rpath,{library}", "-o", str(executable)], check=True)
     subprocess.run([str(executable), str(Path(work) / "samples.sqlite3"),
-                    str(root.parents[1] / "simulation/bmv712/integration-packets.log")], check=True)
+                    str(root.parent / "tests/fixtures/victron/bmv_starter.bin")], check=True)

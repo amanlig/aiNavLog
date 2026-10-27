@@ -1,4 +1,6 @@
 //! Host-tested C boundary for platform Bluetooth adapters. See include/ainavlog.h.
+#[cfg(feature = "mobile")]
+mod mobile;
 use ainavlog_device_interface::{
     monitor::VictronMonitor, store::ObservationStore, vendor::victron::VictronAdvertisement,
 };

@@ -6,25 +6,11 @@
 
 int main(int argc, char **argv) {
     assert(argc == 3);
-    FILE *log = fopen(argv[2], "r");
+    FILE *log = fopen(argv[2], "rb");
     assert(log);
-    char line[2048];
     uint8_t packet[255];
-    size_t length = 0;
-    while (fgets(line, sizeof line, log)) {
-        char *hex = strstr(line, "payload=");
-        if (!hex) continue;
-        hex += 8;
-        unsigned byte;
-        while (sscanf(hex, "%2x", &byte) == 1) {
-            assert(length < sizeof packet);
-            packet[length++] = (uint8_t)byte;
-            hex += 2;
-            if (*hex != '-') break;
-            ++hex;
-        }
-        break;
-    }
+    size_t length = fread(packet, 1, sizeof packet, log);
+    assert(!ferror(log) && feof(log));
     fclose(log);
     assert(length);
     const char *key = "000102030405060708090a0b0c0d0e0f";

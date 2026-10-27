@@ -2,7 +2,30 @@
 
 Use the Windows Android Emulator with a Google Play system image. The development
 workspace is WSL2; run the emulator on Windows to use the host hypervisor. The
-accepted Android bundle includes x86_64, x86, arm64-v8a and armeabi-v7a libraries.
+current native Android module builds arm64-v8a and x86_64 libraries.
+
+## Current recovery device — October 26, 2026
+
+Use `aiNavLog_Recovery` for the next session. The original `aiNavLog_Pixel`
+repeatedly rebooted during user-data initialization (`init_user0_failed`), with
+read-only filesystem errors. Cold boot, ADB restart and a separate data image did
+not fix it. Original device files were retained; a separate fresh recovery AVD
+successfully booted (`sys.boot_completed=1`, boot animation stopped).
+
+```powershell
+& "$env:LOCALAPPDATA\Android\Sdk\emulator\emulator.exe" -avd aiNavLog_Recovery -no-snapshot -gpu swiftshader -cores 2 -feature -Vulkan
+```
+
+The recovery AVD uses the existing Pixel 7 profile and Android 16/API 36 Google
+Play x86_64 image. First boot took roughly 2–3 minutes. Windows ADB sees it as
+`emulator-5554`. Its Google account/app storage is separate from the original AVD.
+
+Owner's latest Android screenshot shows the receiver connected, without the
+previous native linking error, and counters at zero. This verifies the reported
+UI behavior, not physical BLE reception or the installed version through ADB.
+Use a physical Android device for the Windows BMV broadcast test; this emulator
+setup does not receive those host Bluetooth advertisements. Code 7's successful
+Play internal delivery is confirmed in the [latest handoff](status/status-2026-10-26.md).
 
 ## Setup — October 14, 2026
 

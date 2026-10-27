@@ -84,8 +84,11 @@ Write-Host "SIMULATED $Model : manufacturer ID 0x02E1, synthetic product 0x1234.
 Write-Host 'Scan with an iPhone BLE scanner in the foreground. Device may be unnamed.'
 Write-Host "Running for $DurationSeconds seconds. Ctrl-C stops. Public synthetic key: 000102030405060708090a0b0c0d0e0f"
 try {
+    # Reuse one publisher rather than creating a new advertiser for every packet.
+    # Only replace manufacturer data while advertising is stopped.
+    $publisher = New-Object Windows.Devices.Bluetooth.Advertisement.BluetoothLEAdvertisementPublisher
     for ($step = 0; $step -lt $DurationSeconds; $step++) {
-        if ($null -ne $publisher) {
+        if ($step -gt 0) {
             $publisher.Stop()
             $deadline = [DateTime]::UtcNow.AddSeconds(5)
             while ($publisher.Status.ToString() -notin @('Stopped','Aborted')) {
@@ -113,7 +116,6 @@ try {
             Write-Host "SIMULATED house: $($voltage / 100.0) V, $($current / 1000.0) A, $($soc / 10.0)%; starter: $($starterVoltage / 100.0) V (current/SOC unavailable)"
         }
         $payload = New-OrionPayload ([uint16]($step + 1)) $plain
-        $publisher = New-Object Windows.Devices.Bluetooth.Advertisement.BluetoothLEAdvertisementPublisher
         $data = New-Object Windows.Devices.Bluetooth.Advertisement.BluetoothLEManufacturerData
         $data.CompanyId = 0x02e1
         $writer = New-Object Windows.Storage.Streams.DataWriter
@@ -124,6 +126,7 @@ try {
             [Windows.Devices.Bluetooth.Advertisement.BluetoothLEManufacturerData].GetProperty('Data').SetValue($data, $buffer, $null)
         } finally { $writer.Dispose() }
         $listType = [System.Collections.Generic.ICollection[Windows.Devices.Bluetooth.Advertisement.BluetoothLEManufacturerData]]
+        $listType.GetMethod('Clear').Invoke($publisher.Advertisement.ManufacturerData, $null)
         $arguments = New-Object object[] 1
         $arguments[0] = $data.PSObject.BaseObject
         $listType.GetMethod('Add').Invoke($publisher.Advertisement.ManufacturerData, $arguments)

@@ -72,13 +72,17 @@ Replace the port and origin as needed, and update the environment URL if the ser
 port changes.
 
 This service listens only on desktop loopback. A phone's `127.0.0.1` refers to the
-phone itself; native mobile Bluetooth/Rust integration remains pending. When the
+phone itself. Native mobile Bluetooth/Rust integration is now in iPhone build 6
+and Android build 7; see the [latest handoff](docs/status/status-2026-10-26.md).
+When the
 monitor runs on Windows and Expo runs in WSL, run the service alongside the monitor
 and check that the browser can reach its endpoint through localhost forwarding.
-Physical Bluetooth validation remains pending.
+Owner-reported iPhone simulator reception works; physical Android reception remains pending.
 
 ## Further documentation
 
+- [October 26 handoff: native receiver, Android linking fix, tablet next steps](docs/status/status-2026-10-26.md)
+- [Physical BMV simulator acceptance checklist](docs/bmv-phone-test.md)
 - [October 14 internal release active](docs/status/status-2026-10-14.md)
 - [October 13 Google account verification update](docs/status/status-2026-10-13.md)
 - [First Android build and manual internal testing](docs/android-manual-deployment.md)

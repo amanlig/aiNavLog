@@ -36,5 +36,8 @@ credentials.json
 *.db
 *.db-*
 
+# App-scoped copies of shared Rust sources, regenerated before EAS upload.
+/user-interface/modules/ainavlog/rust/
+
 # Local Google Play submission service-account key.
 /ainavlog-641a352352eb.json

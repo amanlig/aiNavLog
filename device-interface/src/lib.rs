@@ -1,6 +1,6 @@
 //! Device Interface contracts and an async btleplug BLE evaluation adapter.
 
-#[cfg(feature = "desktop")]
+#[cfg(feature = "ble")]
 pub mod bluetooth;
 pub mod connection;
 pub mod monitor;

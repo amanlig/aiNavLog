@@ -10,7 +10,8 @@ path = "src/lib.rs"
 
 [features]
 default = ["desktop", "nmea"]
-desktop = ["dep:futures-util", "dep:btleplug", "dep:tokio", "dep:dbus"]
+ble = ["dep:futures-util", "dep:btleplug", "dep:tokio", "dep:dbus"]
+desktop = ["ble"]
 nmea = ["dep:nmea-kit", "dep:canboat"]
 
 [[bin]]
