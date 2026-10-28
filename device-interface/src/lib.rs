@@ -6,7 +6,8 @@ pub mod connection;
 pub mod monitor;
 pub mod normalizer;
 pub mod protocol;
-pub mod store;
+#[cfg(feature = "ble")]
+pub mod receiver;
 #[cfg(feature = "desktop")]
 pub mod transport;
 pub mod types;

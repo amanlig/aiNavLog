@@ -5,19 +5,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppHeader } from './AppHeader';
 import { usePreferences } from '../preferences/Preferences';
 
-export function ElectricalRecords({ kind }: { kind: 'history' | 'maintenance' }) {
+export function ElectricalRecords() {
   const { colors: c } = usePreferences();
-  const history = kind === 'history';
   return <SafeAreaView edges={['top', 'bottom']} style={s.safe}>
     <StatusBar style="light" /><AppHeader />
     <ScrollView style={{ backgroundColor: c.background }} contentContainerStyle={s.page}>
       <View style={s.navigation}><Link href="/" style={[s.link, { color: c.accent }]}>← Home</Link></View>
       <Text style={[s.eyebrow, { color: c.muted }]}>ELECTRICAL</Text>
-      <Text accessibilityRole="header" style={[s.title, { color: c.ink }]}>{history ? 'Historical Usage' : 'Maintenance Logs'}</Text>
-      <Text style={[s.description, { color: c.muted }]}>{history ? 'Review house and starter battery readings over time.' : 'Review service and maintenance records for your onboard electrical system.'}</Text>
+      <Text accessibilityRole="header" style={[s.title, { color: c.ink }]}>Maintenance Logs</Text>
+      <Text style={[s.description, { color: c.muted }]}>Review service and maintenance records for your onboard electrical system.</Text>
       <View style={[s.empty, { backgroundColor: c.panel, borderColor: c.line }]}>
-        <Text accessibilityRole="header" style={[s.emptyTitle, { color: c.ink }]}>{history ? 'No usage history available' : 'No maintenance logs available'}</Text>
-        <Text style={[s.description, { color: c.muted }]}>{history ? 'The current demo shows sample readings only. Saved phone readings and historical charts are not connected yet.' : 'Maintenance recording is not implemented yet. There are no saved service records to display.'}</Text>
+        <Text accessibilityRole="header" style={[s.emptyTitle, { color: c.ink }]}>No maintenance logs available</Text>
+        <Text style={[s.description, { color: c.muted }]}>Maintenance recording is not implemented yet. There are no saved service records to display.</Text>
       </View>
     </ScrollView>
   </SafeAreaView>;

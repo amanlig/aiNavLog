@@ -1,5 +1,7 @@
 # Windows BMV simulator → aiNavLog phone test
 
+**Storage baseline — October 28, 2026:** SQLite via bundled Rust rusqlite is confirmed for structured local iOS/Android beta records ([ADR-0001](decisions/0001-sqlite-local-storage.md)). Native simulator integration is recorded in the [October 26 handoff](status/status-2026-10-26.md); older build-specific demo descriptions below remain historical evidence. Restart/update retention and physical Android acceptance remain open.
+
 Use aiNavLog 1.0.0 iPhone build 6 or Android version code 7 (or later), delivered
 through TestFlight / Google Play internal testing. Android builds 5/6 have a
 native-library linking defect fixed in code 7. Build 4 uses app-generated demo

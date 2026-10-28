@@ -1,7 +1,9 @@
 # aiNavLog Device Interface
 
+**Confirmed storage decision — October 28, 2026:** SQLite, accessed through Rust `rusqlite` with bundled SQLite, is the local structured database for the 2027 iOS/Android beta. See [ADR-0001](../docs/decisions/0001-sqlite-local-storage.md) for scope, current implementation and remaining work. Existing AsyncStorage preferences and protected credential storage remain separate.
+
 Rust Device Interface library and BLE evaluation CLI for architecture section 5.4.3.
-See the [UML class diagram](../docs/device-interface-class-diagram.md) for current
+See the [implementation view](../docs/device-interface-implementation-view.md) for current
 components, relationships, and data contracts.
 
 Bluetooth uses [btleplug](https://github.com/deviceplug/btleplug) with Tokio.
@@ -156,8 +158,8 @@ recorded device ID, database queries and physical-validation steps.
 ## Live monitoring and local history
 
 ```sh
-cargo run --locked -- monitor-victron 'D4:B3:CB:26:5E:75' --key-file /path/to/orion.key
-cargo run --locked -- observations data/observations.sqlite3 25
+cargo run --locked --features desktop -- monitor-victron 'D4:B3:CB:26:5E:75' --key-file /path/to/orion.key
+cargo run --locked --features desktop -- observations data/observations.sqlite3 25
 ```
 
 Use a private key file (Unix: `chmod 600`); do not pass the key itself on the command
@@ -246,7 +248,7 @@ for target-specific dependency coverage and the remaining mobile packaging revie
 In another terminal alongside `monitor-victron`, run:
 
 ```sh
-cargo run --locked -- serve-ui data/observations.sqlite3 '<bmv-device-id>'
+cargo run --locked --features desktop -- serve-ui data/observations.sqlite3 '<bmv-device-id>'
 ```
 
 `GET http://127.0.0.1:8787/electrical` returns the latest complete BMV packet as
@@ -292,7 +294,17 @@ cargo tree --locked --no-default-features --edges normal
 These host checks verify reuse without btleplug, D-Bus, Tokio or NMEA in the normal
 core dependency graph. They do not verify iOS/Android cross-compilation or a phone install.
 
-The [native bridge](native-bridge/README.md) now provides a host-tested C ABI for
+The [native bridge](../native-integration/README.md) now provides a host-tested C ABI for
 session lifecycle, advertisement ingestion and persisted electrical readings.
 Its C integration test uses captured simulator ciphertext. Target packaging,
 Swift/Kotlin Expo modules and phone Bluetooth reception remain the next steps.
+
+## Responsibility boundaries
+
+Device Interface is now the transport/decoder/normalization/receiver-state library.
+It emits observations through the shared `ObservationSink`, without a runtime
+SQLite or capture dependency. `CaptureService` in `data-capture/` validates writes;
+`local-storage/` owns SQLite and queries. Application composition, CLI/HTTP/replay
+and C ABI live in top-level `native-integration/`. Run desktop commands there with
+`cargo run --locked --features desktop -- ...`. Existing executable/C ABI names
+and database contents/schema are preserved. See [ADR-0002](../docs/decisions/0002-capture-storage-boundaries.md).

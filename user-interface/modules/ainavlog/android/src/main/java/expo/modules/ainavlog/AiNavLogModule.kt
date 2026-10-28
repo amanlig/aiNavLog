@@ -11,6 +11,7 @@ internal object Bridge {
   external fun nativeStatus(): Int
   external fun nativeCounters(): LongArray?
   external fun nativeSample(handle: Long): DoubleArray?
+  external fun nativeHistory(path: String, start: Long, end: Long): DoubleArray?
 }
 
 class AiNavLogModule : Module() {
@@ -34,6 +35,13 @@ class AiNavLogModule : Module() {
       }
     }
     AsyncFunction("stop") { stop(); Unit }
+    AsyncFunction("history") { start: Double, end: Double ->
+      check(start.isFinite() && end.isFinite() && start >= 0 && end > start && end <= 8_640_000_000_000_000.0 && end-start <= 32*86_400_000.0) { "Invalid history range" }
+      val context = appContext.reactContext ?: error("App context unavailable")
+      val path = java.io.File(context.filesDir, "bmv-simulator.sqlite3").absolutePath
+      val rows = Bridge.nativeHistory(path, start.toLong(), end.toLong()) ?: error("Could not read saved history. Try a shorter range.")
+      rows.toList().chunked(7)
+    }
     AsyncFunction("snapshot") {
       synchronized(lock) {
         val row = if (handle != 0L) Bridge.nativeSample(handle) else null

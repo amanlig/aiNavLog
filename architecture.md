@@ -2,8 +2,8 @@
 
 | Document field | Value |
 | --- | --- |
-| Status | Draft — requirements captured; implementation architecture pending |
-| Updated | 2026-10-16 (deployment tooling/status; broader design remains draft) |
+| Status | Draft — requirements and implemented Electrical architecture; broader features proposed |
+| Updated | 2026-10-28 (responsibilities separated in §5.2; implemented capture/storage/integration and matching views) |
 | Owner | TBD |
 | Structure | arc42 |
 | Format | GitHub Markdown with Mermaid diagrams |
@@ -76,7 +76,7 @@ Reliable data capture, usability aboard a boat, handling interrupted connectivit
 
 R-11 requires external identity-provider communication for sign-in. Authentication exchanges do not upload boat logs, routes, or media; any hosted identity/session metadata and authentication service deployment remain proposed decisions in Section 4.7.
 
-The iPhone is an example data source, not a confirmed exclusive platform. The foreground Victron monitor implements local SQLite storage and scan recovery. App-wide storage and mobile connection/background behavior remain TBD.
+The iPhone is an example data source, not a confirmed exclusive platform. Native application composition wires the Victron receiver through Data capture into the Local data store and manages scan recovery. SQLite through Rust rusqlite is confirmed for structured device-local beta records (ADR-0001). Broader schemas and mobile acceptance remain open; background recording is not implemented.
 
 ## 3. Context and Scope
 
@@ -124,13 +124,13 @@ Windows and macOS remain longer-term availability targets. Desktop CLI builds su
 
 Users own their data, which is stored locally on the device running the application.  
 
-The foreground Device Interface monitor currently stores Victron observations and reception events in local SQLite using rusqlite. This interim store is unencrypted and has no automatic retention. App-wide storage for logs/media, mobile access protection, and retention policy remain TBD; see the [monitoring guide](docs/victron-live-monitoring.md). Route sharing exports only the content the boater selects and previews; the original route remains local. Published content is subject to the selected social platform's storage and audience controls.
+Device Interface emits normalized Victron observations/events to Data capture, which validates and coordinates writes through the separate Local data store (SQLite/rusqlite). SQLite with bundled rusqlite is the confirmed local structured database for the 2027 iOS/Android beta, accepted October 28 ([ADR-0001](docs/decisions/0001-sqlite-local-storage.md)). The current database itself is unencrypted and has no automatic retention. Broader record schemas, media-file handling, mobile access protection and retention policy remain open; see the [monitoring guide](docs/victron-live-monitoring.md). Route sharing exports only the content the boater selects and previews; the original route remains local. Published content is subject to the selected social platform's storage and audience controls.
 
 ### 4.3 Communication
 
 See the [BMV-712 and Orion physical architecture](docs/orion-physical-architecture.md) for the starter/house battery power path and the separate Bluetooth path to aiNavLog.
 
-**Beta scope:** Bluetooth is the only planned transport for communication with external instruments. Wi-Fi support is shelved for post-beta consideration; see the [backlog](docs/backlog.md#wi-fi-instrument-connectivity). A dedicated Device Interface will handle communication with devices such as Heart Interface and pass observations to data capture. The Victron BMV-712 Smart with its shunt is selected for the 2027 beta release as the source of house-battery voltage, net current and state-of-charge telemetry via Bluetooth Instant Readout. One monitor permanently measures the house bank through its shunt; the auxiliary input measures starter-battery voltage. A House / Starter UI selector shows house voltage/current/SOC and starter voltage/trend/low-voltage alerts. Starter current and SOC are unavailable; no electrical switching or starter SOC estimation is included in the confirmed baseline. BMV production decoding, normalization and local SQLite persistence are implemented and software-tested; mobile integration and physical validation remain pending. Link 2000 is not the selected beta battery telemetry source. Other device models and any required adapters or gateways remain TBD; Bluetooth support is not assumed for every device.
+**Beta scope:** Bluetooth is the only planned transport for communication with external instruments. Wi-Fi support is shelved for post-beta consideration; see the [backlog](docs/backlog.md#wi-fi-instrument-connectivity). A dedicated Device Interface will handle communication with devices such as Heart Interface and pass observations to data capture. The Victron BMV-712 Smart with its shunt is selected for the 2027 beta release as the source of house-battery voltage, net current and state-of-charge telemetry via Bluetooth Instant Readout. One monitor permanently measures the house bank through its shunt; the auxiliary input measures starter-battery voltage. A House / Starter UI selector shows house voltage/current/SOC and starter voltage/trend/low-voltage alerts. Starter current and SOC are unavailable; no electrical switching or starter SOC estimation is included in the confirmed baseline. BMV decoding, normalization, local SQLite persistence and foreground native mobile simulator integration are implemented. iPhone build 6 simulator reception is owner-confirmed; physical Android and real BMV validation remain pending. Link 2000 is not the selected beta battery telemetry source. Other device models and any required adapters or gateways remain TBD; Bluetooth support is not assumed for every device.
 
 **Confirmed (R-05):** Utilize NMEA 0183 and NMEA 2000 as communication standards for integration with other onboard NMEA-compliant devices through the Device Interface.
 
@@ -138,9 +138,9 @@ See the [BMV-712 and Orion physical architecture](docs/orion-physical-architectu
 
 **Research:** See [Rust Bluetooth libraries](docs/dependencies/rust-bluetooth-libraries.md) for candidate libraries, platform support, and a proposed evaluation approach. btleplug 0.13.3 is installed for BLE discovery, connection and manufacturer-advertisement reception. Gateway selection and physical/mobile validation remain open.
 
-**Implemented evaluation path:** Separate NMEA codecs use nmea-kit for NMEA 0183 and CANboat for NMEA 2000; framing, gateway reception and NMEA observation mapping remain pending. The Victron vendor decoder supports BMV battery-monitor, Orion DC/DC and XS Instant Readout advertisements. Its foreground monitor handles retries, stale status, duplicate suppression, private key-file reload, normalization and atomic SQLite persistence. See the [class diagram](docs/device-interface-class-diagram.md), [NMEA guide](docs/dependencies/rust-nmea-libraries.md), and [live monitoring guide](docs/victron-live-monitoring.md). Physical Orion validation, the React Native bridge, mobile permissions, secure key storage and background execution remain pending.
+**Implemented evaluation path:** Separate NMEA codecs use nmea-kit for NMEA 0183 and CANboat for NMEA 2000; framing, gateway reception and NMEA observation mapping remain pending. The Victron vendor decoder supports BMV battery-monitor, Orion DC/DC and XS Instant Readout advertisements. Its device monitor handles stale status, duplicate suppression and normalization; native application composition supervises retry/key reload and injects Data capture for atomic SQLite persistence. See the [implementation view](docs/device-interface-implementation-view.md), [NMEA guide](docs/dependencies/rust-nmea-libraries.md), and [live monitoring guide](docs/victron-live-monitoring.md). The React Native bridge and mobile permission handling are implemented for the foreground BMV simulator path. Physical Android/Orion validation, private mobile instrument-key setup and background recording remain pending.
 
-Victron advertisements use unauthenticated AES-CTR. The monitor requires a 32-character hexadecimal advertisement key, separate from the Bluetooth pairing PIN. Other device communication security depends on the selected protocols and adapters.
+Victron advertisements use unauthenticated AES-CTR. The device decoder requires a 32-character hexadecimal advertisement key, separate from the Bluetooth pairing PIN. Other device communication security depends on the selected protocols and adapters.
 
 ### 4.4 User inputs
 
@@ -182,7 +182,7 @@ Boat logs, routes, and media remain local. Authentication does not add synchroni
 
 ### 4.8 Service implementation language
 
-**Confirmed:** Rust is the chosen implementation language for services within the aiNavLog system. The frontend uses React Native as described in Section 4.5. Service boundaries, deployment locations, Rust frameworks, and frontend-to-service integration remain TBD.
+**Confirmed:** Rust is the chosen implementation language for services within the aiNavLog system. The frontend uses React Native as described in Section 4.5. The implemented electrical service boundaries are Device Interface, Data capture, Local data store and Native integration, with shared contracts (§5.2). They are packaged within the mobile app. Broader service/deployment/framework choices remain open.
 
 ## 5. Building Block View
 
@@ -203,6 +203,10 @@ flowchart TB
         DeviceInterface["Device Interface"]
         Sharing["Route story sharing"]
         Auth["Authentication: provider adapters and sessions"]
+        Store["Local data store: SQLite"]
+        Capture -->|"Validated records / durable save"| Store
+        UI -->|"Latest/history query APIs via native integration"| Store
+        Store -->|"App-private database file"| Device
         UI <-->|"Sign-in, sign-out, and session status"| Auth
         UI -->|"Selected route, story options, and explicit export request"| Sharing
         UI -->|"Manual input and capture requests"| Capture
@@ -213,7 +217,7 @@ flowchart TB
     Boater -->|"Entries, capture requests, and sign-in actions"| UI
     UI -->|"Save status and errors"| Boater
     Device -->|"New photos, videos, and voice input"| Capture
-    Capture <-->|"Read existing media / save entries, media, and observations"| Device
+    Capture <-->|"Acquire existing/new media files; broader media flow proposed"| Device
     Device -->|"Selected local route and media"| Sharing
     Sharing -->|"Preview and export status"| UI
     Sharing -->|"Save story image for manual sharing"| Device
@@ -225,18 +229,41 @@ All primary aiNavLog user data, including saved routes, resides in local storage
 
 ### 5.2 Building block responsibilities
 
-| Building block | Responsibility and main interfaces | Scope basis |
+**Confirmed responsibility split — October 28, 2026.** Logical ownership and source
+packages are deliberately explicit. The electrical write/read paths below are
+implemented; broader media, maintenance, route and authentication features retain
+their stated incomplete/proposed status. These blocks run within the mobile app,
+not as separate servers.
+
+| Building block | Responsibility and main interfaces | Current physical implementation / scope |
 | --- | --- | --- |
-| User interface | Provide provider sign-in choices, session status and sign-out, data entry, route selection, story preview and export controls, save status, and error messages. React Native is the frontend direction; platform-specific implementation for the targets in Section 4 remains TBD. | R-02–R-04, R-10–R-11; Sections 4.1, 4.4–4.7 |
-| Data capture | Acquire existing and newly captured media, microphone input, manual entries, and normalized observations from the Device Interface. Supply data to local storage. Voice/media processing remains TBD. | R-02–R-05; Section 4.4 |
-| Device Interface | Encapsulate communication with external devices such as Heart Interface. Manage connections and device-specific protocol adapters, normalize received observations, and pass them to data capture. Use NMEA 0183 and NMEA 2000 for compatible onboard devices; specific models, supported messages, and any required gateways remain TBD. | R-05; Section 4.3 |
-| Route story sharing | Read selected route data and media locally, compose a preview, generate a story image, and manage platform handoff or local image export. Report cancellation and failures without claiming publication. Platform adapters and temporary-file cleanup remain TBD. | R-10; Section 4.6 |
-| Authentication | Encapsulate Google, Facebook, and Apple sign-in, callback and identity verification, session lifecycle, and sign-out. Use protected credential storage; any required trusted service deployment remains TBD. | R-11; Section 4.7 |
-| User device / Device storage | Provide camera and microphone access, existing media to data capture and retain all aiNavLog user data (entries, saved routes, photos, videos, voice recordings, device observations, and exported story images) locally on the device running the application. Storage technology and browser/desktop data handling remain TBD. | Section 4.2 |
+| User interface | Present readings, history and errors; submit connection/capture intent; request records through query APIs. UI executes no SQL and performs no instrument decoding. | React Native `user-interface/src/`; Home, Electrical and Historical Usage implemented. Entry, maintenance recording, route and authentication flows remain unfinished. |
+| Device Interface | Own Bluetooth access/event handling, device identity, protocol decoding, normalization, duplicate suppression and reception/freshness status. Emit normalized observations through the injected `ObservationSink`; own no database paths, SQL or historical queries. NMEA codecs remain separate from operational gateway integration. | `device-interface/`: `BluetoothAdapter`, `AdvertisementScan`, `scan_victron`, `VictronMonitor<S>`, vendor/NMEA codecs and `ObservationNormalizer`. Its runtime dependency graph contains neither capture/storage packages nor rusqlite. |
+| Data capture | Validate incoming record envelopes and coordinate durable saves through Local data store. Return a saved result only after commit. Accept receiver events through the same write boundary. Future manual/media capture belongs here; it is not implemented by the observation service. | `data-capture/`: `CaptureService` implements `ObservationSink`; checks source/time consistency, required fields, duplicate quantities, finite values and missing-value quality before storage. |
+| Local data store | Own SQLite schema/version checks, transactions, indexes and latest/history query APIs. Own future migrations, retention, export/deletion and protection policy implementation. Serve UI reads directly, independently of Data capture and Bluetooth. | `local-storage/`: `ObservationStore`, `StoredObservation`, `BmvHistoryPoint`, bundled rusqlite. Existing schema/file names and persisted data are unchanged; maintenance schema and lifecycle policies remain open. |
+| Native integration / application composition | Translate React Native calls/results to shared Rust APIs; provide private paths, platform permissions/lifecycle and background execution queues. Assemble receiver → capture → storage for writes; route latest/history reads straight to storage. It contains no SQL or independent Bluetooth scanner implementation. | Swift/Kotlin/JNI in `user-interface/modules/ainavlog/`; Rust C ABI, session registry, mobile worker and desktop supervision/HTTP/CLI in top-level `native-integration/`. |
+| Shared data contracts | Define application record/error types and the injected capture interface without platform, vendor or database dependencies. | `data-model/`: `SampleMetadata`, `Observation`, `DecodedReading`, `QualityStatus`, `AppError`/`AppResult`, `ObservationSink`. |
+| Route story sharing | Read selected saved route/media, compose a preview, manage explicit export/handoff and cleanup without claiming publication. | Proposed; future consumer of Local data store and media files. R-10. |
+| Authentication | Provider identity/session flows and protected credentials; local-record access policy remains a separate design decision. | Proposed; credentials are not stored in the observation database. R-11. |
+| User device resources | Supply camera/microphone, app-private files, AsyncStorage preferences and protected credential facilities. These resources do not replace the Local data store responsibility. | iOS/Android beta targets; media-file layout, access/retention policies and browser/desktop handling remain open. |
+
+```mermaid
+flowchart LR
+    Instrument["Instrument / simulator"] --> DI["Device Interface"]
+    DI -->|"ObservationSink: normalized observations + metadata"| Capture["Data capture · CaptureService"]
+    Capture -->|"validated, atomic save"| Store["Local data store · SQLite"]
+    UI["UI · latest/history requests"] --> Native["Native integration · query APIs"]
+    Native -->|"direct read; no capture or Bluetooth required"| Store
+```
+
+Native integration also accepts UI Connect/Disconnect commands and assembles the
+write pipeline. Data capture is a write coordinator, not a required intermediary
+for reads. Directory names now follow these boundaries; runtime wiring is explicit
+in `native-integration/src/lib.rs` and `native-integration/src/desktop.rs`.
 
 ### 5.3 Interfaces and open decisions
 
-- Local persistence, storage limits, and offline capture behavior across supported platforms remain TBD.
+- SQLite via bundled Rust rusqlite is the confirmed local structured database for iOS/Android beta (ADR-0001). Storage limits, retention, broader schemas and offline capture behaviour still need implementation decisions.
 
 - Device Interface isolates device-specific communication from data capture. The one-way link represents read-only observations from external devices; the Device Interface does not send commands to external devices.
 
@@ -249,203 +276,160 @@ All primary aiNavLog user data, including saved routes, resides in local storage
 
 ### 5.4 Level 2 — internal building blocks
 
-**Proposed:** Level 2 opens the Level 1 blocks into modules and their interfaces. These are logical responsibilities, not separate processes, packages, or services. Technology choices remain TBD. Requirement references identify the scope each decomposition supports.
+**View convention:** Level 2 opens the Level 1 blocks into logical responsibilities, not necessarily separate processes, packages or services. Sections explicitly distinguish implemented paths from proposed decomposition. Sections 5.4.1 and 5.4.3 describe the current User Interface and Device Interface implementations; other sections retain their stated proposal status. Requirement references identify the scope each decomposition supports.
 
 The **User device** groups camera, microphone, existing media, application storage, and protected credential storage. Application modules access these capabilities through platform adapters. The device is a resource boundary, not a claim that every logical component runs locally: confidential authentication operations still require the trusted execution boundary described in Section 4.7.
 
 #### 5.4.1 User interface
 
 **Parent:** User interface. **Scope:** R-02–R-05, R-10, R-11.
+**Current implementation, reviewed October 28, 2026.** The six logical groups
+below match the [User Interface implementation view](docs/user-interface-implementation-view.md).
+The implemented slice is Home/Electrical and local preferences; broader capture,
+authentication and sharing requirements remain future work.
 
 ```mermaid
-flowchart LR
-    Boater["Recreational boater"]
-    subgraph UI["User interface"]
-        Shell["Application shell"]
-        Entry["Entry editor"]
-        Electrical["Electrical page: /elec"]
-        Readings["Electrical data client and polling hook"]
-        Routes["Route browser"]
-        Story["Story editor"]
-        Account["Account and connection views"]
-        Shell -->|"Navigation and local context"| Entry
-        Shell -->|"Open /elec"| Electrical
-        Electrical -->|"Request current sample"| Readings
-        Readings -->|"Validated sample and availability"| Electrical
-        Shell -->|"Navigation and local context"| Routes
-        Shell -->|"Navigation"| Account
-        Routes -->|"Selected route"| Story
+flowchart TB
+    subgraph UI["User interface · implemented application"]
+        Shell["1. Application shell<br/>Layout · Stack/Link · AppHeader"]
+        Screens["2. Screens and presentation<br/>HomeScreen · ElectricalScreen · shared visuals"]
+        State["3. Shared electrical state<br/>ElectricalProvider · useElectricalState · useElectrical"]
+        Clients["4. Data clients and native boundary<br/>native-client · HTTP fetch · parseDeviceSample · native module"]
+        Model["5. Measurement rules and contract<br/>ElectricalSample · isFresh · reading · simulate"]
+        Prefs["6. Preferences and unfinished views<br/>PreferencesProvider · history/maintenance · ComingSoon"]
+        Shell -->|"navigation"| Screens
+        Shell -->|"mount providers"| State
+        Shell -->|"settings and appearance"| Prefs
+        Screens <-->|"sample / status; user commands"| State
+        State <-->|"poll / connect / disconnect"| Clients
+        Screens -->|"freshness / formatting"| Model
+        State -->|"local demo when selected"| Model
     end
-    Boater -->|"User actions"| Shell
-    Entry <-->|"Capture requests / save results"| Capture["Data capture"]
-    Routes <-->|"Route queries / saved routes"| Persistence["Local persistence adapters"]
-    Story <-->|"Prepare, confirm, cancel / preview and export status"| Sharing["Route story sharing"]
-    Account <-->|"Sign-in, sign-out / session status"| Auth["Authentication"]
-    Auth -->|"Session status"| Shell
-    Account <-->|"Connection requests / status (proposed)"| Devices["Device Interface"]
-    Readings -->|"GET /electrical every second (implemented local bridge)"| Devices
-    Devices -->|"Latest persisted BMV sample as JSON, or null / error"| Readings
-    Policy["Local data access policy"] -->|"Permitted local context"| Shell
+    Clients <-->|"native start / stop / snapshot"| Rust["Native integration · Rust query/receiver APIs"]
+    Clients <-->|"optional desktop GET /electrical"| HTTP["Native integration · desktop serve-ui"]
+    Prefs <-->|"boat name / appearance"| Settings["Local AsyncStorage"]
 ```
 
-| Module | Responsibility | Interfaces |
+| Logical group | Current responsibility | Implementation |
 | --- | --- | --- |
-| Application shell | Navigation, active local data context, and display of session state. | Authentication session status; local data access policy. |
-| Electrical page | Render House and Starter battery cards from the current sample; hide stale readings and show availability/source labels. | Electrical data client and polling hook; React Native view at `/elec`. |
-| Electrical data client and polling hook | Poll the configured Device Interface endpoint, validate JSON and retain the original receipt timestamp. | `GET /electrical`; sample, unavailable/error state and current clock to the page. |
-| Entry editor | Collect manual input, request photo/video/voice capture, and show save results. | Data capture commands and results. |
-| Route browser | List saved routes and open route details for story selection. | Local route queries; route source remains TBD. |
-| Story editor | Select destination and included details, display a preview, and confirm export. | Route story sharing preparation, cancellation, and export commands. |
-| Account and connection views | Present provider choices, sign-out, device connection state, and recoverable errors. | Authentication commands; Device Interface connection commands/status. |
+| 1. Application shell | Mount shared providers, stack navigation, header and settings dialogs. | `Layout`, Expo Router `Stack`/`Link`, `AppHeader`. |
+| 2. Screens and presentation | Render Home summary and Electrical battery cards; expose native Connect/Disconnect, counters and errors. | `HomeScreen`, `ElectricalScreen`, `Metric`, `BatteryGauge`, icons. |
+| 3. Shared electrical state | Share one sample/clock/error state, poll once per second in foreground, serialize receiver commands and resume requested connections. | `ElectricalProvider`, `useElectricalState`, `useElectrical`, `AppState` subscription. |
+| 4. Data clients and native boundary | Request Android permissions; call native module; fetch optional HTTP data; validate samples without refreshing timestamps. | `native-client.ts`, `history-client.ts`, hook HTTP fetch, sample/history validators, Swift/Kotlin `AiNavLogModule`, Android JNI. |
+| 5. Measurement rules and contract | Nullable sample contract, five-second freshness, number formatting, explicit demo generation. | `model.ts`; threshold helpers exist but configurable alert UI is not connected. |
+| 6. Preferences and unfinished views | Persist boat name/appearance; present explicit empty or coming-soon screens for unfinished features. | `PreferencesProvider`, AsyncStorage, `BatteryHistory`, `ElectricalRecords` (maintenance), Engine/Routes screens and `ComingSoon`. |
 
-Views submit user intent and render results. Provider callbacks, device protocols, persistence, and image generation belong to the respective blocks. Session state does not by itself decide ownership of existing local records; the data access policy in Section 4.7 remains a prerequisite.
+**Data modes:** Native mode is selected on non-web platforms by
+`EXPO_PUBLIC_NATIVE_BMV=1` and takes precedence. Otherwise a configured
+`EXPO_PUBLIC_DEVICE_INTERFACE_URL` selects HTTP polling, unless
+`EXPO_PUBLIC_DEMO_MODE=1` disables the URL. With neither external path selected,
+the hook generates labelled local sample readings. External failures never trigger
+a demo fallback. HTTP requests have a three-second abort timeout.
 
-**Implemented electrical interaction — local development bridge (October 6, 2026):**
+**Native interaction:** Electrical Connect → `native-client` → native module →
+Rust receiver → Data capture → Local data store (phone SQLite). One-second snapshots return status,
+diagnostics and latest complete BMV sample to the shared provider. Home and
+Electrical use that same state. Receipt timestamps are preserved; both screens
+hide readings older than five seconds. Native wrappers stop on background/destroy;
+the provider retains connection intent and restarts a requested session on resume.
+Starter current and SOC remain unavailable.
 
-The `user-interface` package owns the electrical page and returns its React Native
-view. The `device-interface` package supplies measurement data as JSON. Opening
-`/elec` renders `ElectricalScreen`; its `useElectrical` hook polls the configured
-`EXPO_PUBLIC_DEVICE_INTERFACE_URL` once per second while the app is in the
-foreground. `parseDeviceSample` validates the response before the screen uses it.
+**Shared integration boundary:** Swift/Kotlin/JNI files physically live under
+`user-interface/modules/ainavlog`; the Rust C ABI lives under
+`native-integration`. Queries call `local-storage` directly; receiver writes use
+`data-capture`. The native adapter here and the application composition around Section 5.4.3
+are the same integration code, not duplicate receivers.
+Rust btleplug owns scanning. Desktop HTTP polling is a separate development path:
+`monitor-victron` writes SQLite and `serve-ui` answers read-only `GET /electrical` and range-based `GET /electrical/history`.
+Phones in native mode do not use the desktop service.
 
-Within `device-interface`, two commands have separate responsibilities:
-`monitor-victron` receives Bluetooth advertisements, decodes and normalizes BMV
-readings, and commits them to local SQLite. `serve-ui` reads that same database
-and answers `GET /electrical` with the latest complete BMV packet for its configured
-device. The UI does not start the monitor or query SQLite directly.
+**Scope and validation:** Boat name and appearance persist in AsyncStorage,
+separately from observation SQLite. Historical Usage queries saved SQLite through the native history API (or desktop
+HTTP), with source labels, ranges, gap-aware charts and sample inspection; new
+native builds are required for phone use. Maintenance does not record service entries; Engine/Routes remain placeholders. Account/sign-in,
+manual/voice/media capture, route tracking and story sharing are not implemented.
+iPhone build 6 simulator reception is owner-confirmed; physical Android code 7
+acceptance is deferred while the tablet is unavailable. Native and browser
+acceptance evidence must be recorded separately; see the
+[physical checklist](docs/bmv-phone-test.md) and
+[Device Interface implementation view](docs/device-interface-implementation-view.md).
 
-```mermaid
-sequenceDiagram
-    actor Boater
-    participant Screen as UI: ElectricalScreen (/elec)
-    participant Client as UI: useElectrical / parseDeviceSample
-    participant API as Device Interface: serve-ui
-    participant DB as Local SQLite
-    participant Monitor as Device Interface: monitor / decoder / normalizer
-    participant BMV as BMV Bluetooth or simulator packet replay
-    BMV->>Monitor: Encrypted advertisement packet
-    Monitor->>DB: Atomically persist packet and normalized observations
-    DB-->>Monitor: Commit success
-    Boater->>Screen: Open Electrical
-    Screen->>Client: Read sample and availability state
-    loop Every second while foregrounded
-        Client->>API: GET /electrical
-        API->>DB: Read latest complete BMV packet for selected device
-        DB-->>API: Observations and original receipt timestamp
-        API-->>Client: JSON sample, null if absent, or HTTP error
-        Client-->>Screen: Validated sample and connection/error state
-        Screen-->>Boater: Render updated battery cards and source label
-    end
-```
 
-The sample contract is `{ source, receivedAt, houseVoltage, houseCurrent,
-houseCharge, starterVoltage }`. `receivedAt` is the packet's original receipt time
-in Unix milliseconds; polling does not refresh it. Missing or poor-quality values
-are `null`. House voltage/current/SOC and auxiliary starter voltage come from one
-persisted packet, so older readings are not combined with newer fields. Starter
-current and SOC remain unavailable.
+### Historical Usage implementation update — October 28
 
-The page hides readings older than five seconds. An empty result shows waiting;
-a failed request shows a retry message and unavailable values. A configured service
-never falls back to the UI's demo generator. With the endpoint unset, the page uses
-explicitly labelled local demo readings. For packet replay, `serve-ui --simulated`
-(the final optional argument after port and UI origin) returns `source: simulated`,
-and the page displays **Simulated BMV readings · device interface**.
+`BatteryHistory` owns saved-history query state separately from live electrical
+polling. Swift/Kotlin `history(start,end)` and the Rust `ainavlog_history` C ABI
+read phone SQLite while disconnected. The Local data store preserves bucket endpoints/extrema
+and recording-gap segments; the UI supports the approved House/Starter mockup,
+local-calendar ranges, selection, summaries and explicit empty/error/source states.
+No schema change or maintenance CRUD is included. iPhone build 7 compiled and was uploaded to TestFlight October 28. Physical-device
+acceptance for the history API remains pending; Android replacement is deferred.
 
-This loopback HTTP bridge is implemented for desktop/web development. It does not
-add a Wi-Fi instrument transport; instrument reception remains Bluetooth. Native
-mobile integration remains pending. Browser verification passed using encrypted
-packets captured from the existing Windows BMV simulator through the production
-Rust monitor/decoder, SQLite and HTTP to the rendered page, including changing SOC,
-stale hiding and recovery. The replay bypassed radio reception, which remains
-unverified in this path. The connection-management and broader data-capture blocks
-above remain proposed; the implemented electrical slice currently persists within
-the Rust monitor.
-
-Implementation: [electrical screen](user-interface/src/app/elec/index.tsx),
-[polling hook](user-interface/src/electrical/use-electrical.ts),
-[response validator](user-interface/src/electrical/device-client.ts),
-[local endpoint](device-interface/src/ui_server.rs) and
-[SQLite query](device-interface/src/store.rs).
-See [startup and simulator verification instructions](README.md) and the
-[Electrical vertical-slice sequence and remaining mobile milestone](docs/project-plan.md#electrical-vertical-slice-sequence).
+**Post-build-7 UI source update — historical zoom:** `BatteryHistory` now owns a
+bounded viewport with pinch halving/doubling, +/- hour steps (five-minute steps
+below one hour), horizontal panning and reset. `history-viewport.ts` holds pure
+window rules; `use-history-gestures.ts` handles responder negotiation and preview.
+The UI re-queries the existing history API after a committed viewport change; it
+does not issue SQL or query on every gesture move. Window minimum is five minutes
+and maximum is the selected full local-calendar period. Gap/null semantics and
+source labels are preserved. This is local source beyond delivered build 7; app
+delivery and physical gesture acceptance remain pending.
 
 #### 5.4.2 Data capture
 
 **Parent:** Data capture. **Scope:** R-02–R-05; Section 4.4.
+**Implemented observation slice:** `data-capture::CaptureService` implements the
+shared `ObservationSink`. Device Interface supplies `SampleMetadata`, original
+manufacturer payload and normalized `Observation` values. Capture rejects empty
+source/quantity/unit, mismatched source/receipt time, duplicate quantities,
+non-finite values and unavailable measurements incorrectly marked Good. It then
+calls `local-storage::ObservationStore::save`; only a successful transaction
+returns a sample ID. Failed saves do not refresh device freshness/dedup state.
+Receiver state events also pass through this service to storage.
 
 ```mermaid
 flowchart LR
-    UI["User interface: Entry editor"]
-    Instruments["Device Interface"]
-    Device["User device: camera, microphone, media, and storage"]
-    subgraph Capture["Data capture"]
-        Coordinator["Capture coordinator"]
-        Media["Media acquisition adapter"]
-        Validator["Entry and observation validation"]
-        Writer["Save coordinator"]
-        Coordinator --> Media
-        Coordinator --> Validator
-        Media -->|"Acquired media reference"| Validator
-        Validator --> Writer
-    end
-    UI -->|"Manual entry / capture request"| Coordinator
-    Media <-->|"Permission and acquisition"| Device
-    Instruments -->|"Normalized observations"| Validator
-    Writer -->|"Validated record and media"| Persistence["Local persistence adapters"]
-    Persistence -->|"Commit result"| Writer
-    Writer -->|"Saved / failed"| UI
+    DI["Device Interface: normalized packet"] --> Capture["CaptureService: validate + coordinate write"]
+    Capture --> Store["Local data store: atomic sample + observations"]
+    Store -->|"commit result / failure"| Capture
+    Capture -->|"saved ID / failure"| DI
 ```
 
-| Module | Responsibility | Failure behavior |
-| --- | --- | --- |
-| Capture coordinator | Track an entry draft and acquisition request; distinguish cancellation from failure. | Preserve usable draft input when capture fails. |
-| Media acquisition adapter | Use camera, microphone, or media selection capabilities after required platform permission checks. | Report denied permission, unsupported capability, or cancellation. |
-| Entry and observation validation | Check required fields, timestamps, media references, and normalized instrument values; retain source and quality information. | Reject malformed input; do not invent missing readings. |
-| Save coordinator | Submit records and associated media to local persistence; return success only after a durable commit. | Report storage failures and allow retry without duplicating a completed save. |
-
-Voice capture initially yields a local recording. Transcription, voice commands, and other media processing are not assumed. Exact validation rules, file limits, draft persistence, and retry identifiers remain TBD.
+The service owns its repository instance but does not implement SQL or Bluetooth.
+Media acquisition, manual/voice entries, draft/retry workflows and multi-file
+commit coordination remain proposed future extensions. UI history queries bypass
+capture and call Local data store through the native integration query API.
 
 #### 5.4.3 Device Interface
 
 **Parent:** Device Interface. **Scope:** R-05; Section 4.3.
+**Current implementation, October 28:** transport, protocol interpretation and
+receiver state belong to `device-interface/`; persistence belongs to sibling
+packages. See the [implementation view](docs/device-interface-implementation-view.md)
+for the surrounding application composition.
 
-```mermaid
-flowchart LR
-    Instruments["External instruments / gateway"]
-    UI["User interface"]
-    subgraph Interface["Device Interface"]
-        Connections["Connection manager"]
-        Transport["Bluetooth adapter (beta): btleplug"]
-        Protocol["Device protocol adapters"]
-        Normalizer["Observation normalizer"]
-        Connections -->|"Connect / disconnect"| Transport
-        Transport -->|"Received frames"| Protocol
-        Protocol -->|"Decoded readings"| Normalizer
-    end
-    UI -->|"Connection request"| Connections
-    Connections -->|"Connection status"| UI
-    Instruments -->|"Instrument data"| Transport
-    Normalizer -->|"Normalized observation"| Capture["Data capture"]
-```
-
-| Module | Responsibility | Interfaces |
+| Internal responsibility | Code | Boundary |
 | --- | --- | --- |
-| Connection manager | Track selected device, availability, connection lifecycle, and reconnection policy. | UI commands/status; transport lifecycle. |
-| Transport adapters | Encapsulate supported Bluetooth access through Rust btleplug and platform permissions for beta. | Received frames and transport errors to protocol adapters. |
-| Device protocol adapters | Decode Victron Instant Readout and supported NMEA 0183 and NMEA 2000 messages and identify source readings. | Raw frames in; typed readings or decoding errors out. |
-| Observation normalizer | Produce a common measurement envelope with source, observation/receipt time, quantity, unit, value, and quality status. | Validated envelope to Data capture. |
+| Bluetooth access | `BluetoothAdapter`, `AdvertisementScan`, `receiver::scan_victron` | Own btleplug event handling, scan startup/cleanup and radio failures; no SQL. |
+| Protocol/source interpretation | `VictronAdvertisementDecoder`, `normalize_victron`, `ObservationNormalizer` | Validate source/key, decode vendor records and produce common observations/metadata. NMEA codecs are transport-independent and not wired into measurement capture yet. |
+| Monitor state | `VictronMonitor<S: ObservationSink>`, `MonitorState`, `MonitorReport` | Duplicate/freshness/key state and reports. Send writes/events through an injected contract; never open/read SQLite. |
+| Desktop advertisement seam | `AdvertisementSource`, `BluetoothAdvertisementSource` | Testable transport boundary. Retry/key-file supervisor lives in application integration, not in this package. |
 
-**Mobile implementation decision (October 26, 2026):** Retain the existing Rust
-btleplug adapter for iPhone and Android. On iPhone, btleplug uses Apple's
-CoreBluetooth internally; on Android it uses its Java/JNI backend. Small Swift
-and Kotlin Expo modules connect the app to Rust and manage platform integration;
-they do not implement separate Bluetooth scanners. Foreground Windows BMV simulator
-reception is the first mobile acceptance path. Native build success and physical
-phone reception must be verified separately; installed demo builds are not evidence
-of either. Real-device selection and private advertisement-key setup remain separate.
+`CaptureService` is injected by `native-integration` on mobile and desktop.
+Device Interface has no runtime dependency on `local-storage`, `data-capture` or
+rusqlite. Store queries do not pass through a receiver or require a live session.
+The retained generic `ConnectionManager`, `TransportAdapter` and
+`DeviceProtocolAdapter` remain operational stubs outside the active path.
 
-Instrument readings flow into aiNavLog. Connection setup may require protocol handshakes or subscriptions, but this design exposes no boat-equipment control commands. Unsupported protocols and stale or invalid readings must be visible rather than presented as current measurements. Device models, adapters/gateways, sampling, buffering, and reconnect limits remain TBD; no specific Heart Interface protocol is assumed.
+On mobile, application integration owns the worker/cancellation/session lifecycle
+and selects the public simulator. `scan_victron` inside Device Interface handles
+BLE events through Rust btleplug (CoreBluetooth on iOS, Java/JNI on Android).
+The public mobile start path still selects company `0x02e1`, synthetic product
+`0x1234`, Battery Monitor record `0x02` and the public test key. Real instrument
+selection/private mobile key setup, real BMV/Orion qualification and background
+recording remain open. iPhone build 6 reception was confirmed before this refactor;
+iPhone build 7 has now compiled and been uploaded to TestFlight; phone regression remains required. Android replacement is deferred.
+Physical Android remains deferred while the tablet is unavailable.
 
 #### 5.4.4 Route story sharing
 
@@ -532,9 +516,9 @@ The UI receives displayable identity and session status, not provider tokens. Th
 
 #### 5.4.6 User device and local persistence
 
-**Parent resource:** Device storage, grouped with camera and microphone as the User device. **Scope:** R-02–R-05, R-10; Section 4.2. Protected credentials support R-11 through Authentication only.
+**Parent:** Local data store. **Physical resource:** app-private device storage. **Scope:** R-02–R-05, R-10; Section 4.2. Protected credentials support R-11 through Authentication only.
 
-Camera/microphone access is owned by the Data capture media adapter. Protected credential access is owned by Authentication. The following proposed application adapters provide the local storage interface shown at Level 1; the physical storage technology remains TBD.
+Camera/microphone access is owned by the Data capture media adapter. Protected credential access is owned by Authentication. The implemented `local-storage` package provides SQLite observation/event persistence and latest/history query APIs. The broader repository adapters below remain proposed; the structured-record database is confirmed as SQLite through bundled Rust rusqlite on iOS/Android ([ADR-0001](docs/decisions/0001-sqlite-local-storage.md), October 28). The broader repository adapters below remain proposed; existing observation storage is implemented.
 
 | Module | Responsibility | Consumers |
 | --- | --- | --- |
@@ -544,7 +528,7 @@ Camera/microphone access is owned by the Data capture media adapter. Protected c
 | Local commit coordinator | Coordinate record and media writes and report durable success; recover incomplete writes or clean up orphaned temporary files. | Data capture Save coordinator. |
 | Local data access policy | Enforce the selected local owner/context consistently for reads and writes. | All repositories and media access; ownership/guest policy TBD. |
 
-A single User device box does not imply a single database. The application must define consistency across records and files before implementation. Schema migration, capacity limits, retention, encryption, and browser eviction behavior remain TBD. Signing into the same identity on a second device does not make the first device's boating data available there.
+SQLite is confirmed for structured beta records, including Historical Usage, Maintenance Logs and future equipment/entry/route records. Media may remain files referenced by SQLite; exact media layout and database-file count remain open. Existing small UI preferences remain in AsyncStorage, and authentication secrets use protected credential storage. A single User device box does not imply a single database. The application must define consistency across records and files before implementation. Schema migration, capacity limits, retention, encryption, and browser eviction behavior remain TBD. Signing into the same identity on a second device does not make the first device's boating data available there.
 
 #### 5.4.7 Interfaces between blocks
 
@@ -559,7 +543,7 @@ These are proposed logical contracts except for the implemented electrical sampl
 | Story preview | Route story sharing → UI | Artifact identifier/version, selected content, and render status. |
 | Export request/result | UI ↔ Route story sharing | Confirmed artifact/version and destination; saved, handed off, cancelled, unavailable, or failed result. |
 | Session status | Authentication → UI / access policy | Verified identity reference where available and session state; no raw credentials. |
-| Electrical sample (implemented local bridge) | Device Interface `serve-ui` → UI polling client → Electrical page | JSON sample from one persisted BMV packet; source label, original receipt timestamp and nullable house volts/amps/SOC and starter volts. Empty result and request failure remain explicit. |
+| Electrical sample (implemented local bridge) | Native integration `serve-ui` → UI polling client → Electrical page | JSON sample from one persisted BMV packet; source label, original receipt timestamp and nullable house volts/amps/SOC and starter volts. Empty result and request failure remain explicit. |
 | Connection status | Device Interface → UI | Source device, connection state, last observation time, and actionable error where applicable. |
 
 Before implementation, prioritize the route source/model, local ownership and guest policy, persistence technology, authentication hosting, and one supported instrument/protocol combination. Each choice should refine these interfaces without moving provider or hardware details into the UI.
@@ -623,5 +607,14 @@ AAB upload; iOS uses Xcode/iOS SDK and EAS Submit to App Store Connect/TestFligh
 See the [detailed mobile build/deployment architecture](docs/mobile-build-deployment.md)
 for signing, tools, commands, tester distribution and current verification status.
 This is a delivery infrastructure view, separate from the boat/instrument diagram.
-The current mobile binaries are UI/demo builds; native Rust/Bluetooth reception
-and phone-local SQLite remain integration work.
+Latest delivered iPhone version is 1.0.0/build 7 (October 28); existing Android code 7 predates the history/storage refactor and replacement is deferred. Rust
+Bluetooth reception and phone-local SQLite are integrated for the public BMV
+simulator; iPhone reception is owner-confirmed and physical Android qualification
+remains pending. SQLite/rusqlite is the confirmed structured local beta store.
+
+## 9. Architectural Decisions
+
+| ID | Accepted decision | Date | Status |
+| --- | --- | --- | --- |
+| [ADR-0001](docs/decisions/0001-sqlite-local-storage.md) | SQLite for structured device-local storage on iOS/Android, implemented through Rust rusqlite with bundled SQLite | October 28, 2026 | Confirmed by product owner; broader schemas/APIs and acceptance remain open |
+| [ADR-0002](docs/decisions/0002-capture-storage-boundaries.md) | Separate Device Interface, Data capture, Local data store and Native integration; UI reads bypass capture | October 28, 2026 | Implemented for electrical observations/history; phone regression pending |

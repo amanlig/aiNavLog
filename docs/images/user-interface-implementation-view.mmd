@@ -1,0 +1,109 @@
+classDiagram
+    direction TB
+    namespace Block1 {
+        class Layout
+        class StackLink
+        class AppHeader
+    }
+    note for Layout "1. Application shell: React component · src/app/_layout.tsx; SafeAreaProvider → PreferencesProvider → ElectricalProvider"
+    style Layout fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    note for StackLink "1. Application shell: External Expo Router components; Home / · Electrical /elec · Engine /mech · Routes /rout"
+    style StackLink fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    note for AppHeader "1. Application shell: React component; Boat-name dialog · appearance settings · navigation"
+    style AppHeader fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    namespace Block2 {
+        class HomeScreen
+        class ElectricalScreen
+        class MetricBatteryGaugeIcon
+        class FeatureIcon
+        class BatteryHistoryHistoryChart
+    }
+    note for HomeScreen "2. Screens and presentation: React component · src/app/index.tsx; Electrical summary; links to electrical / engine / routes"
+    style HomeScreen fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    note for ElectricalScreen "2. Screens and presentation: React component · src/app/elec/index.tsx; House / starter cards; connect / disconnect; diagnostics"
+    style ElectricalScreen fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    note for MetricBatteryGaugeIcon "2. Screens and presentation: Local React components; Format battery values and charge indicators"
+    style MetricBatteryGaugeIcon fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    note for FeatureIcon "2. Screens and presentation: Shared React component; Electrical / engine / route illustrations"
+    style FeatureIcon fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    note for BatteryHistoryHistoryChart "2. Screens and presentation: React components · history screen; House / Starter; pinch, pan, +/-; visible-range queries"
+    style BatteryHistoryHistoryChart fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    namespace Block3 {
+        class ElectricalProvideruseElectrical
+        class useElectricalState
+        class AppStatesubscription
+        class Datamodeselection
+    }
+    note for ElectricalProvideruseElectrical "3. Shared electrical state: React context provider / hook; Expose sample · clock · errors · connection · counters"
+    style ElectricalProvideruseElectrical fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    note for useElectricalState "3. Shared electrical state: Internal React hook; Poll every second; serialize receiver operations"
+    style useElectricalState fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    note for AppStatesubscription "3. Shared electrical state: Hook lifecycle integration; Pause on background; resume requested native session"
+    style AppStatesubscription fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    note for Datamodeselection "3. Shared electrical state: Environment / platform configuration; Native BMV → configured HTTP endpoint → local demo"
+    style Datamodeselection fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    namespace Block4 {
+        class nativeclientts
+        class AiNavLogModuleJNI
+        class HTTPfetchinuseElectricalState
+        class parseDeviceSample
+        class historyclientparseHistory
+    }
+    note for nativeclientts "4. Data clients and native boundary: TypeScript module; startReceiver / stopReceiver / readReceiver; permissions"
+    style nativeclientts fill:#fffbeb,stroke:#b45309,color:#0f172a
+    note for AiNavLogModuleJNI "4. Data clients and native boundary: Swift / Kotlin / Android C++ integration; start / stop / snapshot / history → native-integration"
+    style AiNavLogModuleJNI fill:#fffbeb,stroke:#b45309,color:#0f172a
+    note for HTTPfetchinuseElectricalState "4. Data clients and native boundary: Hook implementation · desktop development; GET /electrical; 3s abort; no demo fallback on failure"
+    style HTTPfetchinuseElectricalState fill:#fffbeb,stroke:#b45309,color:#0f172a
+    note for parseDeviceSample "4. Data clients and native boundary: TypeScript function · device-client.ts; Validate source / timestamp / nullable finite readings"
+    style parseDeviceSample fill:#fffbeb,stroke:#b45309,color:#0f172a
+    note for historyclientparseHistory "4. Data clients and native boundary: TypeScript modules; Read native or HTTP history; validate bounded chart points"
+    style historyclientparseHistory fill:#fffbeb,stroke:#b45309,color:#0f172a
+    namespace Block5 {
+        class ElectricalSample
+        class isFreshSTALEMS
+        class readingsimulate
+        class starterAlertparseThreshold
+        class historytshistoryviewportts
+    }
+    note for ElectricalSample "5. Measurement rules and contract: TypeScript type; source · receivedAt · house V/A/SOC · starter V"
+    style ElectricalSample fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    note for isFreshSTALEMS "5. Measurement rules and contract: Functions / constant · model.ts; Hide values older than 5s; reject future timestamps"
+    style isFreshSTALEMS fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    note for readingsimulate "5. Measurement rules and contract: Functions · model.ts; Format nullable numbers; explicitly labelled demo data"
+    style readingsimulate fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    note for starterAlertparseThreshold "5. Measurement rules and contract: Functions · model.ts; Helpers exist; configurable alert UI is not connected"
+    style starterAlertparseThreshold fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    note for historytshistoryviewportts "5. Measurement rules and contract: Types / pure functions; Calendar bounds; pinch/step zoom, pan, extrema, selection"
+    style historytshistoryviewportts fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    namespace Block6 {
+        class PreferencesProviderusePreferences
+        class AsyncStorage
+        class ElectricalRecords
+        class EngineScreenRoutesScreen
+    }
+    note for PreferencesProviderusePreferences "6. Preferences and unfinished views: React provider / hook; Boat name · white/black palette · load/save errors"
+    style PreferencesProviderusePreferences fill:#fff7ed,stroke:#c2410c,color:#0f172a
+    note for AsyncStorage "6. Preferences and unfinished views: External local persistence library; ainavlog.preferences.v1; settings only"
+    style AsyncStorage fill:#fff7ed,stroke:#c2410c,color:#0f172a
+    note for ElectricalRecords "6. Preferences and unfinished views: React component; Maintenance empty state; recording not implemented"
+    style ElectricalRecords fill:#fff7ed,stroke:#c2410c,color:#0f172a
+    note for EngineScreenRoutesScreen "6. Preferences and unfinished views: React route components; ComingSoon component; no engine or route capture"
+    style EngineScreenRoutesScreen fill:#fff7ed,stroke:#c2410c,color:#0f172a
+    Layout --> HomeScreen : navigation
+    Layout --> ElectricalProvideruseElectrical : mounts
+    Layout --> PreferencesProviderusePreferences : mounts
+    HomeScreen --> ElectricalProvideruseElectrical : consumes
+    ElectricalScreen --> ElectricalProvideruseElectrical : consumes / commands
+    ElectricalProvideruseElectrical --> useElectricalState : owns state
+    useElectricalState --> nativeclientts : native mode
+    nativeclientts --> AiNavLogModuleJNI : calls
+    BatteryHistoryHistoryChart --> historyclientparseHistory : range query
+    BatteryHistoryHistoryChart --> historytshistoryviewportts : zoom / gaps / selection
+    nativeclientts --> parseDeviceSample : validates snapshot
+    useElectricalState --> HTTPfetchinuseElectricalState : HTTP mode
+    HTTPfetchinuseElectricalState --> parseDeviceSample : validates response
+    HomeScreen --> isFreshSTALEMS : hides stale
+    ElectricalScreen --> isFreshSTALEMS : hides stale
+    PreferencesProviderusePreferences --> AsyncStorage : load / save
+    AppHeader --> PreferencesProviderusePreferences : edit settings

@@ -1,0 +1,96 @@
+classDiagram
+    direction TB
+    namespace Block1 {
+        class AiNavLogModuleJNI
+        class RegistrySession
+        class ScannerScanStats
+        class LatesthistoryCABI
+    }
+    note for AiNavLogModuleJNI "1. Native integration: Swift / Kotlin / C++; App lifecycle, private paths, start / stop / snapshot / history"
+    style AiNavLogModuleJNI fill:#fffbeb,stroke:#b45309,color:#0f172a
+    note for RegistrySession "1. Native integration: Rust structs; Opaque handles; Session owns monitor with injected capture"
+    style RegistrySession fill:#fffbeb,stroke:#b45309,color:#0f172a
+    note for ScannerScanStats "1. Native integration: Rust application worker / diagnostics; Cancellation, retry and simulator selection policy"
+    style ScannerScanStats fill:#fffbeb,stroke:#b45309,color:#0f172a
+    note for LatesthistoryCABI "1. Native integration: Rust query functions; Read Local data store directly; no capture or receiver needed"
+    style LatesthistoryCABI fill:#fffbeb,stroke:#b45309,color:#0f172a
+    namespace Block2 {
+        class BluetoothAdapterAdvertisementScan
+        class scanvictron
+        class VictronMonitorSObservationSink
+        class DecoderObservationNormalizer
+        class NMEAcodecsinterfacestubs
+    }
+    note for BluetoothAdapterAdvertisementScan "2. Device Interface: Rust structs; btleplug platform access; event stream and scan cleanup"
+    style BluetoothAdapterAdvertisementScan fill:#fffbeb,stroke:#b45309,color:#0f172a
+    note for scanvictron "2. Device Interface: Rust async receiver; Own BLE events, startup, silence timeout and radio errors"
+    style scanvictron fill:#fffbeb,stroke:#b45309,color:#0f172a
+    note for VictronMonitorSObservationSink "2. Device Interface: Rust struct; Decode, deduplicate, freshness / key state; emit to sink"
+    style VictronMonitorSObservationSink fill:#fffbeb,stroke:#b45309,color:#0f172a
+    note for DecoderObservationNormalizer "2. Device Interface: Rust structs; Vendor protocol → common observations and metadata"
+    style DecoderObservationNormalizer fill:#fffbeb,stroke:#b45309,color:#0f172a
+    note for NMEAcodecsinterfacestubs "2. Device Interface: Rust structs / traits; Codecs exist; generic gateway integration remains unfinished"
+    style NMEAcodecsinterfacestubs fill:#fffbeb,stroke:#b45309,color:#0f172a
+    namespace Block3 {
+        class CaptureService
+        class capture
+        class recordevent
+    }
+    note for CaptureService "3. Data capture: Rust struct · implements ObservationSink; Owns repository; validates before coordinating commit"
+    style CaptureService fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    note for capture "3. Data capture: ObservationSink method; Source/time, fields, unique quantities, finite values, quality"
+    style capture fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    note for recordevent "3. Data capture: ObservationSink method; Validate and save receiver state / diagnostic events"
+    style recordevent fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    namespace Block4 {
+        class ObservationStore
+        class Latesthistoryrecentqueries
+        class StoredObservationBmvHistoryPoint
+        class samplesobservationsmonitorevents
+    }
+    note for ObservationStore "4. Local data store: Rust struct; Own connection, schema/version, WAL, indexes, transactions"
+    style ObservationStore fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    note for Latesthistoryrecentqueries "4. Local data store: Associated Rust functions; Read-only; source/range selection; no Bluetooth required"
+    style Latesthistoryrecentqueries fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    note for StoredObservationBmvHistoryPoint "4. Local data store: Rust data structs; Nullable measurements; receipt time; gap segment IDs"
+    style StoredObservationBmvHistoryPoint fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    note for samplesobservationsmonitorevents "4. Local data store: Existing SQLite tables; Schema 1 and existing database files preserved"
+    style samplesobservationsmonitorevents fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    namespace Block5 {
+        class SampleMetadata
+        class ObservationDecodedReading
+        class ObservationSink
+        class AppErrorAppResultQualityStatus
+    }
+    note for SampleMetadata "5. Shared data contracts: Rust struct; source · receipt · product · counter · record type"
+    style SampleMetadata fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    note for ObservationDecodedReading "5. Shared data contracts: Rust structs; quantity · unit · optional value/time · quality"
+    style ObservationDecodedReading fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    note for ObservationSink "5. Shared data contracts: Rust trait · injected write interface; capture() / record_event(); no concrete storage dependency"
+    style ObservationSink fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    note for AppErrorAppResultQualityStatus "5. Shared data contracts: Shared application contracts; Device API retains compatible DeviceError/Result aliases"
+    style AppErrorAppResultQualityStatus fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    namespace Block6 {
+        class runvictronmonitorMonitorConfig
+        class serveui
+        class CLIpacketreplay
+    }
+    note for runvictronmonitorMonitorConfig "6. Desktop application composition: Rust async supervisor / configuration; Assemble transport → capture → storage; retry and key reload"
+    style runvictronmonitorMonitorConfig fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    note for serveui "6. Desktop application composition: Rust read-only HTTP module; Latest and history query APIs → Local data store"
+    style serveui fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    note for CLIpacketreplay "6. Desktop application composition: Executable / example; Application entry points; executable name unchanged"
+    style CLIpacketreplay fill:#ecfdf5,stroke:#15803d,color:#0f172a
+    AiNavLogModuleJNI --> RegistrySession : C ABI
+    ScannerScanStats --> scanvictron : radio reception
+    scanvictron --> BluetoothAdapterAdvertisementScan : owns event handling
+    RegistrySession --> VictronMonitorSObservationSink : owns
+    VictronMonitorSObservationSink --> DecoderObservationNormalizer : decodes
+    VictronMonitorSObservationSink --> ObservationSink : emits normalized observations
+    ObservationSink --> CaptureService : implemented by
+    CaptureService --> ObservationStore : validated atomic save
+    LatesthistoryCABI --> Latesthistoryrecentqueries : direct read
+    ObservationStore --> samplesobservationsmonitorevents : schema / transactions
+    serveui --> Latesthistoryrecentqueries : direct read
+    runvictronmonitorMonitorConfig --> VictronMonitorSObservationSink : supervises
+    runvictronmonitorMonitorConfig --> CaptureService : injects

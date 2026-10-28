@@ -1,5 +1,7 @@
 # First Android app — manual Google Play internal testing
 
+**Storage baseline — October 28, 2026:** SQLite via bundled Rust rusqlite is confirmed for structured local iOS/Android beta records ([ADR-0001](decisions/0001-sqlite-local-storage.md)). Native simulator integration is recorded in the [October 26 handoff](status/status-2026-10-26.md); older build-specific demo descriptions below remain historical evidence. Restart/update retention and physical Android acceptance remain open.
+
 The first artifact is a standalone release build of aiNavLog's current UI.
 Electrical uses visibly labeled demo readings; Engine and Routes are coming-next
 screens. It launches without Metro, a laptop or a live device endpoint. Rust,

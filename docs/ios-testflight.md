@@ -1,5 +1,7 @@
 # First iPhone installation through TestFlight
 
+**Storage baseline — October 28, 2026:** SQLite via bundled Rust rusqlite is confirmed for structured local iOS/Android beta records ([ADR-0001](decisions/0001-sqlite-local-storage.md)). Native simulator integration is recorded in the [October 26 handoff](status/status-2026-10-26.md); older build-specific demo descriptions below remain historical evidence. Restart/update retention and physical Android acceptance remain open.
+
 ## Prepared October 16, 2026
 
 Owner confirmed Apple Developer membership is active and there is no existing iOS

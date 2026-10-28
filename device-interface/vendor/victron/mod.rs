@@ -35,6 +35,22 @@ pub struct VictronMessage {
     pub record: OrionRecord,
 }
 
+impl VictronMessage {
+    pub fn metadata(&self) -> ainavlog_data_model::SampleMetadata {
+        ainavlog_data_model::SampleMetadata {
+            source_id: self.source_id.clone(),
+            received_at: self.received_at,
+            product_id: self.product_id,
+            data_counter: self.data_counter,
+            record_type: match self.record {
+                OrionRecord::BatteryMonitor(_) => 2,
+                OrionRecord::DcDc(_) => 4,
+                OrionRecord::OrionXs(_) => 15,
+            },
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum OrionRecord {
     /// Published record 0x02 (BMV-712 / compatible battery monitors).

@@ -1,5 +1,7 @@
 # Mobile build and deployment — physical architecture
 
+**Storage baseline — October 28, 2026:** SQLite via bundled Rust rusqlite is confirmed for structured local iOS/Android beta records ([ADR-0001](decisions/0001-sqlite-local-storage.md)). Native simulator integration is recorded in the [October 26 handoff](status/status-2026-10-26.md); older build-specific demo descriptions below remain historical evidence. Restart/update retention and physical Android acceptance remain open.
+
 This view shows the actual tools and services used to build and distribute the
 current Android and iOS UI/demo. It complements the [boat/instrument physical
 architecture](orion-physical-architecture.md); build infrastructure is separate

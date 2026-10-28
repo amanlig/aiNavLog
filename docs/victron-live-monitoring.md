@@ -1,5 +1,7 @@
 # Live Victron monitoring and local storage
 
+**Confirmed storage decision — October 28, 2026:** SQLite, accessed through Rust `rusqlite` with bundled SQLite, is the local structured database for the 2027 iOS/Android beta. See [ADR-0001](decisions/0001-sqlite-local-storage.md) for scope, current implementation and remaining work. Existing AsyncStorage preferences and protected credential storage remain separate.
+
 The foreground monitoring path is implemented for Orion-Tr Smart/DC-DC and Orion
 XS Instant Readout advertisements. It uses Bluetooth scanning, the vendor decoder,
 observation normalization and SQLite. It does not connect to the charger or send
@@ -24,7 +26,7 @@ the Bluetooth backend; use `discover` if a different OS exposes another ID.
 3. From `device-interface`, start the foreground monitor:
 
 ```sh
-cargo run --locked -- monitor-victron 'D4:B3:CB:26:5E:75' \
+cargo run --locked --features desktop -- monitor-victron 'D4:B3:CB:26:5E:75' \
   --key-file /path/to/orion.key \
   --database data/observations.sqlite3
 ```
@@ -113,7 +115,7 @@ must not infer current freshness from that state alone.
 Read stored observations without Bluetooth access:
 
 ```sh
-cargo run --locked -- observations data/observations.sqlite3 25
+cargo run --locked --features desktop -- observations data/observations.sqlite3 25
 ```
 
 This command opens the existing database read-only and lists historical rows.
@@ -174,9 +176,9 @@ provides the Rust foreground service and local store for that later app integrat
 - [BLE scan lifecycle](../device-interface/src/bluetooth.rs)
 - [Monitor supervisor and processing](../device-interface/src/monitor.rs)
 - [Normalization](../device-interface/src/normalizer.rs)
-- [SQLite store](../device-interface/src/store.rs)
-- [CLI](../device-interface/src/monitor_cli.rs)
-- [Integration tests](../device-interface/tests/live_monitor.rs)
+- [SQLite store](../local-storage/src/lib.rs)
+- [CLI](../native-integration/src/monitor_cli.rs)
+- [Integration tests](../native-integration/tests/live_monitor.rs)
 - [Vendor protocol guide](../device-interface/vendor/README.md)
 
 ## Development without Orion hardware

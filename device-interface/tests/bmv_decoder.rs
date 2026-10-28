@@ -1,11 +1,12 @@
+use ainavlog_data_capture::CaptureService;
 use ainavlog_device_interface::{
     monitor::{normalize_victron, VictronMonitor},
-    store::ObservationStore,
     vendor::victron::{
         BatteryAuxiliary, VictronAdvertisement, VictronAdvertisementDecoder, VictronRecord,
     },
     ProtocolDecoder,
 };
+use ainavlog_local_storage::ObservationStore;
 use std::time::{Duration, Instant, SystemTime};
 const KEY: &str = "000102030405060708090a0b0c0d0e0f";
 fn hex(s: &str) -> Vec<u8> {
@@ -104,7 +105,7 @@ fn missing_values_and_starter_voltage_are_distinct() {
         "bmv-test".into(),
         KEY,
         Duration::from_secs(3),
-        ObservationStore::in_memory().unwrap(),
+        CaptureService::new(ObservationStore::in_memory().unwrap()),
         now,
     )
     .unwrap();
@@ -113,7 +114,7 @@ fn missing_values_and_starter_voltage_are_distinct() {
         .observations
         .iter()
         .any(|o| o.quantity == "auxiliary_voltage" && o.value == Some(12.8)));
-    assert_eq!(monitor.store().recent(100).unwrap().len(), 7);
+    assert_eq!(monitor.sink().store().recent(100).unwrap().len(), 7);
     assert!(monitor.ingest(input, now).unwrap().is_none());
 }
 #[test]
@@ -159,14 +160,18 @@ fn ui_reads_one_complete_packet_for_selected_bmv() {
         let frame = packet(raw.to_vec());
         let message = decoder.decode(&frame).unwrap();
         store
-            .save(&message, raw, &normalize_victron(&message).unwrap())
+            .save(
+                &message.metadata(),
+                raw,
+                &normalize_victron(&message).unwrap(),
+            )
             .unwrap();
         let rows = ObservationStore::read_latest_bmv(&path, "bmv-test").unwrap();
         assert!(!rows.is_empty());
         assert!(rows.iter().all(|o| o.sample_id == rows[0].sample_id));
         assert_eq!(
             rows[0].received_at_ms,
-            ainavlog_device_interface::store::unix_millis(frame.received_at).unwrap()
+            ainavlog_local_storage::unix_millis(frame.received_at).unwrap()
         );
     }
     let rows = ObservationStore::read_latest_bmv(&path, "bmv-test").unwrap();

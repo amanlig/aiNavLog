@@ -1,0 +1,9 @@
+[package]
+name = "ainavlog-data-capture"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+ainavlog-data-model = { path = "../data-model" }
+ainavlog-local-storage = { path = "../local-storage" }

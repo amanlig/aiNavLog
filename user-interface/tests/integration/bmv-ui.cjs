@@ -6,7 +6,7 @@ const path = require('node:path');
 const { chromium } = require('playwright');
 const root = path.resolve(__dirname, '../../..');
 const database = process.env.BMV_TEST_DATABASE || '/tmp/ainavlog-bmv-ui.sqlite3';
-const replay = () => spawn(path.join(root, 'device-interface/target/debug/examples/replay_bmv'), [database, path.join(root, 'simulation/bmv712/integration-packets.log')], {stdio:'inherit'});
+const replay = () => spawn(path.join(root, 'native-integration/target/debug/examples/replay_bmv'), [database, path.join(root, 'simulation/bmv712/integration-packets.log')], {stdio:'inherit'});
 (async () => {
   const browser = await chromium.launch({headless:true});
   let source;

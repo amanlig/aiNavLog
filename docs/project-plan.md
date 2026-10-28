@@ -1,40 +1,57 @@
 # aiNavLog vertical implementation plan
 
-**Created:** October 5, 2026. **Rebaselined:** October 16, 2026. **Status updated:** October 23, 2026,
-using recorded evidence through October 23.
+**Confirmed storage decision — October 28, 2026:** SQLite, accessed through Rust `rusqlite` with bundled SQLite, is the local structured database for the 2027 iOS/Android beta. See [ADR-0001](decisions/0001-sqlite-local-storage.md) for scope, current implementation and remaining work. Existing AsyncStorage preferences and protected credential storage remain separate.
+
+**Created:** October 5, 2026. **Rebaselined:** October 16, 2026. **Status updated:** October 28, 2026,
+using the October 26 delivery handoff and October 28 owner-reported iPhone test.
 **Target:** implementation foundation for the 2027 mobile beta. Dates use
 America/Vancouver. Feature windows are two calendar weeks, with Friday reviews.
 These are planning targets, not confirmed delivery or public-store release dates.
 
-## Completion checkpoint — October 23
+## Completion checkpoint — October 28
+
+**Where we are:** the native simulator-to-iPhone electrical path works. We are
+qualifying failure/recovery and persistence behaviour, rather than still building
+the first receiver. Electrical is not yet fully accepted; Engine has not started.
 
 | Workstream | Recorded status | Remaining work |
 | --- | --- | --- |
-| Desktop/core/UI foundation | Complete: replay → Rust decoder/normalizer → host SQLite → HTTP → Electrical UI; host-tested C bridge | Mobile target packaging and native integration are separate |
-| First signed installs | Complete October 16: Android emulator and physical iPhone 13 | Physical Android verification |
-| Shared CI and both delivery workflows | Implemented and demonstrated October 20: hosted checks, signed builds, source/build receipts and exact-build store submission | Deliberately failing-check demonstration; Ubuntu runner compatibility review/migration |
-| iOS delivery acceptance | Build 3 CI delivery verified Oct 20; latest build-4 UI update owner-reported passed on iPhone 13 Oct 23 (build/device inferred from context) | Native-enabled update, phone-data retention and detailed native/lifecycle checks |
-| Android delivery acceptance | Code 3 CI delivery verified Oct 20; latest code-4 UI update owner-reported passed Oct 23 (build/emulator inferred from context) | Physical Android, radio/native integration and phone-data retention |
-| Native Electrical | Incomplete: distributed builds remain demo mode; no recorded mobile Rust/Bluetooth/phone SQLite completion | Packaging gate, native receiver/adapter, persistence and end-to-end device acceptance |
-| Engine, Route, Authentication, Route story | Planned; no completed vertical-slice acceptance recorded | Dependencies and acceptance described below |
+| Desktop/core/UI foundation | Complete: replay → Rust decoder/normalizer → host SQLite → HTTP → Electrical UI; host-tested C bridge | Maintain regression coverage as native work evolves |
+| Shared CI and delivery | Both CI delivery paths demonstrated October 20; later native builds delivered through EAS/store testing | Deliberately failing-check demonstration; runner compatibility review; mobile Rust checks |
+| iPhone native Electrical | Build 7 (history + separated capture/storage) built and uploaded to TestFlight October 28; build-6 reception/counters previously owner-confirmed | Install/verify build 7; history with existing/new data; receiver regression, disconnect/reconnect, stale/recovery, permissions and restart/update retention |
+| Android native Electrical | Code 7 built and submitted to Play internal testing; emulator reaches connected screen after native-link fix | Physical radio acceptance deferred until tablet arrives; lifecycle and persistence checks remain open |
+| Local data store — confirmed beta choice | SQLite through bundled Rust rusqlite accepted October 28 for structured beta records; observations/events implemented | Finalize maintenance schema, stable identities, history/maintenance APIs, migrations, retention/export/deletion/protection; verify restart/update retention |
+| UI and architecture visibility | Home/Electrical share sample state; boat name/appearance persist; SAD §§5.4.1/5.4.3 and both implementation images updated October 28 | History chart implementation complete locally (native delivery/acceptance pending); maintenance recording, starter trends/configurable alerts and agreed event/response scope remain unfinished |
+| Real BMV / Orion | Decoder support exists; mobile start path deliberately selects public BMV simulator only | Real-device selection/private mobile key setup, hardware interoperability and reference-value comparison |
+| Engine, Route, Authentication, Route story | Planned; no completed vertical-slice acceptance | Dependencies and provisional review dates below |
 
-Evidence: [October 20 handoff](status/status-2026-10-20.md),
-[iOS CI run 39515378354](https://github.com/amanlig/aiNavLog/actions/runs/39515378354)
-and [Android CI run 39525703279](https://github.com/amanlig/aiNavLog/actions/runs/39525703279).
-See also [October 23 UI/build and owner acceptance](status/status-2026-10-23.md).
-Build 4 used direct EAS delivery; device acceptance is owner-reported, not independently observed.
+**October 28 test evidence:** independent broadcaster fixture check passed;
+a five-minute Windows BLE run produced repeated `Started` statuses. Owner answered
+“yes” to readings appearing and receiver packet/update counters increasing on the
+iPhone 13. Installed build was not rechecked today; build 6 is the last recorded
+iPhone build. Disconnect/reconnect was proposed next but no result has been
+reported. Do not infer the other acceptance checks passed.
 
-**Next session (owner-selected October 23):** integrate and test the Windows BMV
-simulator path on mobile. Current passed iOS/Android UI tests used app-generated
-demo data. Phone Bluetooth/Rust/SQLite prerequisites must be completed before
-claiming a simulator-to-phone pass. See [handoff](status/status-2026-10-23.md#next-session--windows-bmv-simulator-to-phone).
+Evidence: [October 26 handoff](status/status-2026-10-26.md),
+[October 28 checkpoint](status/status-2026-10-28.md),
+[phone acceptance checklist](bmv-phone-test.md).
+
+**Today’s objective — finalize device-local storage:** retain SQLite/rusqlite; define the history and maintenance contracts, schema/migrations and storage lifecycle, then implement and verify them. Database choice is settled; feature acceptance remains open.
+
+**Next phone acceptance action:** resume the iPhone disconnect/reconnect check, then stale/recovery,
+background/resume, permission/Bluetooth and restart-persistence checks. Android
+hardware testing is deferred by owner request while the tablet is unavailable.
+No new build or store submission is needed merely to resume these checks.
+
+Visual references: [User Interface implementation view](user-interface-implementation-view.md)
+and [Device Interface implementation view](device-interface-implementation-view.md).
 
 ## Schedule
 
 | Slice | Revised window | Demo / review milestone | Working outcome |
 | --- | --- | --- | --- |
-| 1. Electrical — native completion | Oct 19–Nov 1, 2026; desktop/core/UI work from Oct 5–18 retained | Fri Oct 23 native packaging gate; Fri Oct 30 end-to-end review | BMV simulator Bluetooth → phone receiver → Rust decoder → phone SQLite → House/Starter UI, with failure and restart checks |
-| 2. Store deployment / beta distribution — parallel | Initial installs achieved Oct 16; demo CI delivery/update acceptance achieved Oct 20; native qualification ongoing | Fri Oct 30 native-build update review; Fri Nov 13 cross-platform evidence review | Reuse signed build paths; validate updates and data retention once native storage exists; finish physical Android and native runtime checks |
+| 1. Electrical — native completion | Oct 19–Nov 1, 2026; desktop/core/UI work from Oct 5–18 retained | Native packaging achieved by Oct 26; Fri Oct 30 acceptance review | BMV simulator Bluetooth → phone receiver → Rust decoder → phone SQLite → House/Starter UI, with failure and restart checks |
+| 2. Store deployment / beta distribution — parallel | Initial installs achieved Oct 16; demo CI delivery/update acceptance achieved Oct 20; native qualification ongoing | Fri Oct 30 native-build update review; Fri Nov 13 cross-platform evidence review | Reuse signed build paths; validate native updates and stored-reading retention; finish physical Android and native runtime checks |
 | 2a. Android + iOS CI/CD — delivery demonstrated | Oct 19–20, 2026 achieved; remaining acceptance open | Both delivery paths verified Oct 20; failed-check gate demonstration still pending | Hosted shared checks, signed builds, receipts and exact-build Play/TestFlight submissions complete; iPhone and emulator acceptance recorded |
 | 3. Engine | Nov 2–15, 2026 | Fri Nov 13 | Selected measurements through the shared pipeline; simulated-only scope if hardware/gateway remains unresolved |
 | 4. Route | Nov 16–29, 2026 | Fri Nov 27 | Record, save, reopen and display a route; permissions and location gaps explicit |
@@ -53,7 +70,7 @@ Nov 2 represents work through Nov 1. Review diamonds occur within their windows.
 
 ```mermaid
 gantt
-    title aiNavLog — status October 23; evidence through October 20
+    title aiNavLog — status and evidence October 28
     dateFormat YYYY-MM-DD
     axisFormat %b %d
     todayMarker off
@@ -66,8 +83,9 @@ gantt
     Failed-check proof and runner review :cicd_remaining, 2026-10-23, 2026-10-31
     Distribution and update checks      :delivery, 2026-10-19, 2027-02-01
     section Feature implementation
-    Native Electrical completion at risk :crit, electrical, 2026-10-19, 2026-11-02
-    Native packaging gate unverified    :milestone, crit, native_gate, 2026-10-23, 0d
+    Electrical acceptance remaining :crit, electrical, 2026-10-19, 2026-11-02
+    Native packaging delivered          :milestone, done, native_gate, 2026-10-26, 0d
+    iPhone reception reconfirmed        :milestone, done, iphone_retest, 2026-10-28, 0d
     Electrical demo                     :milestone, electrical_demo, 2026-10-30, 0d
     Engine                              :engine, 2026-11-02, 2026-11-16
     Engine demo                         :milestone, engine_demo, 2026-11-13, 0d
@@ -86,8 +104,8 @@ gantt
 
 The delivery bar spans the programme but does not assume full holiday staffing.
 CI/CD delivery was demonstrated Oct 20; failed-check blocking proof remains open.
-The Oct 23 native-packaging gate has no recorded completion evidence. Electrical
-Oct 30 and downstream dates remain provisional and at risk; reassess scope/capacity
+Native packaging and iPhone simulator reception are achieved as of Oct 26–28.
+Electrical Oct 30 acceptance and downstream dates remain provisional; reassess remaining scope/capacity
 before treating Engine Nov 2 as a committed start. No replacement dates are assumed.
 The Oct 23–30 CI follow-up bar is a review target, not completion evidence.
 Public-store release is outside these scheduled milestones.
@@ -120,7 +138,7 @@ submission or purchase is triggered by this plan update.
 | Target | Evidence required |
 | --- | --- |
 | Oct 20 achieved; Oct 23 follow-up open | Both platforms passed hosted checks, signed build, receipt and exact-build internal delivery; owner device/emulator acceptance recorded. Demonstrate a deliberately failing check blocking delivery; review runner compatibility |
-| Oct 23 | Rust target-library packaging and Expo native adapter build feasibility demonstrated; platform permission/scanner design chosen; Electrical event-history additions sized |
+| Packaging achieved by Oct 26 | Rust native builds and Expo wrappers delivered on both platforms; iPhone reception confirmed. Event-history additions still require sizing |
 | Oct 30 | Physical iPhone simulator-to-native-UI path, denied Bluetooth/stale/recovery behaviour, and phone-local persistence across restart; remaining Android/physical-BMV gaps explicitly recorded |
 | Oct 30 | Deliver a native-enabled build through established distribution; verify updating the installed demo. Claim stored-reading retention only after phone storage exists and an update test passes |
 | Nov 13 | Review Android native/device evidence independently; do not treat the emulator's install or iPhone pass as Android radio qualification |
@@ -151,35 +169,27 @@ platform verification must stay visible as a beta qualification gap.
 
 ## 1. Electrical
 
-**Status — October 23, 2026:** **Native completion pending; Oct 16
-end-to-end goal rebaselined to Oct 30.** The mobile shell is distributed and
-installed. The iPhone 13 demo, navigation and reopen checks passed by owner
-confirmation. Demo readings do not establish Bluetooth reception or persistence.
+**Status — October 28, 2026:** **Native iPhone simulator reception demonstrated;
+full Electrical acceptance remains open.** Rust receiver, Expo native modules,
+phone SQLite and shared UI state are implemented. iPhone build 6 received simulator
+packets October 26; iPhone 13 readings/counters were reconfirmed October 28.
+Android code 7 is internally delivered and initializes in the emulator. Physical
+Android testing is deferred until the tablet arrives.
 
-The Oct 23 native packaging gate remains unverified in the recorded evidence.
-The Oct 30 target is at risk; confirm a feasible remaining scope before starting Engine.
-Both CI-delivered builds still use demo data.
+**Completed since October 23:** mobile Rust packaging, Swift/Kotlin/JNI bridge,
+foreground btleplug simulator receiver, phone-local SQLite integration, iPhone
+radio-to-UI demonstration, Android portable-library-link fix and code-7 delivery.
+The implementation views now map current logical groups to source locations.
 
-**Prerequisites resolved:** Apple Developer membership is active; Google account
-verification and first signed build/distribution paths are established. Both
-platforms use `com.kodekomplete.com.ainavlog`. iPhone install is no longer the
-blocking prerequisite. Native packaging, receiver/adapter and storage are next.
+**Remaining for the October 30 review:** record disconnect/reconnect (next pending
+check), stale/recovery, background/resume, denied Bluetooth permission, Bluetooth
+toggle and restart-persistence results on iPhone. Check stored data across a native
+app update separately. Record Android and real-BMV gaps explicitly. Starter trends,
+configured alerts, historical UI native delivery/acceptance and event/response/recurrence scope remain open;
+size or explicitly defer them before declaring the slice accepted. Keep Engine's
+November 2 start provisional until that review; dates are not changed by this update.
 
-**Oct 19–25:** package the shared Rust core for mobile targets, implement the Expo
-native boundary and platform Bluetooth receiver, and pass one decoded sample to
-phone-local SQLite and `/elec`. Verify the iOS signing/build path includes the
-native components. Preserve source identity, nullable measurements and original
-receipt time. Define ownership boundaries and size event/response/recurrence work
-at the Oct 23 gate; do not silently expand the two-week commitment.
-
-**Oct 26–Nov 1:** complete House/Starter behaviour, freshness/recovery and
-permissions checks on native data; verify restart persistence and a native-enabled
-app update. Review Oct 30 with explicit iOS/Android and physical/simulator evidence.
-Starter auxiliary trends and configured voltage alerts remain acceptance work;
-unavailable current/SOC must not be fabricated. If the native packaging gate fails,
-replan downstream dates at that point rather than treating demo mode as completion.
-
-**Done:** Windows BMV simulator → phone Bluetooth → BMV decoder → local store →
+**Acceptance target — not fully achieved:** Windows BMV simulator → phone Bluetooth → BMV decoder → local store →
 electrical UI works end to end. House shows volts, signed amps and charge %;
 Starter shows auxiliary volts, trend and alert status. Starter amps and SOC are
 unavailable, never invented or shown as zero. The selector changes views, not
@@ -191,8 +201,9 @@ already pass software tests. Simulated BLE reception on iPhone has been demonstr
 Starter auxiliary-voltage simulation was added and fixture-checked on October 6.
 The local desktop/web path from captured simulator packets through the Rust monitor,
 SQLite and HTTP to the rendered electrical page was verified on October 6, including
-changing SOC, stale hiding and recovery. Native mobile reception/bridge integration
-remains to implement. No local Mac is available; EAS cloud builds now provide
+changing SOC, stale hiding and recovery. Native mobile reception/bridge integration is now implemented for the public
+simulator, with iPhone reception reconfirmed October 28; Android hardware
+qualification and detailed lifecycle/persistence acceptance remain open. No local Mac is available; EAS cloud builds now provide
 the signed iOS build path. Apple membership, signing and the first iPhone 13
 UI/demo installation are confirmed as of October 16. See the
 [mobile workflow](mobile-development-workflow.md).
@@ -232,26 +243,32 @@ sequenceDiagram
     actor Boater
     participant Page as UI: ElectricalScreen (/elec)
     participant Client as UI: electrical data client
-    participant Bridge as Readings adapter (HTTP now, native planned)
-    participant Store as Device Interface: local SQLite
+    participant Bridge as Native Expo module / Rust C ABI
+    participant Store as Local data store: SQLite
     participant Monitor as Device Interface: reception / decoder / normalizer
+    participant Capture as Data capture: validated writes
     participant Source as BMV or Windows BMV simulator
 
-    Note over Monitor,Source: Reception lifecycle runs independently of opening the page
+    Boater->>Page: Connect simulator
+    Page->>Client: startReceiver
+    Client->>Bridge: start
+    Bridge->>Monitor: Start foreground simulator receiver
     Boater->>Page: Open /elec
     Page->>Client: Subscribe to sample and availability state
     Page-->>Boater: Render battery cards with waiting state
     par Receive and persist observations
         loop While instrument monitoring is active
             Source->>Monitor: Encrypted Bluetooth advertisement
-            Note over Source,Monitor: Verified replay injects captured packets here. Phone radio path remains pending
+            Note over Source,Monitor: iPhone simulator reception confirmed; physical Android pending
             Monitor->>Monitor: Decode BMV fields and normalize units / quality
-            Monitor->>Store: Atomically save packet and observations
-            Store-->>Monitor: Commit success or storage failure
+            Monitor->>Capture: Normalized observations and packet metadata
+            Capture->>Store: Atomically save validated packet and observations
+            Store-->>Capture: Commit success or storage failure
+            Capture-->>Monitor: Persisted ID or failure
         end
     and Read and render the electrical view
         loop While the electrical page is foregrounded
-            Client->>Bridge: Request latest sample (GET /electrical every second today)
+            Client->>Bridge: snapshot every second while app foregrounded
             Bridge->>Store: Read latest complete BMV packet for selected device
             Store-->>Bridge: Nullable measurements and original receipt time
             Bridge-->>Client: Sample with source label, no sample, or error
@@ -272,11 +289,12 @@ BMV simulator → production Rust monitor/decoder/normalizer → SQLite → loca
 test checks changing values, stale hiding and recovery. Simulator readings are
 explicitly labelled, and starter amps/SOC are unavailable.
 
-**Remaining mobile milestone:** Windows BMV Bluetooth broadcast → phone reception
-→ native Rust bridge/decoder → phone-local persistence → `/elec`, including denied
-permissions, Bluetooth unavailable, recovery and persistence across app restart.
-The native adapter's API and update mechanism remain to be selected; the diagram's
-current one-second HTTP polling does not commit the mobile design to HTTP.
+**Native milestone achieved in part:** Windows BMV simulator → iPhone Bluetooth
+→ Rust bridge/monitor → phone SQLite → shared Home/Electrical UI is implemented;
+owner confirms reception. Denied permissions, Bluetooth unavailable, reconnect,
+stale/recovery, background/resume, restart and update retention still require
+recorded acceptance. Native API is `start` / `stop` / `snapshot`; desktop HTTP
+remains a separate evaluation mode, not the mobile transport.
 
 See [architecture section 5.4.1](../architecture.md#541-user-interface) for component
 responsibilities and the sample contract, and [the root README](../README.md#demonstrate-simulator-data-reaching-the-ui)
@@ -284,18 +302,18 @@ for the repeatable demonstration and browser test.
 
 ## 2. Store deployment and beta distribution
 
-**Status — October 23, 2026:** initial signed installs and automated demo-build
-delivery/update acceptance are achieved. iOS 1.0.0 build 3 reached TestFlight and
-was owner-verified on physical iPhone 13. Android 1.0.0 code 3 reached Play internal
-testing; the owner confirmed the emulator update via ADB and passed launch,
-navigation, Electrical demo and close/reopen checks. Physical Android verification,
-native-enabled updates and phone-local record retention remain open.
+**Status — October 28, 2026:** signed distribution and both automated CI delivery
+paths are established. Latest recorded native versions are iPhone 1.0.0/build 6
+and Android 1.0.0/code 7. October 26 handoff records Android build and exact Play
+internal submission as finished; do not duplicate them. iPhone simulator reception
+is owner-confirmed. Physical Android, complete native lifecycle acceptance and
+stored-reading retention across updates remain open.
 
 The shared package/bundle ID is `com.kodekomplete.com.ainavlog`; App Store Connect
 ID is `6823786033`. EAS Build/Submit and GitHub Actions now provide both delivery
 paths. Expo and store submission credentials were configured privately and successful
 hosted submissions demonstrated their use. Preserve signing identities. Future builds
-must use unused counters above 3 after checking EAS and the relevant store; do not
+must use unused counters above the latest recorded iOS 6 / Android 7 after checking EAS and the relevant store; do not
 rerun a successful release simply to inspect status.
 
 ### CI/CD completed and remaining acceptance
@@ -314,9 +332,9 @@ Remaining:
 - Demonstrate intentionally failing checks blocking delivery on an isolated branch.
 - Review Ubuntu 26.04 runner compatibility and migration for both delivery paths.
 - Verify physical Android independently; emulator acceptance does not qualify Bluetooth.
-- Package and distribute native Electrical, then verify permissions, recovery and
+- Native Electrical is packaged and delivered. Verify permissions, recovery and
   phone-local persistence across restart and update on each supported platform.
-- Add mobile Rust-target checks when native integration is available. Current hosted
+- Add mobile Rust-target checks for the implemented native integration. Current hosted
   shared checks cover UI/workflow paths, not Rust formatting/Clippy/mobile compilation.
 
 Workflows use paths relative to this standalone repository (`user-interface/` and
@@ -329,8 +347,8 @@ See [October 20 evidence](status/status-2026-10-20.md),
 [build/deployment architecture](mobile-build-deployment.md) and
 [iOS workflow](ios-testflight.md).
 
-The Oct 30 native-update and Nov 13 cross-platform reviews remain targets, dependent
-on native integration. Current demo acceptance establishes no phone-data retention.
+The Oct 30 native acceptance/update-retention and Nov 13 cross-platform reviews
+remain targets. Working reception does not establish restart or update retention.
 
 **Repeatable release workflow:** validate a concrete change → produce a versioned,
 signed artifact → install and smoke-test → distribute to the selected testers →
@@ -457,7 +475,7 @@ to assign; access, budgets and supplier commitments are not assumed confirmed.
 
 | ID / priority | External dependency | Risk and affected outcome | Mitigation / fallback | Proposed owner / resolution checkpoint |
 | --- | --- | --- | --- | --- |
-| RISK-01 / High | Apple Developer Program, App Store Connect, signing and TestFlight/App Review. **Initial setup resolved Oct 16; CI delivery verified Oct 20:** TestFlight build 3 owner-verified on iPhone 13; native updates and later review remain open. | Enrollment or account access, signing failures, review rejection or resubmission can delay iPhone installs and distribution. Reviewers may be unable to exercise hardware-dependent screens. | Establish account ownership and signing during Electrical; prove a signed install early. Prepare accurate privacy/permission disclosures and reviewer demo access with clearly labeled simulated data. Reserve review/rework contingency; distinguish internal testing, external beta approval and public publication. | Product owner: accounts/access; developer: signing/submission. Initial install achieved Oct 16; native-build/update review Oct 30; final readiness review Jan 29. |
+| RISK-01 / High | Apple Developer Program, App Store Connect, signing and TestFlight/App Review. **Initial setup resolved Oct 16; CI delivery verified Oct 20:** TestFlight build 3 owner-verified on iPhone 13; native build 6 reception confirmed Oct 26/28; update-data retention and later review remain open. | Enrollment or account access, signing failures, review rejection or resubmission can delay iPhone installs and distribution. Reviewers may be unable to exercise hardware-dependent screens. | Establish account ownership and signing during Electrical; prove a signed install early. Prepare accurate privacy/permission disclosures and reviewer demo access with clearly labeled simulated data. Reserve review/rework contingency; distinguish internal testing, external beta approval and public publication. | Product owner: accounts/access; developer: signing/submission. Initial install achieved Oct 16; native-build/update review Oct 30; final readiness review Jan 29. |
 | RISK-02 / High | Google Play Console, account verification, app signing, testers and review. **Confirmed Oct 13:** organization developer account created, paid and verified; internal release available Oct 14; emulator install confirmed Oct 16; CI-delivered code 3 update/runtime checks passed Oct 20; physical Android, native reception and production review remain pending. | Later native builds, signing compatibility, tester access or store review can delay Android delivery. This is an organization account; do not apply personal-account waiting periods as a current project blocker. | Preserve the accepted upload key and package. Test installed-app updates, complete Android runtime/device evidence and recruit representative beta testers. Review production requirements when public submission is planned. | Product owner: account/tester coordination; developer: artifacts/submission. Initial account/distribution achieved; native-update checkpoint Oct 30; Android qualification review Nov 13; production readiness separately. |
 | RISK-03 / High | Engine manufacturer, installed engine/ECU, available sensors and compatible gateway | **The engine device interface is currently unknown.** Signals may be analog, proprietary or available only through an unconfirmed gateway. Missing public protocol documentation, unsupported measurements, no beta-compatible Bluetooth path, cost or procurement delays can prevent a real engine vertical slice within two weeks. | Identify engine make/model/year, existing instruments, connectors, protocols and required measurements. Verify vendor documentation and a feasible read-only Bluetooth gateway before claiming support. Build a simulator behind the same interface. If unresolved, deliver a clearly simulated engine UI and explicitly defer/replan physical integration; do not silently substitute Wi-Fi or infer compatibility. | Product owner: boat/engine details and access; developer: protocol/gateway feasibility. Discovery Oct 23; source/simulated-only scope decision Oct 30 before Engine starts Nov 2. |
 | RISK-04 / High | Victron BMV-712 hardware, firmware, owner setup and boat access | Simulator success may not match actual broadcasts, auxiliary starter voltage or installed shunt measurements. Key provisioning, configuration or unavailable boat access can delay qualification. | Validate the actual model/firmware and advertisement key; configure auxiliary voltage and battery parameters; compare house and starter readings with reference measurements. Keep simulator and live data visibly distinct. Physical qualification remains a release prerequisite, with dates assigned once access is known. | Product owner: hardware/access; developer: interoperability. Access plan Oct 23; physical session target assigned at Oct 30 review; evidence required before beta acceptance. |
@@ -480,8 +498,9 @@ At each demo, record what works, evidence from the target platform, unresolved
 limitations and next-slice readiness. Preserve simulator fixtures as regression
 inputs and run checks appropriate to each change.
 
-The first iPhone build/install dependency is resolved. The largest remaining
-early dependency is Rust/native Bluetooth and phone-local storage integration. Engine source selection, maps/location behavior and identity
+The first iPhone build/install dependency is resolved. Remaining Electrical
+work centers on native lifecycle/persistence acceptance and physical Android/real-BMV
+qualification. Engine source selection, maps/location behavior and identity
 provider setup are the next uncertainties. Resolve these ahead of their slices;
 if they exceed a window, explicitly adjust scope or dates at review.
 
@@ -489,3 +508,56 @@ Post-slice beta work includes physical BMV/engine validation, iOS/Android lifecy
 and background behavior, local data protection/retention, accessibility, installation
 and distribution verification, and a release acceptance pass. The Jan 18–31 review window is provisional;
 size the remaining work at each slice gate and confirm public-release timing separately.
+
+### October 28 — Historical Usage implementation
+
+Approved battery-history mockup implemented: House/Starter, range/date controls,
+charts with gaps, extrema and recorded-point inspection. Rust SQLite range queries,
+C ABI, Swift/Kotlin/JNI history APIs and desktop HTTP history endpoint are in source.
+Queries work independently of receiver sessions and retain original packet values.
+Maintenance remains a placeholder. New native builds and phone runtime acceptance
+are required; no release job has been started for this change.
+
+### October 28 — capture and storage responsibility split
+
+SAD §5.2 and ADR-0002 now define separate physical packages: Device Interface
+(Bluetooth/decoding/state), Data capture (validation/write coordination), Local
+data store (SQLite/queries), shared data contracts and native application
+integration. The electrical write path now uses an injected capture sink; history
+reads call storage directly. Database contents/schema/ABI names are preserved.
+Build staging includes all sibling crates; CLI supervision/HTTP/replay now live in
+`native-integration` with the desktop feature. Native replacement builds and phone
+regression remain open; no release job is started by this refactor.
+
+### October 28 — iPhone build 7 delivered; Android deferred
+
+Version 1.0.0/build 7 finished in EAS and its exact TestFlight submission finished
+without errors for app 6823786033. The signed IPA identity/build/Bluetooth
+declaration were independently verified. This delivers Historical Usage and the
+new Device Interface → Data capture → Local data store boundaries. Source/staging,
+Rust device/simulator builds and Xcode archive succeeded. Install/update and
+physical iPhone runtime/history/persistence acceptance remain open. Android was
+explicitly deferred; no new Android job was started. See the
+[October 28 release evidence](status/status-2026-10-28.md).
+
+Apple processing for iPhone build 7 is confirmed `VALID` / `IN_BETA_TESTING`; the update is ready for internal testers. Next acceptance is on the existing iPhone installation.
+
+### October 28 — Historical Usage zoom (local source after build 7)
+
+Added pinch halving/doubling, one-hour +/- steps (five-minute fine steps below
+one hour), a five-minute minimum, horizontal panning, accessible pan controls and
+Reset zoom. Visible intervals query the existing SQLite history API again for
+finer packet detail. No storage/ABI change or new dependency is introduced.
+Build 7 remains the delivered baseline; zoom requires a later app delivery and
+physical iPhone gesture acceptance. Android delivery remains deferred.
+
+### October 28 — end-of-day handoff
+
+iPhone version 1.0.0/build 8, including history zoom, was launched in EAS with
+automatic TestFlight submission. The owner now monitors package progress to
+conserve Codex usage; no completion status is inferred and no duplicate build is
+needed. Future release work ends after launch and delivery of progress links.
+The owner reported successful simulator testing after a five-minute BMV broadcast;
+the installed build and detailed zoom/restart/update-retention results were not
+specified. Those acceptance details remain open. Android stays deferred.
+Resume October 29 from the [end-of-day handoff](status/status-2026-10-28.md#end-of-day-handoff--resume-thursday-october-29-2026).

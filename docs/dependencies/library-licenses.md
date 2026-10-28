@@ -1,5 +1,7 @@
 # Library licenses and redistribution requirements
 
+**Confirmed storage decision — October 28, 2026:** SQLite, accessed through Rust `rusqlite` with bundled SQLite, is the local structured database for the 2027 iOS/Android beta. See [ADR-0001](../decisions/0001-sqlite-local-storage.md) for scope, current implementation and remaining work. Existing AsyncStorage preferences and protected credential storage remain separate.
+
 **Reviewed:** 2026-10-01. **Status:** dependency inventory and requirements summary;
 not a complete release notice bundle or legal opinion.
 

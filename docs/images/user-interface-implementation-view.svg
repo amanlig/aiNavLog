@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1960" height="1730" viewBox="0 0 1960 1730">
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="none" stroke="#475569"/></marker></defs>
+<rect width="100%" height="100%" fill="#f8fafc"/>
+<text x="40" y="45" font-family="DejaVu Sans, sans-serif" font-size="30" font-weight="bold" fill="#0f172a">aiNavLog · User Interface implementation view</text>
+<text x="40" y="80" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="normal" fill="#0f172a">2026-10-28 · Boundaries match SAD §5.4.1 · Components, hooks, modules and types inside each logical block</text>
+<text x="40" y="115" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#0f172a">Green: implemented scope     Amber: platform acceptance incomplete; orange: mixed implemented / placeholder scope     Arrows: selected dependencies / data paths</text>
+<rect x="40" y="160" width="600" height="590" rx="10" fill="#ecfdf5" stroke="#15803d" stroke-width="2"/>
+<text x="58" y="194" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#0f172a">1. Application shell</text>
+<text x="58" y="224" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#15803d">Routes · provider composition · navigation</text>
+<rect x="55" y="248" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="67" y="269" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">React component · src/app/_layout.tsx</text>
+<text x="67" y="293" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">Layout</text>
+<text x="67" y="317" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">SafeAreaProvider → PreferencesProvider → ElectricalProvider</text>
+<rect x="55" y="344" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="67" y="365" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">External Expo Router components</text>
+<text x="67" y="389" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">Stack / Link</text>
+<text x="67" y="413" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Home / · Electrical /elec · Engine /mech · Routes /rout</text>
+<rect x="55" y="440" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="67" y="461" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">React component</text>
+<text x="67" y="485" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">AppHeader</text>
+<text x="67" y="509" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Boat-name dialog · appearance settings · navigation</text>
+<rect x="680" y="160" width="600" height="590" rx="10" fill="#ecfdf5" stroke="#15803d" stroke-width="2"/>
+<text x="698" y="194" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#0f172a">2. Screens and presentation</text>
+<text x="698" y="224" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#15803d">Render shared state · submit user intent</text>
+<rect x="695" y="248" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="707" y="269" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">React component · src/app/index.tsx</text>
+<text x="707" y="293" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">HomeScreen</text>
+<text x="707" y="317" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Electrical summary; links to electrical / engine / routes</text>
+<rect x="695" y="344" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="707" y="365" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">React component · src/app/elec/index.tsx</text>
+<text x="707" y="389" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">ElectricalScreen</text>
+<text x="707" y="413" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">House / starter cards; connect / disconnect; diagnostics</text>
+<rect x="695" y="440" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="707" y="461" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">Local React components</text>
+<text x="707" y="485" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">Metric / BatteryGauge / Icon</text>
+<text x="707" y="509" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Format battery values and charge indicators</text>
+<rect x="695" y="536" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="707" y="557" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">Shared React component</text>
+<text x="707" y="581" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">FeatureIcon</text>
+<text x="707" y="605" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Electrical / engine / route illustrations</text>
+<rect x="695" y="632" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="707" y="653" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">React components · history screen</text>
+<text x="707" y="677" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">BatteryHistory / HistoryChart</text>
+<text x="707" y="701" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">House / Starter; pinch, pan, +/-; visible-range queries</text>
+<rect x="1320" y="160" width="600" height="590" rx="10" fill="#ecfdf5" stroke="#15803d" stroke-width="2"/>
+<text x="1338" y="194" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#0f172a">3. Shared electrical state</text>
+<text x="1338" y="224" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#15803d">One provider for Home and Electrical</text>
+<rect x="1335" y="248" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="1347" y="269" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">React context provider / hook</text>
+<text x="1347" y="293" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">ElectricalProvider / useElectrical</text>
+<text x="1347" y="317" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Expose sample · clock · errors · connection · counters</text>
+<rect x="1335" y="344" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="1347" y="365" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">Internal React hook</text>
+<text x="1347" y="389" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">useElectricalState</text>
+<text x="1347" y="413" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Poll every second; serialize receiver operations</text>
+<rect x="1335" y="440" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="1347" y="461" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">Hook lifecycle integration</text>
+<text x="1347" y="485" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">AppState subscription</text>
+<text x="1347" y="509" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Pause on background; resume requested native session</text>
+<rect x="1335" y="536" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="1347" y="557" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">Environment / platform configuration</text>
+<text x="1347" y="581" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">Data-mode selection</text>
+<text x="1347" y="605" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Native BMV → configured HTTP endpoint → local demo</text>
+<rect x="40" y="820" width="600" height="590" rx="10" fill="#fffbeb" stroke="#b45309" stroke-width="2"/>
+<text x="58" y="854" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#0f172a">4. Data clients and native boundary</text>
+<text x="58" y="884" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#b45309">Receiver commands and direct storage query APIs</text>
+<rect x="55" y="908" width="570" height="84" rx="5" fill="#ffffff" stroke="#b45309"/>
+<text x="67" y="929" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#b45309">TypeScript module</text>
+<text x="67" y="953" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">native-client.ts</text>
+<text x="67" y="977" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">startReceiver / stopReceiver / readReceiver; permissions</text>
+<rect x="55" y="1004" width="570" height="84" rx="5" fill="#ffffff" stroke="#b45309"/>
+<text x="67" y="1025" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#b45309">Swift / Kotlin / Android C++ integration</text>
+<text x="67" y="1049" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">AiNavLogModule / JNI</text>
+<text x="67" y="1073" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">start / stop / snapshot / history → native-integration</text>
+<rect x="55" y="1100" width="570" height="84" rx="5" fill="#ffffff" stroke="#b45309"/>
+<text x="67" y="1121" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#b45309">Hook implementation · desktop development</text>
+<text x="67" y="1145" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">HTTP fetch in useElectricalState</text>
+<text x="67" y="1169" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">GET /electrical; 3s abort; no demo fallback on failure</text>
+<rect x="55" y="1196" width="570" height="84" rx="5" fill="#ffffff" stroke="#b45309"/>
+<text x="67" y="1217" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#b45309">TypeScript function · device-client.ts</text>
+<text x="67" y="1241" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">parseDeviceSample</text>
+<text x="67" y="1265" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Validate source / timestamp / nullable finite readings</text>
+<rect x="55" y="1292" width="570" height="84" rx="5" fill="#ffffff" stroke="#b45309"/>
+<text x="67" y="1313" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#b45309">TypeScript modules</text>
+<text x="67" y="1337" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">history-client / parseHistory</text>
+<text x="67" y="1361" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Read native or HTTP history; validate bounded chart points</text>
+<rect x="680" y="820" width="600" height="590" rx="10" fill="#ecfdf5" stroke="#15803d" stroke-width="2"/>
+<text x="698" y="854" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#0f172a">5. Measurement rules and contract</text>
+<text x="698" y="884" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#15803d">Pure TypeScript · no radio or database access</text>
+<rect x="695" y="908" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="707" y="929" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">TypeScript type</text>
+<text x="707" y="953" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">ElectricalSample</text>
+<text x="707" y="977" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">source · receivedAt · house V/A/SOC · starter V</text>
+<rect x="695" y="1004" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="707" y="1025" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">Functions / constant · model.ts</text>
+<text x="707" y="1049" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">isFresh / STALE_MS</text>
+<text x="707" y="1073" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Hide values older than 5s; reject future timestamps</text>
+<rect x="695" y="1100" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="707" y="1121" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">Functions · model.ts</text>
+<text x="707" y="1145" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">reading / simulate</text>
+<text x="707" y="1169" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Format nullable numbers; explicitly labelled demo data</text>
+<rect x="695" y="1196" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="707" y="1217" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">Functions · model.ts</text>
+<text x="707" y="1241" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">starterAlert / parseThreshold</text>
+<text x="707" y="1265" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Helpers exist; configurable alert UI is not connected</text>
+<rect x="695" y="1292" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="707" y="1313" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">Types / pure functions</text>
+<text x="707" y="1337" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">history.ts / history-viewport.ts</text>
+<text x="707" y="1361" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Calendar bounds; pinch/step zoom, pan, extrema, selection</text>
+<rect x="1320" y="820" width="600" height="590" rx="10" fill="#fff7ed" stroke="#c2410c" stroke-width="2"/>
+<text x="1338" y="854" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#0f172a">6. Preferences and unfinished views</text>
+<text x="1338" y="884" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#c2410c">Local settings persist · feature placeholders explicit</text>
+<rect x="1335" y="908" width="570" height="84" rx="5" fill="#ffffff" stroke="#c2410c"/>
+<text x="1347" y="929" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#c2410c">React provider / hook</text>
+<text x="1347" y="953" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">PreferencesProvider / usePreferences</text>
+<text x="1347" y="977" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Boat name · white/black palette · load/save errors</text>
+<rect x="1335" y="1004" width="570" height="84" rx="5" fill="#ffffff" stroke="#c2410c"/>
+<text x="1347" y="1025" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#c2410c">External local persistence library</text>
+<text x="1347" y="1049" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">AsyncStorage</text>
+<text x="1347" y="1073" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">ainavlog.preferences.v1; settings only</text>
+<rect x="1335" y="1100" width="570" height="84" rx="5" fill="#ffffff" stroke="#c2410c"/>
+<text x="1347" y="1121" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#c2410c">React component</text>
+<text x="1347" y="1145" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">ElectricalRecords</text>
+<text x="1347" y="1169" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Maintenance empty state; recording not implemented</text>
+<rect x="1335" y="1196" width="570" height="84" rx="5" fill="#ffffff" stroke="#c2410c"/>
+<text x="1347" y="1217" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#c2410c">React route components</text>
+<text x="1347" y="1241" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">EngineScreen / RoutesScreen</text>
+<text x="1347" y="1265" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">ComingSoon component; no engine or route capture</text>
+<path d="M640,420 L680,420" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M1280,420 L1320,420" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M1620,750 L1620,785 L660,785 L660,1120 L640,1120" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M980,750 L980,820" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="40" y="1452" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="normal" fill="#0f172a">Flow: Home/Electrical share live state. History owns range queries, reads saved SQLite via native/HTTP and remains usable disconnected.</text>
+<text x="40" y="1485" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="bold" fill="#0f172a">Physical boundary: UI/platform adapters: user-interface/; BLE/decoding: device-interface/; capture: data-capture/; SQLite: local-storage/.</text>
+<rect x="40" y="1510" width="1880" height="96" rx="8" fill="#eff6ff" stroke="#64748b"/>
+<text x="58" y="1539" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="bold" fill="#0f172a">Native integration routes reads directly to Local data store. Receiver writes pass through Data capture; history needs no Bluetooth.</text>
+<text x="58" y="1566" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#0f172a">Rust composition lives in native-integration/. Latest/history read storage directly; Connect assembles Device Interface → capture → storage.</text>
+<text x="58" y="1591" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#0f172a">Both external paths preserve packet receipt time. Starter amperage and charge are unavailable; stale readings are hidden on both screens.</text>
+<text x="40" y="1640" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="normal" fill="#be123c">Not implemented: account/sign-in screens; media/manual/voice entry; route capture/sharing; engine integration; maintenance recording.</text>
+<text x="40" y="1675" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="normal" fill="#0f172a">Zoom: local source after TestFlight build 7; new delivery and phone gesture acceptance pending. Android replacement remains deferred.</text>
+<text x="40" y="1705" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="normal" fill="#0f172a">Confirmed 2027 beta structured store: SQLite via bundled Rust rusqlite. UI preferences remain in AsyncStorage; broader storage APIs remain unfinished.</text>
+</svg>

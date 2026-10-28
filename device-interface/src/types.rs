@@ -1,32 +1,8 @@
-//! Provisional public data contracts; device-specific formats remain TBD.
-
-use std::fmt;
+//! Device-specific connection contracts and shared application type aliases.
+pub use ainavlog_data_model::{
+    AppError as DeviceError, AppResult as DeviceResult, DecodedReading, Observation, QualityStatus,
+};
 use std::time::{Duration, SystemTime};
-
-pub type DeviceResult<T> = Result<T, DeviceError>;
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum DeviceError {
-    NotImplemented,
-    UnsupportedProtocol,
-    PermissionDenied,
-    Disconnected,
-    InvalidReading,
-    Transport(String),
-    Decode(String),
-    Encode(String),
-    Storage(String),
-    Configuration(String),
-}
-
-impl fmt::Display for DeviceError {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(formatter, "{self:?}")
-    }
-}
-
-impl std::error::Error for DeviceError {}
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TransportKind {
     Bluetooth,
@@ -69,35 +45,4 @@ pub struct ReceivedFrame {
     pub source_id: String,
     pub received_at: SystemTime,
     pub payload: Vec<u8>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum QualityStatus {
-    Good,
-    Stale,
-    Invalid,
-    Unknown,
-}
-
-#[derive(Debug, Clone)]
-pub struct DecodedReading {
-    pub source_id: String,
-    pub observed_at: Option<SystemTime>,
-    pub received_at: SystemTime,
-    pub quantity: String,
-    pub unit: String,
-    /// None represents a missing measurement, never an invented zero.
-    pub value: Option<f64>,
-    pub quality: QualityStatus,
-}
-
-#[derive(Debug, Clone)]
-pub struct Observation {
-    pub source_id: String,
-    pub observed_at: Option<SystemTime>,
-    pub received_at: SystemTime,
-    pub quantity: String,
-    pub unit: String,
-    pub value: Option<f64>,
-    pub quality: QualityStatus,
 }

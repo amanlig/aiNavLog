@@ -1,4 +1,4 @@
-import { ElectricalRecords } from '../../components/ElectricalRecords';
+import { BatteryHistory } from '../../components/BatteryHistory';
 export default function HistoricalUsageScreen() {
-  return <ElectricalRecords kind="history" />;
+  return <BatteryHistory />;
 }

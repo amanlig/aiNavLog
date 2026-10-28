@@ -200,5 +200,5 @@ in-memory checks; live gateway and mobile integration have not been validated.
 - [nmea-kit 0.8.9 API](https://docs.rs/nmea-kit/0.8.9/nmea_kit/)
 - [CANboat 8.3.0 API](https://docs.rs/canboat/8.3.0/canboat/)
 - [Device Interface README](../../device-interface/README.md)
-- [Device Interface class diagram](../device-interface-class-diagram.md)
+- [Device Interface implementation view](../device-interface-implementation-view.md)
 - [Dependency license inventory](library-licenses.md)

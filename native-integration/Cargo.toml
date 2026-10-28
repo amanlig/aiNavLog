@@ -1,0 +1,37 @@
+[package]
+name = "ainavlog-native-bridge"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "ainavlog-device-interface"
+path = "src/main.rs"
+required-features = ["desktop"]
+
+[[test]]
+name = "live_monitor"
+required-features = ["desktop"]
+
+[features]
+desktop = ["ainavlog-device-interface/desktop", "dep:tokio", "tokio/signal"]
+mobile = ["ainavlog-device-interface/ble", "dep:btleplug", "dep:tokio"]
+
+[dependencies]
+ainavlog-data-model = { path = "../data-model" }
+ainavlog-local-storage = { path = "../local-storage" }
+ainavlog-data-capture = { path = "../data-capture" }
+zeroize = "1.9.0"
+ainavlog-device-interface = { path = "../device-interface", default-features = false }
+btleplug = { version = "0.13.3", optional = true }
+tokio = { version = "1.53.1", optional = true, features = ["rt-multi-thread", "sync", "time", "macros"] }
+
+[target.'cfg(target_os = "android")'.dependencies]
+jni = "0.22.4"
+
+[dev-dependencies]
+rusqlite = { version = "0.40.2", default-features = false, features = ["bundled"] }
+tokio = { version = "1.53.1", features = ["test-util"] }

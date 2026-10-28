@@ -27,7 +27,7 @@ with tempfile.TemporaryDirectory(prefix='ainavlog-bmv-ui-') as directory:
     web = HTTPServer(('127.0.0.1', 18081), partial(Handler, directory=str(export)))
     threading.Thread(target=web.serve_forever, daemon=True).start()
     service = subprocess.Popen([
-        str(root / 'device-interface/target/debug/ainavlog-device-interface'),
+        str(root / 'native-integration/target/debug/ainavlog-device-interface'),
         'serve-ui', database, 'bmv-simulator', '18787',
         'http://127.0.0.1:18081', '--simulated',
     ])

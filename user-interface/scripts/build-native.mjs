@@ -9,7 +9,7 @@ import { writeNativeNotices } from './native-notices.mjs';
 if (process.env.EXPO_PUBLIC_NATIVE_BMV !== '1') process.exit(0);
 const app = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const moduleRoot = join(app, 'modules/ainavlog');
-const bridge = join(moduleRoot, 'rust/device-interface/native-bridge');
+const bridge = join(moduleRoot, 'rust/native-integration');
 if (!existsSync(join(bridge, 'Cargo.lock'))) throw Error('Run node scripts/prepare-native.mjs before uploading this build.');
 const env = { ...process.env, PATH: `${join(homedir(), '.cargo/bin')}:${process.env.PATH}` };
 const run = (cmd, args, options = {}) => execFileSync(cmd, args, { cwd: bridge, env, stdio: 'inherit', ...options });

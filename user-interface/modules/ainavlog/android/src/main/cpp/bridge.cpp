@@ -1,5 +1,6 @@
 #include <jni.h>
 #include "ainavlog.h"
+#include <vector>
 
 extern "C" JNIEXPORT jint JNICALL
 Java_expo_modules_ainavlog_Bridge_nativeInit(JNIEnv *env, jobject) {
@@ -40,5 +41,27 @@ Java_expo_modules_ainavlog_Bridge_nativeSample(JNIEnv *env, jobject, jlong handl
     sample.house_voltage, sample.house_current, sample.house_charge, sample.starter_voltage};
   jdoubleArray result = env->NewDoubleArray(6);
   if (result) env->SetDoubleArrayRegion(result, 0, 6, values);
+  return result;
+}
+
+extern "C" JNIEXPORT jdoubleArray JNICALL
+Java_expo_modules_ainavlog_Bridge_nativeHistory(JNIEnv *env, jobject, jstring path, jlong start, jlong end) {
+  if (!path) return nullptr;
+  const char *text = env->GetStringUTFChars(path, nullptr);
+  if (!text) return nullptr;
+  std::vector<ainavlog_history_point> rows(8192);
+  size_t count = 0;
+  const int32_t status = ainavlog_history(text, "windows-bmv-simulator", start, end, rows.data(), rows.size(), &count);
+  env->ReleaseStringUTFChars(path, text);
+  if (status != 0) return nullptr;
+  std::vector<jdouble> values;
+  values.reserve(count * 7);
+  for (size_t i = 0; i < count; ++i) {
+    const auto &sample = rows[i].sample;
+    values.insert(values.end(), {static_cast<double>(sample.received_ms), static_cast<double>(sample.present),
+      sample.house_voltage, sample.house_current, sample.house_charge, sample.starter_voltage, static_cast<double>(rows[i].segment)});
+  }
+  jdoubleArray result = env->NewDoubleArray(static_cast<jsize>(values.size()));
+  if (result && !values.empty()) env->SetDoubleArrayRegion(result, 0, static_cast<jsize>(values.size()), values.data());
   return result;
 }

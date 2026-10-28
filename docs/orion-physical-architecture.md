@@ -91,7 +91,7 @@ flowchart TB
     class DB implemented
     class BLE,KEY,UI,MON pending
     click MON "../device-interface/src/monitor.rs" "Open monitor source"
-    click DB "../device-interface/src/store.rs" "Open SQLite source"
+    click DB "../local-storage/src/lib.rs" "Open SQLite source"
 ```
 
 **Lines:** thick arrows show the functional DC power path; thin arrows show local
@@ -155,6 +155,6 @@ See the [BMV simulator](../simulation/bmv712/README.md). Actual Orion reception 
 reading accuracy are still unverified; mobile packaging, permissions, secure key
 storage and background operation remain pending.
 
-Related: [software class diagram](device-interface-class-diagram.md),
+Related: [software implementation view](device-interface-implementation-view.md),
 [current handoff](status/status-2026-10-02.md), [monitor source](../device-interface/src/monitor.rs),
-[store source](../device-interface/src/store.rs).
+[store source](../local-storage/src/lib.rs).

@@ -42,3 +42,7 @@ LICENSE
 !modules/ainavlog/rust/device-interface/tests/
 !modules/ainavlog/rust/device-interface/tests/**
 !modules/ainavlog/rust/device-interface/vendor/README.md
+
+# Application composition declares the desktop integration-test target.
+!modules/ainavlog/rust/native-integration/tests/
+!modules/ainavlog/rust/native-integration/tests/**

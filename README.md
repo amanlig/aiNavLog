@@ -1,8 +1,12 @@
 # aiNavLog
 
+**Confirmed storage decision — October 28, 2026:** SQLite, accessed through Rust `rusqlite` with bundled SQLite, is the local structured database for the 2027 iOS/Android beta. See [ADR-0001](docs/decisions/0001-sqlite-local-storage.md) for scope, current implementation and remaining work. Existing AsyncStorage preferences and protected credential storage remain separate.
+
 The electrical UI can read BMV battery observations through this local development path:
 
-**Bluetooth → Rust device monitor → SQLite → local HTTP service → Expo/web UI**
+**Writes: Bluetooth → Device Interface → Data capture → Local data store (SQLite)**
+
+**Reads: UI → native query API (or desktop HTTP) → Local data store**
 
 ## Run the device interface and UI together
 
@@ -13,8 +17,8 @@ private advertisement-key file. Use the same device ID and database in both Rust
 ### 1. Receive and store BMV readings
 
 ```sh
-cd device-interface
-cargo run --locked -- monitor-victron '<bmv-device-id>' --key-file /path/to/bmv.key --database data/observations.sqlite3
+cd native-integration
+cargo run --locked --features desktop -- monitor-victron '<bmv-device-id>' --key-file /path/to/bmv.key --database data/observations.sqlite3
 ```
 
 Bluetooth reception requires a supported Bluetooth adapter and a powered device
@@ -24,8 +28,8 @@ On Unix, protect the key file with `chmod 600 /path/to/bmv.key`.
 ### 2. Start the device-interface service
 
 ```sh
-cd device-interface
-cargo run --locked -- serve-ui data/observations.sqlite3 '<bmv-device-id>'
+cd native-integration
+cargo run --locked --features desktop -- serve-ui data/observations.sqlite3 '<bmv-device-id>'
 ```
 
 The service exposes `http://127.0.0.1:8787/electrical` and reads the latest complete
@@ -65,21 +69,26 @@ The default allowed browser origin is `http://localhost:8081`. If Expo uses anot
 origin or the service needs another port, run:
 
 ```sh
-cargo run --locked -- serve-ui data/observations.sqlite3 '<bmv-device-id>' 8787 'http://localhost:8081'
+cargo run --locked --features desktop -- serve-ui data/observations.sqlite3 '<bmv-device-id>' 8787 'http://localhost:8081'
 ```
 
 Replace the port and origin as needed, and update the environment URL if the service
 port changes.
 
 This service listens only on desktop loopback. A phone's `127.0.0.1` refers to the
-phone itself. Native mobile Bluetooth/Rust integration is now in iPhone build 6
-and Android build 7; see the [latest handoff](docs/status/status-2026-10-26.md).
+phone itself. Native mobile Bluetooth/Rust integration is in iPhone build 7 (Historical Usage
+and separated capture/storage) and existing Android code 7 (older implementation).
+iPhone build 7 was uploaded to TestFlight October 28; runtime acceptance remains
+open. Android replacement is deferred pending the physical tablet. See the
+[latest handoff](docs/status/status-2026-10-28.md).
 When the
 monitor runs on Windows and Expo runs in WSL, run the service alongside the monitor
 and check that the browser can reach its endpoint through localhost forwarding.
 Owner-reported iPhone simulator reception works; physical Android reception remains pending.
 
 ## Further documentation
+
+- [October 28: iPhone build 7, history, storage/capture boundaries and remaining acceptance](docs/status/status-2026-10-28.md)
 
 - [October 26 handoff: native receiver, Android linking fix, tablet next steps](docs/status/status-2026-10-26.md)
 - [Physical BMV simulator acceptance checklist](docs/bmv-phone-test.md)
@@ -114,14 +123,14 @@ Run in separate terminals from `aiNavLog`:
 
 ```sh
 # Terminal 1: local service, explicitly labelled simulated
-cd device-interface
-cargo run --locked -- serve-ui data/bmv-simulator.sqlite3 bmv-simulator 8787 http://localhost:8081 --simulated
+cd native-integration
+cargo run --locked --features desktop -- serve-ui data/bmv-simulator.sqlite3 bmv-simulator 8787 http://localhost:8081 --simulated
 ```
 
 ```sh
 # Terminal 2: replay the captured packets once (about 25 seconds)
-cd device-interface
-cargo run --locked --example replay_bmv -- data/bmv-simulator.sqlite3 ../simulation/bmv712/integration-packets.log
+cd native-integration
+cargo run --locked --features desktop --example replay_bmv -- data/bmv-simulator.sqlite3 ../simulation/bmv712/integration-packets.log
 ```
 
 ```sh
@@ -145,8 +154,8 @@ Python 3 and Playwright's Chromium system libraries are required.
 
 ```sh
 # From aiNavLog:
-cargo build --locked --manifest-path device-interface/Cargo.toml
-cargo build --locked --examples --manifest-path device-interface/Cargo.toml
+cargo build --locked --features desktop --manifest-path native-integration/Cargo.toml
+cargo build --locked --features desktop --examples --manifest-path native-integration/Cargo.toml
 npm install --prefix /tmp/ainavlog-browser-check playwright
 /tmp/ainavlog-browser-check/node_modules/.bin/playwright install chromium
 cd user-interface
@@ -162,3 +171,22 @@ reception or native iPhone/Android integration.
 ## Standalone repository
 
 This project is maintained independently in the public `amanlig/aiNavLog` repository. Run commands from this repository root; the Expo app is in `user-interface/` and GitHub workflows are in `.github/workflows/`. Local runtime databases, credentials and build outputs are excluded. The separate investment application and model projects are not part of this repository. See [CI/CD setup](docs/mobile-ci-cd.md).
+
+## Implementation responsibilities
+
+| Package | Ownership |
+| --- | --- |
+| `device-interface/` | Bluetooth, decoding/normalization, duplicate/freshness state; emits through an injected sink. |
+| `data-capture/` | Validate incoming observations and coordinate committed writes. |
+| `local-storage/` | SQLite schema/transactions and direct latest/history queries. |
+| `data-model/` | Shared records, errors and capture-sink contract. |
+| `native-integration/` | C ABI, app wiring/worker, desktop CLI/HTTP/replay. |
+| `user-interface/` | React Native views/clients plus Swift/Kotlin/JNI platform adapters. |
+
+Desktop executable name is retained, but Cargo commands now run from
+`native-integration` with `--features desktop`. Device Interface is a library.
+See [SAD §5.2](architecture.md#52-building-block-responsibilities),
+[ADR-0002](docs/decisions/0002-capture-storage-boundaries.md) and the
+[implementation image](docs/images/device-interface-implementation-view.png).
+
+Existing desktop databases are not moved by the package refactor. Pass their existing absolute path to monitor/query commands when reusing them; relative `data/…` paths resolve from the directory where the CLI is launched. Mobile app-private database paths remain unchanged.

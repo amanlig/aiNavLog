@@ -1,5 +1,7 @@
 # Android CI/CD — Play internal testing
 
+**Storage baseline — October 28, 2026:** SQLite via bundled Rust rusqlite is confirmed for structured local iOS/Android beta records ([ADR-0001](decisions/0001-sqlite-local-storage.md)). Native simulator integration is recorded in the [October 26 handoff](status/status-2026-10-26.md); older build-specific demo descriptions below remain historical evidence. Restart/update retention and physical Android acceptance remain open.
+
 Prepared October 20, 2026, following owner verification of iOS 1.0.0 build 3
 on iPhone 13. Android automation was demonstrated against Play later the same day; see the verified evidence below.
 

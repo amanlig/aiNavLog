@@ -20,7 +20,7 @@ Default databases are unique files under `simulation/orion/data/`; every supplie
 never the real device ID. The output prints the database path for inspection:
 
 ```sh
-cargo run --manifest-path device-interface/Cargo.toml --locked -- observations /path/to/simulation.sqlite3 100
+cargo run --manifest-path native-integration/Cargo.toml --features desktop --locked -- observations /path/to/simulation.sqlite3 100
 ```
 
 ## Pipeline and scenario

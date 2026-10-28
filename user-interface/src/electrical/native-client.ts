@@ -7,6 +7,11 @@ interface Receiver {
   start(): Promise<void>;
   stop(): Promise<void>;
   snapshot(): Promise<{ status: number; permissionDenied: boolean; sample: unknown; diagnostics?: ReceiverDiagnostics }>;
+  history?(start: number, end: number): Promise<unknown>;
+}
+export async function readNativeHistory(start: number, end: number) {
+  if (!receiver?.history) throw new Error('Saved history requires a newer aiNavLog native build.');
+  return receiver.history(start, end);
 }
 const receiver = Platform.OS === 'web' ? null : requireOptionalNativeModule<Receiver>('AiNavLog');
 export const nativeMode = Platform.OS !== 'web' && process.env.EXPO_PUBLIC_NATIVE_BMV === '1';

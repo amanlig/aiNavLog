@@ -24,7 +24,7 @@ btleplug 0.13.3 powers discovery, connection/disconnection and live manufacturer
 advertisement reception. The Victron monitor decodes Orion broadcasts, handles
 retries and stale data, and persists observations to SQLite. See the
 [live monitoring guide](../victron-live-monitoring.md) and
-[implementation diagram](../device-interface-class-diagram.md). Physical Orion and
+[implementation diagram](../device-interface-implementation-view.md). Physical Orion and
 mobile validation remain pending; installed library support does not establish
 working iOS/Android app integration.
 

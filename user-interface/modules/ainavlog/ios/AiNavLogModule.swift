@@ -23,6 +23,27 @@ public class AiNavLogModule: Module {
       if result != 0 { throw NSError(domain: "AiNavLog", code: Int(result), userInfo: [NSLocalizedDescriptionKey: "Could not open the Bluetooth receiver."]) }
     }.runOnQueue(queue)
     AsyncFunction("stop") { self.stop() }.runOnQueue(queue)
+    AsyncFunction("history") { (start: Double, end: Double) -> [[Double]] in
+      let directory = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+      let path = directory.appendingPathComponent("bmv-simulator.sqlite3").path
+      guard start.isFinite, end.isFinite, start >= 0, end > start, end <= 8_640_000_000_000_000, end-start <= 32*86_400_000 else {
+        throw NSError(domain: "AiNavLog", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid history range."])
+      }
+      var rows = [ainavlog_history_point](repeating: ainavlog_history_point(), count: 8192)
+      var count = 0
+      let result = path.withCString { file in
+        "windows-bmv-simulator".withCString { source in
+          rows.withUnsafeMutableBufferPointer { buffer in
+            ainavlog_history(file, source, Int64(start), Int64(end), buffer.baseAddress, buffer.count, &count)
+          }
+        }
+      }
+      guard result == 0 else { throw NSError(domain: "AiNavLog", code: Int(result), userInfo: [NSLocalizedDescriptionKey: "Could not read saved history. Try a shorter range."]) }
+      return rows.prefix(count).map { row in
+        let sample = row.sample
+        return [Double(sample.received_ms), Double(sample.present), sample.house_voltage, sample.house_current, sample.house_charge, sample.starter_voltage, Double(row.segment)]
+      }
+    }.runOnQueue(queue)
     AsyncFunction("snapshot") { () -> [String: Any] in
       let authorization = CBCentralManager.authorization
       var counters = ainavlog_simulator_counters()

@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1960" height="1730" viewBox="0 0 1960 1730">
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="none" stroke="#475569"/></marker></defs>
+<rect width="100%" height="100%" fill="#f8fafc"/>
+<text x="40" y="45" font-family="DejaVu Sans, sans-serif" font-size="30" font-weight="bold" fill="#0f172a">aiNavLog · Device Interface implementation view</text>
+<text x="40" y="80" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="normal" fill="#0f172a">2026-10-28 · Responsibilities match SAD §5.2 · Classes and functions shown inside each logical block</text>
+<text x="40" y="115" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#0f172a">Green: implemented scope     Amber: radio/platform acceptance incomplete     Arrows: selected dependencies / data paths</text>
+<rect x="40" y="160" width="600" height="590" rx="10" fill="#fffbeb" stroke="#b45309" stroke-width="2"/>
+<text x="58" y="194" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#0f172a">1. Native integration</text>
+<text x="58" y="224" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#b45309">native-integration/ + app platform adapters</text>
+<rect x="55" y="248" width="570" height="84" rx="5" fill="#ffffff" stroke="#b45309"/>
+<text x="67" y="269" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#b45309">Swift / Kotlin / C++</text>
+<text x="67" y="293" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">AiNavLogModule / JNI</text>
+<text x="67" y="317" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">App lifecycle, private paths, start / stop / snapshot / history</text>
+<rect x="55" y="344" width="570" height="84" rx="5" fill="#ffffff" stroke="#b45309"/>
+<text x="67" y="365" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#b45309">Rust structs</text>
+<text x="67" y="389" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">Registry / Session</text>
+<text x="67" y="413" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Opaque handles; Session owns monitor with injected capture</text>
+<rect x="55" y="440" width="570" height="84" rx="5" fill="#ffffff" stroke="#b45309"/>
+<text x="67" y="461" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#b45309">Rust application worker / diagnostics</text>
+<text x="67" y="485" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">Scanner / ScanStats</text>
+<text x="67" y="509" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Cancellation, retry and simulator selection policy</text>
+<rect x="55" y="536" width="570" height="84" rx="5" fill="#ffffff" stroke="#b45309"/>
+<text x="67" y="557" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#b45309">Rust query functions</text>
+<text x="67" y="581" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">Latest / history C ABI</text>
+<text x="67" y="605" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Read Local data store directly; no capture or receiver needed</text>
+<rect x="680" y="160" width="600" height="590" rx="10" fill="#fffbeb" stroke="#b45309" stroke-width="2"/>
+<text x="698" y="194" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#0f172a">2. Device Interface</text>
+<text x="698" y="224" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#b45309">device-interface/ · no runtime SQLite dependency</text>
+<rect x="695" y="248" width="570" height="84" rx="5" fill="#ffffff" stroke="#b45309"/>
+<text x="707" y="269" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#b45309">Rust structs</text>
+<text x="707" y="293" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">BluetoothAdapter / AdvertisementScan</text>
+<text x="707" y="317" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">btleplug platform access; event stream and scan cleanup</text>
+<rect x="695" y="344" width="570" height="84" rx="5" fill="#ffffff" stroke="#b45309"/>
+<text x="707" y="365" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#b45309">Rust async receiver</text>
+<text x="707" y="389" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">scan_victron()</text>
+<text x="707" y="413" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Own BLE events, startup, silence timeout and radio errors</text>
+<rect x="695" y="440" width="570" height="84" rx="5" fill="#ffffff" stroke="#b45309"/>
+<text x="707" y="461" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#b45309">Rust struct</text>
+<text x="707" y="485" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">VictronMonitor&lt;S: ObservationSink&gt;</text>
+<text x="707" y="509" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Decode, deduplicate, freshness / key state; emit to sink</text>
+<rect x="695" y="536" width="570" height="84" rx="5" fill="#ffffff" stroke="#b45309"/>
+<text x="707" y="557" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#b45309">Rust structs</text>
+<text x="707" y="581" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">Decoder / ObservationNormalizer</text>
+<text x="707" y="605" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Vendor protocol → common observations and metadata</text>
+<rect x="695" y="632" width="570" height="84" rx="5" fill="#ffffff" stroke="#b45309"/>
+<text x="707" y="653" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#b45309">Rust structs / traits</text>
+<text x="707" y="677" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">NMEA codecs / interface stubs</text>
+<text x="707" y="701" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Codecs exist; generic gateway integration remains unfinished</text>
+<rect x="1320" y="160" width="600" height="590" rx="10" fill="#ecfdf5" stroke="#15803d" stroke-width="2"/>
+<text x="1338" y="194" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#0f172a">3. Data capture</text>
+<text x="1338" y="224" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#15803d">data-capture/ · validated writes only</text>
+<rect x="1335" y="248" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="1347" y="269" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">Rust struct · implements ObservationSink</text>
+<text x="1347" y="293" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">CaptureService</text>
+<text x="1347" y="317" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Owns repository; validates before coordinating commit</text>
+<rect x="1335" y="344" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="1347" y="365" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">ObservationSink method</text>
+<text x="1347" y="389" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">capture()</text>
+<text x="1347" y="413" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Source/time, fields, unique quantities, finite values, quality</text>
+<rect x="1335" y="440" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="1347" y="461" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">ObservationSink method</text>
+<text x="1347" y="485" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">record_event()</text>
+<text x="1347" y="509" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Validate and save receiver state / diagnostic events</text>
+<rect x="40" y="820" width="600" height="590" rx="10" fill="#ecfdf5" stroke="#15803d" stroke-width="2"/>
+<text x="58" y="854" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#0f172a">4. Local data store</text>
+<text x="58" y="884" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#15803d">local-storage/ · SQLite / bundled rusqlite</text>
+<rect x="55" y="908" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="67" y="929" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">Rust struct</text>
+<text x="67" y="953" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">ObservationStore</text>
+<text x="67" y="977" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Own connection, schema/version, WAL, indexes, transactions</text>
+<rect x="55" y="1004" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="67" y="1025" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">Associated Rust functions</text>
+<text x="67" y="1049" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">Latest / history / recent queries</text>
+<text x="67" y="1073" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Read-only; source/range selection; no Bluetooth required</text>
+<rect x="55" y="1100" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="67" y="1121" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">Rust data structs</text>
+<text x="67" y="1145" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">StoredObservation / BmvHistoryPoint</text>
+<text x="67" y="1169" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Nullable measurements; receipt time; gap segment IDs</text>
+<rect x="55" y="1196" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="67" y="1217" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">Existing SQLite tables</text>
+<text x="67" y="1241" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">samples / observations / monitor_events</text>
+<text x="67" y="1265" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Schema 1 and existing database files preserved</text>
+<rect x="680" y="820" width="600" height="590" rx="10" fill="#ecfdf5" stroke="#15803d" stroke-width="2"/>
+<text x="698" y="854" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#0f172a">5. Shared data contracts</text>
+<text x="698" y="884" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#15803d">data-model/ · no platform / vendor / SQL dependencies</text>
+<rect x="695" y="908" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="707" y="929" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">Rust struct</text>
+<text x="707" y="953" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">SampleMetadata</text>
+<text x="707" y="977" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">source · receipt · product · counter · record type</text>
+<rect x="695" y="1004" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="707" y="1025" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">Rust structs</text>
+<text x="707" y="1049" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">Observation / DecodedReading</text>
+<text x="707" y="1073" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">quantity · unit · optional value/time · quality</text>
+<rect x="695" y="1100" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="707" y="1121" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">Rust trait · injected write interface</text>
+<text x="707" y="1145" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">ObservationSink</text>
+<text x="707" y="1169" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">capture() / record_event(); no concrete storage dependency</text>
+<rect x="695" y="1196" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="707" y="1217" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">Shared application contracts</text>
+<text x="707" y="1241" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">AppError / AppResult / QualityStatus</text>
+<text x="707" y="1265" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Device API retains compatible DeviceError/Result aliases</text>
+<rect x="1320" y="820" width="600" height="590" rx="10" fill="#ecfdf5" stroke="#15803d" stroke-width="2"/>
+<text x="1338" y="854" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#0f172a">6. Desktop application composition</text>
+<text x="1338" y="884" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#15803d">native-integration/ · desktop feature</text>
+<rect x="1335" y="908" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="1347" y="929" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">Rust async supervisor / configuration</text>
+<text x="1347" y="953" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">run_victron_monitor / MonitorConfig</text>
+<text x="1347" y="977" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Assemble transport → capture → storage; retry and key reload</text>
+<rect x="1335" y="1004" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="1347" y="1025" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">Rust read-only HTTP module</text>
+<text x="1347" y="1049" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">serve-ui</text>
+<text x="1347" y="1073" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Latest and history query APIs → Local data store</text>
+<rect x="1335" y="1100" width="570" height="84" rx="5" fill="#ffffff" stroke="#15803d"/>
+<text x="1347" y="1121" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#15803d">Executable / example</text>
+<text x="1347" y="1145" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">CLI / packet replay</text>
+<text x="1347" y="1169" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Application entry points; executable name unchanged</text>
+<path d="M640,420 L680,420" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="0" y="0" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#475569"></text>
+<path d="M1280,420 L1320,420" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="0" y="0" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#475569"></text>
+<path d="M340,750 L340,820" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="355" y="810" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#475569">direct query APIs</text>
+<path d="M1620,750 L1620,785 L20,785 L20,1120 L40,1120" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="690" y="778" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#475569">capture commits to storage</text>
+<text x="40" y="1452" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#0f172a">Writes: Device Interface → injected ObservationSink → Data capture → Local data store. Reads: UI → native query APIs → Local data store.</text>
+<text x="40" y="1485" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="bold" fill="#0f172a">Device Interface never opens or queries SQLite. Capture and storage have no dependency on Bluetooth or vendor-specific Rust types.</text>
+<rect x="40" y="1510" width="1880" height="96" rx="8" fill="#eff6ff" stroke="#64748b"/>
+<text x="58" y="1539" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">Logical ownership and physical packages are explicit; all mobile components are bundled within the same app.</text>
+<text x="58" y="1566" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#0f172a">Native integration assembles the pipeline. Shared contracts define the sink. Storage queries remain available after disconnect.</text>
+<text x="58" y="1591" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#0f172a">The refactor preserves database filenames, schema version, rows, receipt timestamps and C ABI names; no user data is deleted or migrated.</text>
+<text x="40" y="1640" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#0f172a">Future work: maintenance CRUD, broader capture workflows, retention/export/protection and real-device qualification. See ADR-0001 / ADR-0002.</text>
+<text x="40" y="1675" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="normal" fill="#0f172a">iPhone 1.0.0 (7): ready in TestFlight. Physical-phone history/reception regression remains pending. Android replacement is deferred.</text>
+<text x="40" y="1705" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#0f172a">Classes, functions and contracts are grouped by responsibility. Source references: docs/device-interface-implementation-view.md</text>
+</svg>

@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="1450" viewBox="0 0 1240 1450"><rect width="100%" height="100%" fill="#edf2f6"/>
+<text x="55" y="55" font-family="DejaVu Sans,sans-serif" font-size="34" fill="#092443" font-weight="bold">Battery history</text>
+<text x="55" y="88" font-family="DejaVu Sans,sans-serif" font-size="18" fill="#536780" font-weight="normal">Proposed mobile experience · House and Starter · illustrative data</text>
+<rect x="50" y="124" width="535" height="1255" rx="34" fill="#cfdbe4" stroke="none"/>
+<rect x="55" y="118" width="525" height="1255" rx="30" fill="white" stroke="none"/>
+<text x="80" y="152" font-family="DejaVu Sans,sans-serif" font-size="14" fill="#092443" font-weight="bold">9:41</text>
+<text x="485" y="152" font-family="DejaVu Sans,sans-serif" font-size="12" fill="#092443" font-weight="normal">▰ 100%</text>
+<rect x="55" y="173" width="525" height="66" rx="0" fill="#153b5e" stroke="none"/>
+<text x="78" y="215" font-family="DejaVu Sans,sans-serif" font-size="23" fill="white" font-weight="bold">✦ aiNavLog</text>
+<text x="415" y="213" font-family="DejaVu Sans,sans-serif" font-size="16" fill="white" font-weight="normal">My boat  ▾</text>
+<text x="79" y="274" font-family="DejaVu Sans,sans-serif" font-size="16" fill="#16887f" font-weight="bold">‹  Electrical</text>
+<text x="79" y="318" font-family="DejaVu Sans,sans-serif" font-size="30" fill="#092443" font-weight="bold">Historical Usage</text>
+<text x="79" y="347" font-family="DejaVu Sans,sans-serif" font-size="15" fill="#536780" font-weight="normal">Review the readings recorded on this device.</text>
+<rect x="79" y="370" width="477" height="52" rx="13" fill="#eef3f7" stroke="none"/>
+<rect x="83" y="374" width="231" height="44" rx="10" fill="white" stroke="#dfe9f1"/>
+<text x="154" y="403" font-family="DejaVu Sans,sans-serif" font-size="17" fill="#16887f" font-weight="bold">House</text>
+<text x="392" y="403" font-family="DejaVu Sans,sans-serif" font-size="17" fill="#536780" font-weight="normal">Starter</text>
+<text x="79" y="456" font-family="DejaVu Sans,sans-serif" font-size="24" fill="#16887f" font-weight="normal">‹</text>
+<text x="162" y="454" font-family="DejaVu Sans,sans-serif" font-size="19" fill="#092443" font-weight="bold">Wed, Oct 28, 2026</text>
+<text x="535" y="456" font-family="DejaVu Sans,sans-serif" font-size="24" fill="#16887f" font-weight="normal">›</text>
+<rect x="79" y="475" width="153" height="40" rx="10" fill="#16887f" stroke="#16887f"/>
+<text x="115" y="501" font-family="DejaVu Sans,sans-serif" font-size="14" fill="white" font-weight="bold">24 hours</text>
+<rect x="240" y="475" width="153" height="40" rx="10" fill="white" stroke="#dfe9f1"/>
+<text x="276" y="501" font-family="DejaVu Sans,sans-serif" font-size="14" fill="#536780" font-weight="normal">7 days</text>
+<rect x="401" y="475" width="153" height="40" rx="10" fill="white" stroke="#dfe9f1"/>
+<text x="437" y="501" font-family="DejaVu Sans,sans-serif" font-size="14" fill="#536780" font-weight="normal">30 days</text>
+<rect x="79" y="535" width="477" height="34" rx="8" fill="#e4f4f1" stroke="none"/>
+<text x="92" y="557" font-family="DejaVu Sans,sans-serif" font-size="12" fill="#146f67" font-weight="bold">SIMULATED DATA  ·  Windows BMV simulator</text>
+<rect x="79" y="587" width="477" height="376" rx="16" fill="white" stroke="#dfe9f1"/>
+<text x="98" y="621" font-family="DejaVu Sans,sans-serif" font-size="21" fill="#092443" font-weight="bold">Charge level</text>
+<text x="98" y="648" font-family="DejaVu Sans,sans-serif" font-size="13" fill="#536780" font-weight="normal">Recorded samples · tap chart to inspect</text>
+<text x="98" y="696" font-family="DejaVu Sans,sans-serif" font-size="38" fill="#092443" font-weight="bold">77.2</text>
+<text x="200" y="695" font-family="DejaVu Sans,sans-serif" font-size="19" fill="#536780" font-weight="normal">%</text>
+<text x="98" y="720" font-family="DejaVu Sans,sans-serif" font-size="13" fill="#536780" font-weight="normal">Selected reading · 12:00</text>
+<rect x="255" y="674" width="78" height="29" rx="7" fill="#e4f4f1" stroke="none"/>
+<text x="265" y="693" font-family="DejaVu Sans,sans-serif" font-size="11" fill="#16887f" font-weight="bold">Charge</text>
+<rect x="339" y="674" width="78" height="29" rx="7" fill="#f5f8fb" stroke="none"/>
+<text x="349" y="693" font-family="DejaVu Sans,sans-serif" font-size="11" fill="#536780" font-weight="normal">Voltage</text>
+<rect x="423" y="674" width="78" height="29" rx="7" fill="#f5f8fb" stroke="none"/>
+<text x="433" y="693" font-family="DejaVu Sans,sans-serif" font-size="11" fill="#536780" font-weight="normal">Current</text>
+<path d="M138,751.0 H524" fill="none" stroke="#dfe9f1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray=""/>
+<text x="95" y="756.0" font-family="DejaVu Sans,sans-serif" font-size="12" fill="#536780" font-weight="normal">90%</text>
+<path d="M138,818.5 H524" fill="none" stroke="#dfe9f1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray=""/>
+<text x="95" y="823.5" font-family="DejaVu Sans,sans-serif" font-size="12" fill="#536780" font-weight="normal">80%</text>
+<path d="M138,886.0 H524" fill="none" stroke="#dfe9f1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray=""/>
+<text x="95" y="891.0" font-family="DejaVu Sans,sans-serif" font-size="12" fill="#536780" font-weight="normal">70%</text>
+<rect x="249.94" y="751" width="42.46" height="135" rx="0" fill="#f1f4f7" stroke="none"/>
+<path d="M138,787.45 L168.88,794.2 L199.76,803.65 L234.5,813.1" fill="none" stroke="#16887f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray=""/>
+<path d="M300.12,823.9 L331.0,837.4 L369.6,845.5 L400.48,815.8 L423.64,783.4 L462.24,775.3 L500.84,788.8 L524,799.6" fill="none" stroke="#16887f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray=""/>
+<path d="M331.0,751 V886" fill="none" stroke="#a1b8c4" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 4"/>
+<circle cx="331.0" cy="837.4" r="5" fill="#16887f" stroke="white" stroke-width="2"/>
+<text x="121.0" y="912" font-family="DejaVu Sans,sans-serif" font-size="11" fill="#536780" font-weight="normal">00:00</text>
+<text x="217.5" y="912" font-family="DejaVu Sans,sans-serif" font-size="11" fill="#536780" font-weight="normal">06:00</text>
+<text x="314.0" y="912" font-family="DejaVu Sans,sans-serif" font-size="11" fill="#536780" font-weight="normal">12:00</text>
+<text x="410.5" y="912" font-family="DejaVu Sans,sans-serif" font-size="11" fill="#536780" font-weight="normal">18:00</text>
+<text x="507.0" y="912" font-family="DejaVu Sans,sans-serif" font-size="11" fill="#536780" font-weight="normal">24:00</text>
+<rect x="98" y="932" width="11" height="11" rx="2" fill="#f1f4f7" stroke="#dfe9f1"/>
+<text x="117" y="942" font-family="DejaVu Sans,sans-serif" font-size="12" fill="#536780" font-weight="normal">Gap = no readings recorded</text>
+<text x="79" y="1000" font-family="DejaVu Sans,sans-serif" font-size="12" fill="#536780" font-weight="bold">RECORDED RANGE</text>
+<rect x="79" y="1016" width="233" height="93" rx="12" fill="#f7fafc" stroke="#dfe9f1"/>
+<text x="96" y="1044" font-family="DejaVu Sans,sans-serif" font-size="14" fill="#536780" font-weight="normal">Lowest</text>
+<text x="96" y="1081" font-family="DejaVu Sans,sans-serif" font-size="27" fill="#092443" font-weight="bold">76.0%</text>
+<rect x="323" y="1016" width="233" height="93" rx="12" fill="#f7fafc" stroke="#dfe9f1"/>
+<text x="340" y="1044" font-family="DejaVu Sans,sans-serif" font-size="14" fill="#536780" font-weight="normal">Highest</text>
+<text x="340" y="1081" font-family="DejaVu Sans,sans-serif" font-size="27" fill="#092443" font-weight="bold">86.4%</text>
+<text x="79" y="1147" font-family="DejaVu Sans,sans-serif" font-size="17" fill="#092443" font-weight="bold">At selected time</text>
+<text x="79" y="1181" font-family="DejaVu Sans,sans-serif" font-size="16" fill="#092443" font-weight="normal">Voltage  12.8 V</text>
+<text x="324" y="1181" font-family="DejaVu Sans,sans-serif" font-size="16" fill="#092443" font-weight="normal">Current  −5.3 A</text>
+<text x="79" y="1211" font-family="DejaVu Sans,sans-serif" font-size="13" fill="#536780" font-weight="normal">− Discharging   /   + Charging</text>
+<path d="M79,1246 H556" fill="none" stroke="#dfe9f1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray=""/>
+<text x="79" y="1274" font-family="DejaVu Sans,sans-serif" font-size="13" fill="#536780" font-weight="normal">Recorded history · not a live battery reading</text>
+<text x="79" y="1298" font-family="DejaVu Sans,sans-serif" font-size="12" fill="#536780" font-weight="normal">Only periods when the receiver was active are shown.</text>
+<rect x="251" y="1345" width="133" height="5" rx="3" fill="#092443" stroke="none"/>
+<rect x="655" y="124" width="535" height="1255" rx="34" fill="#cfdbe4" stroke="none"/>
+<rect x="660" y="118" width="525" height="1255" rx="30" fill="white" stroke="none"/>
+<text x="685" y="152" font-family="DejaVu Sans,sans-serif" font-size="14" fill="#092443" font-weight="bold">9:41</text>
+<text x="1090" y="152" font-family="DejaVu Sans,sans-serif" font-size="12" fill="#092443" font-weight="normal">▰ 100%</text>
+<rect x="660" y="173" width="525" height="66" rx="0" fill="#153b5e" stroke="none"/>
+<text x="683" y="215" font-family="DejaVu Sans,sans-serif" font-size="23" fill="white" font-weight="bold">✦ aiNavLog</text>
+<text x="1020" y="213" font-family="DejaVu Sans,sans-serif" font-size="16" fill="white" font-weight="normal">My boat  ▾</text>
+<text x="684" y="274" font-family="DejaVu Sans,sans-serif" font-size="16" fill="#16887f" font-weight="bold">‹  Electrical</text>
+<text x="684" y="318" font-family="DejaVu Sans,sans-serif" font-size="30" fill="#092443" font-weight="bold">Historical Usage</text>
+<text x="684" y="347" font-family="DejaVu Sans,sans-serif" font-size="15" fill="#536780" font-weight="normal">Review the readings recorded on this device.</text>
+<rect x="684" y="370" width="477" height="52" rx="13" fill="#eef3f7" stroke="none"/>
+<rect x="926" y="374" width="231" height="44" rx="10" fill="white" stroke="#dfe9f1"/>
+<text x="759" y="403" font-family="DejaVu Sans,sans-serif" font-size="17" fill="#536780" font-weight="normal">House</text>
+<text x="997" y="403" font-family="DejaVu Sans,sans-serif" font-size="17" fill="#16887f" font-weight="bold">Starter</text>
+<text x="684" y="456" font-family="DejaVu Sans,sans-serif" font-size="24" fill="#16887f" font-weight="normal">‹</text>
+<text x="767" y="454" font-family="DejaVu Sans,sans-serif" font-size="19" fill="#092443" font-weight="bold">Wed, Oct 28, 2026</text>
+<text x="1140" y="456" font-family="DejaVu Sans,sans-serif" font-size="24" fill="#16887f" font-weight="normal">›</text>
+<rect x="684" y="475" width="153" height="40" rx="10" fill="#16887f" stroke="#16887f"/>
+<text x="720" y="501" font-family="DejaVu Sans,sans-serif" font-size="14" fill="white" font-weight="bold">24 hours</text>
+<rect x="845" y="475" width="153" height="40" rx="10" fill="white" stroke="#dfe9f1"/>
+<text x="881" y="501" font-family="DejaVu Sans,sans-serif" font-size="14" fill="#536780" font-weight="normal">7 days</text>
+<rect x="1006" y="475" width="153" height="40" rx="10" fill="white" stroke="#dfe9f1"/>
+<text x="1042" y="501" font-family="DejaVu Sans,sans-serif" font-size="14" fill="#536780" font-weight="normal">30 days</text>
+<rect x="684" y="535" width="477" height="34" rx="8" fill="#e4f4f1" stroke="none"/>
+<text x="697" y="557" font-family="DejaVu Sans,sans-serif" font-size="12" fill="#146f67" font-weight="bold">SIMULATED DATA  ·  Windows BMV simulator</text>
+<rect x="684" y="587" width="477" height="376" rx="16" fill="white" stroke="#dfe9f1"/>
+<text x="703" y="621" font-family="DejaVu Sans,sans-serif" font-size="21" fill="#092443" font-weight="bold">Voltage</text>
+<text x="703" y="648" font-family="DejaVu Sans,sans-serif" font-size="13" fill="#536780" font-weight="normal">Recorded samples · tap chart to inspect</text>
+<text x="703" y="696" font-family="DejaVu Sans,sans-serif" font-size="38" fill="#092443" font-weight="bold">12.8</text>
+<text x="805" y="695" font-family="DejaVu Sans,sans-serif" font-size="19" fill="#536780" font-weight="normal">V</text>
+<text x="703" y="720" font-family="DejaVu Sans,sans-serif" font-size="13" fill="#536780" font-weight="normal">Selected reading · 12:00</text>
+<text x="928" y="688" font-family="DejaVu Sans,sans-serif" font-size="13" fill="#536780" font-weight="normal">Starter voltage only</text>
+<path d="M743,751.0 H1129" fill="none" stroke="#dfe9f1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray=""/>
+<text x="700" y="756.0" font-family="DejaVu Sans,sans-serif" font-size="12" fill="#536780" font-weight="normal">14.5</text>
+<path d="M743,818.5 H1129" fill="none" stroke="#dfe9f1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray=""/>
+<text x="700" y="823.5" font-family="DejaVu Sans,sans-serif" font-size="12" fill="#536780" font-weight="normal">13.5</text>
+<path d="M743,886.0 H1129" fill="none" stroke="#dfe9f1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray=""/>
+<text x="700" y="891.0" font-family="DejaVu Sans,sans-serif" font-size="12" fill="#536780" font-weight="normal">12.5</text>
+<rect x="854.94" y="751" width="42.46" height="135" rx="0" fill="#f1f4f7" stroke="none"/>
+<path d="M743,854.95 L773.88,857.65 L808.62,860.35 L839.5,856.3" fill="none" stroke="#16887f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray=""/>
+<path d="M905.12,886 L936.0,865.75 L974.6,857.65 L990.04,842.8 L1005.48,773.95 L1036.3600000000001,771.25 L1063.38,791.5 L1078.82,842.8 L1105.84,852.25 L1129,854.95" fill="none" stroke="#16887f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray=""/>
+<path d="M936.0,751 V886" fill="none" stroke="#a1b8c4" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 4"/>
+<circle cx="936.0" cy="865.75" r="5" fill="#16887f" stroke="white" stroke-width="2"/>
+<text x="726.0" y="912" font-family="DejaVu Sans,sans-serif" font-size="11" fill="#536780" font-weight="normal">00:00</text>
+<text x="822.5" y="912" font-family="DejaVu Sans,sans-serif" font-size="11" fill="#536780" font-weight="normal">06:00</text>
+<text x="919.0" y="912" font-family="DejaVu Sans,sans-serif" font-size="11" fill="#536780" font-weight="normal">12:00</text>
+<text x="1015.5" y="912" font-family="DejaVu Sans,sans-serif" font-size="11" fill="#536780" font-weight="normal">18:00</text>
+<text x="1112.0" y="912" font-family="DejaVu Sans,sans-serif" font-size="11" fill="#536780" font-weight="normal">24:00</text>
+<rect x="703" y="932" width="11" height="11" rx="2" fill="#f1f4f7" stroke="#dfe9f1"/>
+<text x="722" y="942" font-family="DejaVu Sans,sans-serif" font-size="12" fill="#536780" font-weight="normal">Gap = no readings recorded</text>
+<text x="684" y="1000" font-family="DejaVu Sans,sans-serif" font-size="12" fill="#536780" font-weight="bold">RECORDED RANGE</text>
+<rect x="684" y="1016" width="233" height="93" rx="12" fill="#f7fafc" stroke="#dfe9f1"/>
+<text x="701" y="1044" font-family="DejaVu Sans,sans-serif" font-size="14" fill="#536780" font-weight="normal">Lowest</text>
+<text x="701" y="1081" font-family="DejaVu Sans,sans-serif" font-size="27" fill="#092443" font-weight="bold">12.5 V</text>
+<rect x="928" y="1016" width="233" height="93" rx="12" fill="#f7fafc" stroke="#dfe9f1"/>
+<text x="945" y="1044" font-family="DejaVu Sans,sans-serif" font-size="14" fill="#536780" font-weight="normal">Highest</text>
+<text x="945" y="1081" font-family="DejaVu Sans,sans-serif" font-size="27" fill="#092443" font-weight="bold">14.2 V</text>
+<rect x="684" y="1133" width="477" height="91" rx="12" fill="#f5f8fb" stroke="none"/>
+<text x="700" y="1163" font-family="DejaVu Sans,sans-serif" font-size="16" fill="#092443" font-weight="bold">Why voltage only?</text>
+<text x="700" y="1188" font-family="DejaVu Sans,sans-serif" font-size="13" fill="#536780" font-weight="normal">The auxiliary input measures starter voltage.</text>
+<text x="700" y="1209" font-family="DejaVu Sans,sans-serif" font-size="13" fill="#536780" font-weight="normal">Starter charge and current are unavailable.</text>
+<path d="M684,1246 H1161" fill="none" stroke="#dfe9f1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray=""/>
+<text x="684" y="1274" font-family="DejaVu Sans,sans-serif" font-size="13" fill="#536780" font-weight="normal">Recorded history · not a live battery reading</text>
+<text x="684" y="1298" font-family="DejaVu Sans,sans-serif" font-size="12" fill="#536780" font-weight="normal">Only periods when the receiver was active are shown.</text>
+<rect x="856" y="1345" width="133" height="5" rx="3" fill="#092443" stroke="none"/>
+<text x="55" y="1417" font-family="DejaVu Sans,sans-serif" font-size="17" fill="#536780" font-weight="normal">Design mockup only · history queries and chart interactions are not implemented yet.</text>
+</svg>

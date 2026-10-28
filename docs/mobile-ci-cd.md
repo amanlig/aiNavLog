@@ -1,5 +1,7 @@
 # aiNavLog mobile CI/CD
 
+**Storage baseline — October 28, 2026:** SQLite via bundled Rust rusqlite is confirmed for structured local iOS/Android beta records ([ADR-0001](decisions/0001-sqlite-local-storage.md)). Native simulator integration is recorded in the [October 26 handoff](status/status-2026-10-26.md); older build-specific demo descriptions below remain historical evidence. Restart/update retention and physical Android acceptance remain open.
+
 Verified October 20, 2026: shared GitHub checks, signed iOS build, exact-build
 App Store Connect upload and owner-confirmed verification on iPhone 13 have
 succeeded. Android signed build, exact-build Play internal submission and owner-confirmed
