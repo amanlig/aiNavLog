@@ -561,3 +561,41 @@ The owner reported successful simulator testing after a five-minute BMV broadcas
 the installed build and detailed zoom/restart/update-retention results were not
 specified. Those acceptance details remain open. Android stays deferred.
 Resume October 29 from the [end-of-day handoff](status/status-2026-10-28.md#end-of-day-handoff--resume-thursday-october-29-2026).
+
+## Research backlog
+
+### RES-01 — Explore PredictWind DataHub Pro benefits for aiNavLog
+
+**Added:** October 28, 2026. **Status:** proposed research; not an implementation
+commitment or a dependency of the current Electrical slice.
+
+Explore whether [PredictWind DataHub Pro](https://www.predictwind.com/datahub/pro)
+can act as an additional onboard data source or connectivity gateway for aiNavLog.
+The vendor page describes instrument/N2K streaming over Wi-Fi, GPS/AIS/N2K over
+Wi-Fi, data logging, battery status and remote network access (reviewed October 28).
+These advertised capabilities motivate investigation; they do not establish a
+supported third-party API, compatible wire format or access to every sensor field.
+
+Research questions:
+
+- What documented local interfaces, protocols, transports and data exports can
+  aiNavLog use? Verify available electrical, GPS, wind, depth and AIS fields,
+  timestamps, units, update rates and source identities. Distinguish local access
+  from vendor-cloud access and confirm third-party integration/licensing terms.
+- Could one gateway reduce the need for individual device adapters and supply
+  route/logbook context alongside battery history? Compare this with direct BLE
+  and other NMEA gateway options, including duplicate-source handling and gaps.
+- How would an adapter fit Device Interface → Data capture → SQLite, with UI
+  history reads continuing through Local data store? Evaluate iOS/Android local
+  network permissions, reconnect behavior and operation without internet.
+- Which benefits require hardware, subscriptions or internet? Assess ownership
+  and export of records, authentication, privacy, bandwidth, power use and whether
+  PredictWind data-control modes allow aiNavLog traffic. Do not assume remote
+  access or partner-only services are available to third-party apps.
+
+**Deliverable:** a short evidence-linked feasibility assessment and architecture
+sketch, separating confirmed interfaces from open questions, with a recommendation
+to prototype, defer or decline. If feasible, define a small read-only proof of
+concept for one electrical reading and one position reading through SQLite to
+the UI. Hardware purchase, subscriptions and implementation require a subsequent
+decision.
