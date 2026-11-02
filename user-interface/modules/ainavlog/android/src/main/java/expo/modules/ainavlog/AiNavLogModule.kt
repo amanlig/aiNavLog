@@ -11,6 +11,7 @@ internal object Bridge {
   external fun nativeStatus(): Int
   external fun nativeCounters(): LongArray?
   external fun nativeSample(handle: Long): DoubleArray?
+  external fun nativeMaintenance(path: String, request: String): String?
   external fun nativeHistory(path: String, start: Long, end: Long): DoubleArray?
 }
 
@@ -41,6 +42,17 @@ class AiNavLogModule : Module() {
       val path = java.io.File(context.filesDir, "bmv-simulator.sqlite3").absolutePath
       val rows = Bridge.nativeHistory(path, start.toLong(), end.toLong()) ?: error("Could not read saved history. Try a shorter range.")
       rows.toList().chunked(7)
+    }
+    AsyncFunction("maintenance") { request: String ->
+      val context = appContext.reactContext ?: error("App context unavailable")
+      val path = java.io.File(context.filesDir, "bmv-simulator.sqlite3").absolutePath
+      val ascii = buildString {
+        for (character in request) {
+          if (character.code > 127 || character.code == 0) append("\\u" + character.code.toString(16).padStart(4, '0'))
+          else append(character)
+        }
+      }
+      Bridge.nativeMaintenance(path, ascii) ?: error("Could not read or save maintenance records")
     }
     AsyncFunction("snapshot") {
       synchronized(lock) {

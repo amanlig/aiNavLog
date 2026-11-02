@@ -44,6 +44,21 @@ public class AiNavLogModule: Module {
         return [Double(sample.received_ms), Double(sample.present), sample.house_voltage, sample.house_current, sample.house_charge, sample.starter_voltage, Double(row.segment)]
       }
     }.runOnQueue(queue)
+    AsyncFunction("maintenance") { (request: String) -> String in
+      let directory = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+      let path = directory.appendingPathComponent("bmv-simulator.sqlite3").path
+      var output = [UInt8](repeating: 0, count: 2 * 1024 * 1024)
+      var count = 0
+      let result = path.withCString { file in
+        request.withCString { command in
+          output.withUnsafeMutableBufferPointer { buffer in
+            ainavlog_maintenance(file, command, buffer.baseAddress, buffer.count, &count)
+          }
+        }
+      }
+      guard result == 0 else { throw NSError(domain: "AiNavLog", code: Int(result), userInfo: [NSLocalizedDescriptionKey: "Could not read or save maintenance records."]) }
+      return String(decoding: output.prefix(count), as: UTF8.self)
+    }.runOnQueue(queue)
     AsyncFunction("snapshot") { () -> [String: Any] in
       let authorization = CBCentralManager.authorization
       var counters = ainavlog_simulator_counters()

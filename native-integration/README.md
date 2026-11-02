@@ -118,3 +118,28 @@ TestFlight submission finished successfully, including the history API and
 responsibility refactor. Physical-phone regression remains pending. Existing
 Android code 7 predates these changes; its replacement is deferred until the
 physical tablet arrives. See the [release checkpoint](../docs/status/status-2026-10-28.md).
+
+## Shared maintenance commands — source update October 30
+
+`maintenance::execute` accepts JSON commands `list`, `equipment` and `save`,
+validates records and invokes Local data store directly, independently of receiver
+state. `ainavlog_maintenance` exposes this through caller-owned UTF-8 buffers;
+Swift/Kotlin expose `AiNavLog.maintenance(request)` on a worker queue. A native app
+upgrade is required; old modules return an explicit upgrade error in the UI.
+
+The existing mobile database path is retained, including its historical simulator
+filename. Schema 2 adds persistent equipment/completed work without changing
+telemetry tables. No service records are synthetic. Defaults cover main engine,
+generator, alternator, house/starter batteries and charger; users can add named
+equipment with engine/electrical/both classification. The dataset is single-vessel.
+
+Desktop `serve-ui` keeps read-only telemetry endpoints and adds `POST /maintenance`
+with bounded JSON requests, configured Origin checks and CORS preflight. It remains
+loopback-only. The client must send the configured UI Origin and `Content-Type:
+application/json`; unknown origins cannot mutate records. This development server
+is not a remotely exposed multi-user service. Instruments remain BLE-only.
+
+The completed-work API is append-only: correction/deletion, attachments/export,
+backup and reminder scheduling are not implemented. Next-date/hour values are
+saved intentions, not automatically tracked obligations. See the shared
+[maintenance implementation](../docs/maintenance-implementation.md).

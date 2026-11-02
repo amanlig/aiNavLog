@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { AppHeader } from '../components/AppHeader';
+import { FireSafetyCard } from '../components/FireSafetyCard';
 import { Link } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
@@ -41,12 +42,13 @@ export default function HomeScreen() {
                 <View style={s.metrics}><View><Text style={{ color: c.muted }}>Voltage</Text><Text style={[s.value, { color: c.ink }]}>{reading(fresh ? house ? sample?.houseVoltage : sample?.starterVoltage : null, 1)} V</Text></View><View><Text style={{ color: c.muted }}>Current</Text><Text style={[s.value, { color: c.ink }]}>{reading(current, 1, true)} A</Text></View></View>
                 <Text style={{ color: c.muted, fontSize: 12 }}>{house ? 'House bank · charge, voltage and signed current' : 'Starter battery · current and charge unavailable'}</Text>
                 {!!error && <Text style={{ color: c.amber }}>{error}</Text>}
-              </> : <View style={s.placeholder}><Text style={[s.cardTitle, { color: c.ink }]}>{feature.id === 'engine' ? 'Not connected' : 'No tracking active'}</Text><Text style={[s.description, { color: c.muted }]}>{feature.id === 'engine' ? 'Engine hours, checks and maintenance are coming next.' : 'Trip recording, destinations and time underway are coming next.'}</Text><Text style={[s.label, { color: c.accent }]}>COMING SOON</Text></View>}
+              </> : <View style={s.placeholder}><Text style={[s.cardTitle, { color: c.ink }]}>{feature.id === 'engine' ? 'Not connected' : 'No tracking active'}</Text><Text style={[s.description, { color: c.muted }]}>{feature.id === 'engine' ? 'Record service work in Maintenance Logs. Live engine readings are coming next.' : 'Trip recording, destinations and time underway are coming next.'}</Text><Text style={[s.label, { color: c.accent }]}>COMING SOON</Text></View>}
               <View style={[s.cardLinks, { borderColor: c.line }]}>{feature.id === 'electrical' ? <>
                 <Link href="/elec/history" style={[s.link, { color: c.accent }]}>Historical Usage</Link>
                 <Link href="/elec/maintenance" style={[s.link, { color: c.accent }]}>Maintenance Logs</Link>
-              </> : <Link href={feature.href} style={[s.link, { color: c.accent }]}>View {feature.title.toLowerCase()} →</Link>}</View>
+              </> : <><Link href={feature.href} style={[s.link, { color: c.accent }]}>View {feature.title.toLowerCase()} →</Link>{feature.id === 'engine' && <Link href="/mech/maintenance" style={[s.link, { color: c.accent }]}>Maintenance Logs</Link>}</>}</View>
           </View>)}
+          <FireSafetyCard style={wide ? s.wideCard : undefined} />
         </View>
         <Text style={[s.footer, { color: c.muted }]}>Concept preview · Engine and Routes are not connected.</Text>
       </View>

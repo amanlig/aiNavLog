@@ -65,3 +65,30 @@ Java_expo_modules_ainavlog_Bridge_nativeHistory(JNIEnv *env, jobject, jstring pa
   if (result && !values.empty()) env->SetDoubleArrayRegion(result, 0, static_cast<jsize>(values.size()), values.data());
   return result;
 }
+
+extern "C" JNIEXPORT jstring JNICALL
+Java_expo_modules_ainavlog_Bridge_nativeMaintenance(JNIEnv *env, jobject, jstring path, jstring request) {
+  if (!path || !request) return nullptr;
+  const char *file = env->GetStringUTFChars(path, nullptr);
+  if (!file) return nullptr;
+  const char *command = env->GetStringUTFChars(request, nullptr);
+  if (!command) { env->ReleaseStringUTFChars(path, file); return nullptr; }
+  std::vector<uint8_t> output(2 * 1024 * 1024 + 1);
+  size_t count = 0;
+  const int32_t status = ainavlog_maintenance(file, command, output.data(), output.size()-1, &count);
+  env->ReleaseStringUTFChars(path, file);
+  env->ReleaseStringUTFChars(request, command);
+  if (status != 0) return nullptr;
+  // JSON serialized by serde_json is UTF-8. Use byte[] + Java UTF-8 decoder,
+  // because NewStringUTF expects modified UTF-8 and corrupts emoji/non-BMP text.
+  jbyteArray bytes = env->NewByteArray(static_cast<jsize>(count));
+  if (!bytes) return nullptr;
+  env->SetByteArrayRegion(bytes, 0, static_cast<jsize>(count), reinterpret_cast<const jbyte*>(output.data()));
+  jclass stringClass = env->FindClass("java/lang/String");
+  if (!stringClass) return nullptr;
+  jmethodID constructor = env->GetMethodID(stringClass, "<init>", "([BLjava/lang/String;)V");
+  if (!constructor) return nullptr;
+  jstring encoding = env->NewStringUTF("UTF-8");
+  if (!encoding) return nullptr;
+  return static_cast<jstring>(env->NewObject(stringClass, constructor, bytes, encoding));
+}

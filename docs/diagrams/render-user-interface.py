@@ -33,7 +33,7 @@ GROUPS = [
  ], 'done'),
  ('4. Data clients and native boundary', 'Receiver commands and direct storage query APIs', [
   ('native-client.ts', 'TypeScript module', 'startReceiver / stopReceiver / readReceiver; permissions'),
-  ('AiNavLogModule / JNI', 'Swift / Kotlin / Android C++ integration', 'start / stop / snapshot / history → native-integration'),
+  ('AiNavLogModule / JNI', 'Swift / Kotlin / Android C++ integration', 'receiver / history / maintenance → native-integration'),
   ('HTTP fetch in useElectricalState', 'Hook implementation · desktop development', 'GET /electrical; 3s abort; no demo fallback on failure'),
   ('parseDeviceSample', 'TypeScript function · device-client.ts', 'Validate source / timestamp / nullable finite readings'),
   ('history-client / parseHistory', 'TypeScript modules', 'Read native or HTTP history; validate bounded chart points'),
@@ -45,11 +45,11 @@ GROUPS = [
   ('starterAlert / parseThreshold', 'Functions · model.ts', 'Helpers exist; configurable alert UI is not connected'),
   ('history.ts / history-viewport.ts', 'Types / pure functions', 'Calendar bounds; pinch/step zoom, pan, extrema, selection'),
  ], 'done'),
- ('6. Preferences and unfinished views', 'Local settings persist · feature placeholders explicit', [
+ ('6. Preferences and records', 'Shared maintenance persists · remaining placeholders explicit', [
   ('PreferencesProvider / usePreferences', 'React provider / hook', 'Boat name · white/black palette · load/save errors'),
   ('AsyncStorage', 'External local persistence library', 'ainavlog.preferences.v1; settings only'),
-  ('ElectricalRecords', 'React component', 'Maintenance empty state; recording not implemented'),
-  ('EngineScreen / RoutesScreen', 'React route components', 'ComingSoon component; no engine or route capture'),
+  ('MaintenanceRecords / maintenance client', 'Shared component / command client', 'Engine + Electrical: equipment, completed work, SQLite'),
+  ('EngineScreen / RoutesScreen / FireSafetyCard', 'React route components / home widget', 'Manual service links; fire preview; no engine/route capture'),
  ], 'partial'),
 ]
 COLORS = {'done': ('#ecfdf5', '#15803d'), 'radio': ('#fffbeb', '#b45309'), 'partial': ('#fff7ed', '#c2410c')}
@@ -61,7 +61,7 @@ svg = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBo
 def text(x, y, value, size=17, weight='normal', fill='#0f172a'):
     svg.append(f'<text x="{x}" y="{y}" font-family="DejaVu Sans, sans-serif" font-size="{size}" font-weight="{weight}" fill="{fill}">{escape(value)}</text>')
 text(40, 45, 'aiNavLog · User Interface implementation view', 30, 'bold')
-text(40, 80, '2026-10-28 · Boundaries match SAD §5.4.1 · Components, hooks, modules and types inside each logical block', 20)
+text(40, 80, '2026-10-30 · Boundaries match SAD §5.4.1 · Components, hooks, modules and types inside each logical block', 20)
 text(40, 115, 'Green: implemented scope     Amber: platform acceptance incomplete; orange: mixed implemented / placeholder scope     Arrows: selected dependencies / data paths', 17)
 for index, (title, subtitle, classes, status) in enumerate(GROUPS):
     x, y = 40 + (index % 3)*640, 160 + (index//3)*660
@@ -88,8 +88,8 @@ svg.append('<rect x="40" y="1510" width="1880" height="96" rx="8" fill="#eff6ff"
 text(58, 1539, 'Native integration routes reads directly to Local data store. Receiver writes pass through Data capture; history needs no Bluetooth.', 18, 'bold')
 text(58, 1566, 'Rust composition lives in native-integration/. Latest/history read storage directly; Connect assembles Device Interface → capture → storage.', 17)
 text(58, 1591, 'Both external paths preserve packet receipt time. Starter amperage and charge are unavailable; stale readings are hidden on both screens.', 17)
-text(40, 1640, 'Not implemented: account/sign-in screens; media/manual/voice entry; route capture/sharing; engine integration; maintenance recording.', 16, fill='#be123c')
-text(40, 1675, 'Zoom: local source after TestFlight build 7; new delivery and phone gesture acceptance pending. Android replacement remains deferred.', 16)
+text(40, 1640, 'Not implemented: account/sign-in screens; media/voice entry; route capture/sharing; engine telemetry; maintenance attachments/reminders.', 16, fill='#be123c')
+text(40, 1675, 'Maintenance: source after build 8; new native delivery and physical acceptance pending. Android replacement stays deferred.', 16)
 text(40, 1705, 'Confirmed 2027 beta structured store: SQLite via bundled Rust rusqlite. UI preferences remain in AsyncStorage; broader storage APIs remain unfinished.', 16)
 svg.append('</svg>')
 OUT.with_suffix('.svg').write_text('\n'.join(svg)+'\n')
@@ -109,6 +109,7 @@ for index, (title, subtitle, classes, status) in enumerate(GROUPS, 1):
         fill, stroke = COLORS[status]
         mermaid.append(f'    style {symbol} fill:{fill},stroke:{stroke},color:#0f172a')
 for a,b,label in [
+ ('MaintenanceRecords / maintenance client','AiNavLogModule / JNI','manual storage commands'),
  ('Layout','HomeScreen','navigation'),
  ('Layout','ElectricalProvider / useElectrical','mounts'),
  ('Layout','PreferencesProvider / usePreferences','mounts'),

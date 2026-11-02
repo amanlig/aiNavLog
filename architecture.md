@@ -231,17 +231,17 @@ All primary aiNavLog user data, including saved routes, resides in local storage
 
 **Confirmed responsibility split — October 28, 2026.** Logical ownership and source
 packages are deliberately explicit. The electrical write/read paths below are
-implemented; broader media, maintenance, route and authentication features retain
+implemented; shared completed-work maintenance is implemented in local source as of October 30. Broader media, route and authentication features retain
 their stated incomplete/proposed status. These blocks run within the mobile app,
 not as separate servers.
 
 | Building block | Responsibility and main interfaces | Current physical implementation / scope |
 | --- | --- | --- |
-| User interface | Present readings, history and errors; submit connection/capture intent; request records through query APIs. UI executes no SQL and performs no instrument decoding. | React Native `user-interface/src/`; Home, Electrical and Historical Usage implemented. Entry, maintenance recording, route and authentication flows remain unfinished. |
+| User interface | Present readings, history and errors; submit connection/capture intent; request records through query APIs. UI executes no SQL and performs no instrument decoding. | React Native `user-interface/src/`; Home, Electrical, Historical Usage and shared Engine/Electrical maintenance recording implemented in source. General entry, route and authentication flows remain unfinished. |
 | Device Interface | Own Bluetooth access/event handling, device identity, protocol decoding, normalization, duplicate suppression and reception/freshness status. Emit normalized observations through the injected `ObservationSink`; own no database paths, SQL or historical queries. NMEA codecs remain separate from operational gateway integration. | `device-interface/`: `BluetoothAdapter`, `AdvertisementScan`, `scan_victron`, `VictronMonitor<S>`, vendor/NMEA codecs and `ObservationNormalizer`. Its runtime dependency graph contains neither capture/storage packages nor rusqlite. |
-| Data capture | Validate incoming record envelopes and coordinate durable saves through Local data store. Return a saved result only after commit. Accept receiver events through the same write boundary. Future manual/media capture belongs here; it is not implemented by the observation service. | `data-capture/`: `CaptureService` implements `ObservationSink`; checks source/time consistency, required fields, duplicate quantities, finite values and missing-value quality before storage. |
-| Local data store | Own SQLite schema/version checks, transactions, indexes and latest/history query APIs. Own future migrations, retention, export/deletion and protection policy implementation. Serve UI reads directly, independently of Data capture and Bluetooth. | `local-storage/`: `ObservationStore`, `StoredObservation`, `BmvHistoryPoint`, bundled rusqlite. Existing schema/file names and persisted data are unchanged; maintenance schema and lifecycle policies remain open. |
-| Native integration / application composition | Translate React Native calls/results to shared Rust APIs; provide private paths, platform permissions/lifecycle and background execution queues. Assemble receiver → capture → storage for writes; route latest/history reads straight to storage. It contains no SQL or independent Bluetooth scanner implementation. | Swift/Kotlin/JNI in `user-interface/modules/ainavlog/`; Rust C ABI, session registry, mobile worker and desktop supervision/HTTP/CLI in top-level `native-integration/`. |
+| Data capture | Validate incoming record envelopes and coordinate durable saves through Local data store. Return a saved result only after commit. Accept receiver events through the same write boundary. This service handles instrument ingestion. Manual maintenance commands use the application maintenance service; general manual/media capture remains future work. | `data-capture/`: `CaptureService` implements `ObservationSink`; checks source/time consistency, required fields, duplicate quantities, finite values and missing-value quality before storage. |
+| Local data store | Own SQLite schema/version checks, transactions, indexes and latest/history query APIs. Own future migrations, retention, export/deletion and protection policy implementation. Serve UI reads directly, independently of Data capture and Bluetooth. | `local-storage/`: `ObservationStore`, `StoredObservation`, `BmvHistoryPoint`, bundled rusqlite. Schema 2 adds equipment and completed maintenance records while preserving telemetry and file paths. General storage lifecycle policies remain open. |
+| Native integration / application composition | Translate React Native calls/results to shared Rust APIs; provide private paths, platform permissions/lifecycle and background execution queues. Assemble receiver → capture → storage for writes; route latest/history reads straight to storage; validate and execute manual maintenance commands independently of Bluetooth. It contains no SQL or independent Bluetooth scanner implementation. | Swift/Kotlin/JNI in `user-interface/modules/ainavlog/`; Rust C ABI, session registry, mobile worker and desktop supervision/HTTP/CLI in top-level `native-integration/`. |
 | Shared data contracts | Define application record/error types and the injected capture interface without platform, vendor or database dependencies. | `data-model/`: `SampleMetadata`, `Observation`, `DecodedReading`, `QualityStatus`, `AppError`/`AppResult`, `ObservationSink`. |
 | Route story sharing | Read selected saved route/media, compose a preview, manage explicit export/handoff and cleanup without claiming publication. | Proposed; future consumer of Local data store and media files. R-10. |
 | Authentication | Provider identity/session flows and protected credentials; local-record access policy remains a separate design decision. | Proposed; credentials are not stored in the observation database. R-11. |
@@ -618,3 +618,44 @@ remains pending. SQLite/rusqlite is the confirmed structured local beta store.
 | --- | --- | --- | --- |
 | [ADR-0001](docs/decisions/0001-sqlite-local-storage.md) | SQLite for structured device-local storage on iOS/Android, implemented through Rust rusqlite with bundled SQLite | October 28, 2026 | Confirmed by product owner; broader schemas/APIs and acceptance remain open |
 | [ADR-0002](docs/decisions/0002-capture-storage-boundaries.md) | Separate Device Interface, Data capture, Local data store and Native integration; UI reads bypass capture | October 28, 2026 | Implemented for electrical observations/history; phone regression pending |
+
+
+### Shared maintenance source update — October 30, 2026
+
+Engine and Electrical use one `MaintenanceRecords` component and TypeScript
+maintenance client/model. The `AiNavLog.maintenance` async native method delegates
+to `ainavlog_maintenance` → application command service → Local data store. The
+local development bridge exposes origin-checked `POST /maintenance`; instrument
+transport remains Bluetooth-only. UI executes no SQL and manual service records
+do not traverse the BLE capture pipeline.
+
+SQLite schema 2 migrates schema 1 transactionally and retains observations/events.
+Equipment identities are stable, classified engine/electrical/both, within the
+current single-vessel dataset. Completed service records use local date-only work
+dates, separate creation timestamps, optional manual hours and integer minor-unit
+cost/currency. Identical request retries do not duplicate work. No edit/delete or
+professional signature is implemented. Optional next-service thresholds are saved
+with the record, not an active scheduler. Attachments, exports, backup, multi-vessel
+ownership and correction history remain future scope. A new native app build and
+physical-device acceptance are required; build 8 does not contain this update.
+
+### Windows local-test host — October 30, 2026
+
+`desktop-app/` embeds the exported shared UI and calls the same Rust maintenance
+application service and SQLite package. It opens a dedicated Edge app window and
+owns a loopback-only asset/command host within its native process. A runtime
+configuration supplies the local endpoint/token to the TypeScript clients; mobile
+native selection and configured browser development endpoints remain separate.
+Windows maintenance uses its own application-data database, not mobile or WSL
+records. It is an offline local testing path, not the deferred hosted-web backend,
+a Windows BLE implementation or evidence of phone-specific acceptance.
+
+
+### Maintenance log ownership refinement — October 30
+
+Electrical and Engine keep one shared UI/service/storage implementation but have
+separate entry points and service-record ownership. Equipment classification and
+record log ownership are independent, allowing an alternator to be available in
+both systems while its new Electrical and Engine service records remain separate.
+Older ambiguous shared entries are explicitly disclosed, not silently reassigned.
+This adds an optional field to service JSON without changing schema version 2.

@@ -8,7 +8,8 @@ extern "C" {
 /* Status: 0 success, 1 ignored/no sample, 2 replacement key required,
  * -1 invalid argument/handle, -2 device/storage failure, -3 internal failure.
  * Strings: caller-owned NUL-terminated UTF-8. Buffers must remain valid for calls.
- * Calls are synchronous and serialized. Dispatch off the platform UI thread.
+ * Calls are synchronous. Session calls are serialized; storage queries/commands
+ * use independent SQLite connections. Dispatch off the platform UI thread.
  * No Rust allocations cross this ABI. Handles are never reused. */
 typedef struct {
     int64_t received_ms;
@@ -36,6 +37,13 @@ typedef struct {
 int32_t ainavlog_history(const char *path, const char *source,
     int64_t start_ms, int64_t end_ms, ainavlog_history_point *output,
     size_t capacity, size_t *count);
+/* Manual maintenance JSON commands (list/save/equipment), independent of receiver.
+ * Caller supplies UTF-8 request and output buffer (2 MiB recommended).
+ * count is bytes written, no trailing NUL. Returns 0 with JSON response;
+ * domain failures use {"error":"..."}; -1 invalid/capacity, -3 panic.
+ * Synchronous: dispatch off the UI thread. Migrates existing store to schema 2. */
+int32_t ainavlog_maintenance(const char *path, const char *request,
+    uint8_t *output, size_t capacity, size_t *count);
 /* Mobile feature: foreground public Windows BMV simulator only (product 1234).
  * start opens/reopens its private SQLite session and launches btleplug scanning.
  * Stop before closing/replacing its handle. All functions run off the UI thread.

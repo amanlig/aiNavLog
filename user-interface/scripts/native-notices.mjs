@@ -2,7 +2,7 @@
 import { readFileSync, readdirSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
-export function writeNativeNotices(metadata, destination) {
+export function writeNativeNotices(metadata, destination, { includeAndroidHelper = true } = {}) {
   const reachable = new Set(metadata.resolve.nodes.map(node => node.id));
   const blocks = ['aiNavLog native third-party notices. Versions follow the native bridge Cargo.lock.'];
   for (const pkg of metadata.packages.filter(pkg => reachable.has(pkg.id) && pkg.source).sort((a, b) => a.name.localeCompare(b.name))) {
@@ -26,8 +26,10 @@ export function writeNativeNotices(metadata, destination) {
     for (const file of files) blocks.push(readFileSync(file, 'utf8'));
     if (pkg.name === 'libsqlite3-sys') blocks.push('SQLite is in the public domain. https://www.sqlite.org/copyright.html');
   }
+  if (includeAndroidHelper) {
   blocks.push('Android Java helper code vendored by btleplug 0.13.3: jni-utils-rs.\nUpstream notice: https://github.com/deviceplug/jni-utils-rs/blob/master/LICENSE');
   blocks.push(readFileSync(new URL('../modules/ainavlog/third-party/JNI-UTILS-LICENSE.txt', import.meta.url), 'utf8'));
+  }
   mkdirSync(dirname(destination), { recursive: true });
   writeFileSync(destination, blocks.join('\n\n') + '\n');
 }

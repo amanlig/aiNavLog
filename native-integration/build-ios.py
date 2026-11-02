@@ -29,6 +29,8 @@ int main(int argc, char **argv) {
     ainavlog_history_point history[1] = {0};
     size_t count = 0;
     status += ainavlog_history(argv[1], "windows-bmv-simulator", 0, 1, history, 1, &count);
+    uint8_t maintenance[1024] = {0};
+    status += ainavlog_maintenance(argv[1], "{}", maintenance, sizeof maintenance, &count);
     status += ainavlog_simulator_status();
     ainavlog_simulator_counters counters = {0};
     status += ainavlog_simulator_diagnostics(&counters);

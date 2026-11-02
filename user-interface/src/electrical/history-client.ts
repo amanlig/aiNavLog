@@ -1,9 +1,10 @@
+import { deviceEndpoint } from '../platform/desktop';
 import { nativeMode, readNativeHistory } from './native-client';
 import { demoHistory, parseHistory, type HistoryResult } from './history';
 
 export async function readHistory(start: number, end: number, signal?: AbortSignal): Promise<HistoryResult> {
   if (nativeMode) return { source: 'simulated', demo: false, points: parseHistory(await readNativeHistory(start, end), start, end) };
-  const endpoint = process.env.EXPO_PUBLIC_DEMO_MODE === '1' ? '' : process.env.EXPO_PUBLIC_DEVICE_INTERFACE_URL?.trim();
+  const endpoint = process.env.EXPO_PUBLIC_DEMO_MODE === '1' ? '' : deviceEndpoint();
   if (!endpoint) {
     const availableEnd = Math.min(end, Date.now() + 1);
     return { source: 'simulated', demo: true, points: availableEnd > start ? demoHistory(start, availableEnd) : [] };

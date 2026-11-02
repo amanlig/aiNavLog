@@ -1,0 +1,19 @@
+[package]
+name = "ainavlog-desktop"
+version = "0.1.2"
+edition = "2021"
+publish = false
+build = "build.rs"
+
+[[bin]]
+name = "aiNavLog"
+path = "src/main.rs"
+
+[dependencies]
+ainavlog-native-bridge = { path = "../native-integration", default-features = false }
+ainavlog-local-storage = { path = "../local-storage" }
+serde_json = "1"
+
+[profile.release]
+strip = true
+lto = "thin"

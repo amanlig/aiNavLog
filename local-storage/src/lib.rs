@@ -1,5 +1,6 @@
-//! Local SQLite history. Packets and their observations commit atomically.
+//! Local SQLite telemetry and maintenance. Packets and observations commit atomically.
 //! No advertisement keys are written to this database.
+pub mod maintenance;
 use ainavlog_data_model::{AppError, AppResult, Observation, SampleMetadata};
 use rusqlite::{params, Connection, OpenFlags};
 use std::{
@@ -162,7 +163,7 @@ impl ObservationStore {
         let application: i64 = connection
             .pragma_query_value(None, "application_id", |r| r.get(0))
             .map_err(storage)?;
-        if version > 1 || (application != 0 && application != 0x41494e4c) {
+        if version > 2 || (application != 0 && application != 0x41494e4c) {
             return Err(storage(
                 "database belongs to another application or newer schema",
             ));
@@ -191,7 +192,17 @@ impl ObservationStore {
             CREATE TABLE IF NOT EXISTS monitor_events (
                 id INTEGER PRIMARY KEY, source_id TEXT NOT NULL, recorded_at_ms INTEGER NOT NULL,
                 state TEXT NOT NULL, detail TEXT NOT NULL);
-            PRAGMA application_id=1095323212; PRAGMA user_version=1; COMMIT;",
+            CREATE TABLE IF NOT EXISTS maintenance_equipment (
+                id TEXT PRIMARY KEY, name TEXT NOT NULL, system TEXT NOT NULL CHECK(system IN ('engine','electrical','both')));
+            CREATE TABLE IF NOT EXISTS maintenance_entries (
+                id TEXT PRIMARY KEY, equipment_id TEXT NOT NULL REFERENCES maintenance_equipment(id),
+                service_date TEXT NOT NULL, created_at INTEGER NOT NULL, body TEXT NOT NULL CHECK(json_valid(body)));
+            CREATE INDEX IF NOT EXISTS maintenance_equipment_date ON maintenance_entries(equipment_id, service_date);
+            INSERT OR IGNORE INTO maintenance_equipment VALUES
+                ('main-engine','Main engine','engine'),('generator','Generator','both'),
+                ('house-battery','House battery','electrical'),('starter-battery','Starter battery','electrical'),
+                ('alternator','Alternator','both'),('charger','Battery charger','electrical');
+            PRAGMA application_id=1095323212; PRAGMA user_version=2; COMMIT;",
             )
             .map_err(storage)?;
         Ok(Self { connection })

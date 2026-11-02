@@ -1,3 +1,4 @@
+import { deviceEndpoint } from '../platform/desktop';
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { AppState } from 'react-native';
 import { parseDeviceSample } from './device-client';
@@ -5,7 +6,7 @@ import { type ElectricalSample, simulate } from './model';
 import { nativeMode, startReceiver, stopReceiver, readReceiver, type ReceiverDiagnostics } from './native-client';
 
 const deviceUrl = process.env.EXPO_PUBLIC_DEMO_MODE === '1'
-  ? undefined : process.env.EXPO_PUBLIC_DEVICE_INTERFACE_URL?.trim();
+  ? undefined : deviceEndpoint();
 function foreground() { return AppState.currentState !== 'background' && AppState.currentState !== 'inactive'; }
 function useElectricalState() {
   const [sample, setSample] = useState<ElectricalSample | null>(null);

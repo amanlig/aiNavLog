@@ -2,17 +2,17 @@
 
 **Confirmed storage decision — October 28, 2026:** SQLite, accessed through Rust `rusqlite` with bundled SQLite, is the local structured database for the 2027 iOS/Android beta. See [ADR-0001](decisions/0001-sqlite-local-storage.md) for scope, current implementation and remaining work. Existing AsyncStorage preferences and protected credential storage remain separate.
 
-**Created:** October 5, 2026. **Rebaselined:** October 16, 2026. **Status updated:** October 28, 2026,
-using the October 26 delivery handoff and October 28 owner-reported iPhone test.
+**Created:** October 5, 2026. **Rebaselined:** October 16, 2026. **Status updated:** October 30, 2026,
+including shared maintenance source implementation; build-8 progress remains owner-monitored.
 **Target:** implementation foundation for the 2027 mobile beta. Dates use
 America/Vancouver. Feature windows are two calendar weeks, with Friday reviews.
 These are planning targets, not confirmed delivery or public-store release dates.
 
-## Completion checkpoint — October 28
+## Completion checkpoint — October 30
 
 **Where we are:** the native simulator-to-iPhone electrical path works. We are
 qualifying failure/recovery and persistence behaviour, rather than still building
-the first receiver. Electrical is not yet fully accepted; Engine has not started.
+the first receiver. Electrical is not yet fully accepted; shared Engine/Electrical maintenance is now implemented in local source, while engine telemetry has not started.
 
 | Workstream | Recorded status | Remaining work |
 | --- | --- | --- |
@@ -20,10 +20,10 @@ the first receiver. Electrical is not yet fully accepted; Engine has not started
 | Shared CI and delivery | Both CI delivery paths demonstrated October 20; later native builds delivered through EAS/store testing | Deliberately failing-check demonstration; runner compatibility review; mobile Rust checks |
 | iPhone native Electrical | Build 7 (history + separated capture/storage) built and uploaded to TestFlight October 28; build-6 reception/counters previously owner-confirmed | Install/verify build 7; history with existing/new data; receiver regression, disconnect/reconnect, stale/recovery, permissions and restart/update retention |
 | Android native Electrical | Code 7 built and submitted to Play internal testing; emulator reaches connected screen after native-link fix | Physical radio acceptance deferred until tablet arrives; lifecycle and persistence checks remain open |
-| Local data store — confirmed beta choice | SQLite through bundled Rust rusqlite accepted October 28 for structured beta records; observations/events implemented | Finalize maintenance schema, stable identities, history/maintenance APIs, migrations, retention/export/deletion/protection; verify restart/update retention |
-| UI and architecture visibility | Home/Electrical share sample state; boat name/appearance persist; SAD §§5.4.1/5.4.3 and both implementation images updated October 28 | History chart implementation complete locally (native delivery/acceptance pending); maintenance recording, starter trends/configurable alerts and agreed event/response scope remain unfinished |
+| Local data store — confirmed beta choice | SQLite through bundled Rust rusqlite accepted October 28 for structured beta records; observations/events implemented | Schema 2 equipment/completed-service records and schema-1 migration implemented; attachments, corrections, retention/export/deletion/protection and physical restart/update retention remain open |
+| UI and architecture visibility | Home/Electrical share sample state; boat name/appearance persist; SAD §§5.4.1/5.4.3 and both implementation images updated October 28 | History/zoom and shared maintenance implemented in source; new maintenance native delivery/acceptance, attachments/reminders, starter trends/configurable alerts and agreed event/response scope remain unfinished |
 | Real BMV / Orion | Decoder support exists; mobile start path deliberately selects public BMV simulator only | Real-device selection/private mobile key setup, hardware interoperability and reference-value comparison |
-| Engine, Route, Authentication, Route story | Planned; no completed vertical-slice acceptance | Dependencies and provisional review dates below |
+| Engine telemetry, Route, Authentication, Route story | Planned; no completed vertical-slice acceptance | Dependencies and provisional review dates below |
 
 **October 28 test evidence:** independent broadcaster fixture check passed;
 a five-minute Windows BLE run produced repeated `Started` statuses. Owner answered
@@ -562,7 +562,69 @@ the installed build and detailed zoom/restart/update-retention results were not
 specified. Those acceptance details remain open. Android stays deferred.
 Resume October 29 from the [end-of-day handoff](status/status-2026-10-28.md#end-of-day-handoff--resume-thursday-october-29-2026).
 
+## Fire Safety feature — added October 30, 2026
+
+Owner requested a standalone Fire Safety widget on the home page, initially
+showing the supplied top-down boat layout. Initial scope is the home-page preview;
+extinguisher placement, condition management and a detailed screen are future work.
+Unknown condition must remain explicitly unrecorded, never inferred healthy.
+The owner requested an illustrative Home preview with arbitrary numbered circles:
+green = good/healthy, red = expired, orange = nearing end of life. All current
+marker locations and conditions are labeled sample data; they are not saved
+equipment records or verified readiness. Dark outlines and a numbered text legend
+make the example understandable without relying only on color.
+
+Planned capability:
+
+- Associate a boat layout with the vessel and place identifiable extinguishers
+  on it, with a readable list alternative for accessibility and small screens.
+- Record extinguisher type/rating, location, equipment identity, inspection findings,
+  service/replacement dates and evidence. Define condition states from recorded
+  checks, including unknown and attention needed; distinguish due dates from
+  observed condition. Do not imply sensor-monitored health without a real source.
+- Reuse the shared maintenance model for inspections, repairs/replacements,
+  receipts and reminders, alongside Engine and Electrical.
+- Apply equipment-specific manufacturer and jurisdiction requirements from the
+  [maintenance research](research/pleasure-vessel-maintenance.md); no generic
+  logbook or inspection interval is represented as universally mandatory.
+
+Acceptance for the later feature: a user can locate each extinguisher on the
+layout or accessible list, inspect its recorded condition and latest check, and
+save/reopen a maintenance entry. Placement and status persist across restart.
+Implementation dates and release scope remain to be scheduled. The current
+home-page widget does not establish regulatory compliance or verified readiness.
+
 ## Research backlog
+
+### WEB-01 — Hosted browser access and shared records (deferred)
+
+**Added:** October 30, 2026. **Status:** backlog; owner deferred implementation
+to continue maintenance. Users should eventually access aiNavLog online without
+installing the iPhone/Android app. The current local browser preview is not a
+deployed hosted service.
+
+Scope to assess and plan: hosted responsive web UI, authenticated backend APIs,
+account/vessel ownership and authorization, server-side structured storage and
+media, backup/export/deletion, and secure synchronization with device-local
+SQLite. Define offline behavior, conflict resolution and cross-device access.
+Keep instrument acquisition separate; browser delivery does not supply the
+existing native BLE receiver. Assess supported web data sources explicitly.
+
+Acceptance target: an authorized user can sign in from an ordinary browser with
+no app installed and access their saved maintenance/history records; unauthorized
+users cannot access them. Mobile/web synchronization must preserve records across
+offline edits and reconnection. Hosting, cloud vendor, costs, delivery dates and
+beta inclusion remain undecided. SQLite remains the confirmed mobile local store.
+
+### October 30 — shared Engine/Electrical maintenance research
+
+Owner selected private pleasure use in Canada and the US, including insurance
+considerations. The [maintenance research baseline](research/pleasure-vessel-maintenance.md)
+separates legal obligations, manufacturer/warranty practice and policy-specific
+insurance evidence. Proposed direction: one equipment-based service history and
+task model, shared by Engine/Electrical, with optional hours, receipts and survey
+references. Initial fields/mockup and implementation scope remain to be settled;
+no maintenance runtime/schema change is made by the research.
 
 ### RES-01 — Explore PredictWind DataHub Pro benefits for aiNavLog
 
@@ -599,3 +661,86 @@ to prototype, defer or decline. If feasible, define a small read-only proof of
 concept for one electrical reading and one position reading through SQLite to
 the UI. Hardware purchase, subscriptions and implementation require a subsequent
 decision.
+
+
+## October 30 — shared maintenance implemented in source
+
+One shared Engine/Electrical maintenance component now records completed work,
+creates equipment and displays/filter service history. Both-system equipment
+(e.g. alternator/generator) is stored once and visible from both sections. Optional
+manual hours, parts, provider, exact cost/currency, invoice/survey reference, notes
+and next-service thresholds persist through a new native maintenance command and
+schema-2 SQLite migration. Existing battery observations are retained. Manual
+service entry is independent of the receiver and instrument capture pipeline.
+
+Verified: storage migration/reopen and validation, idempotent save retries, native
+C ABI, Rust desktop/mobile-feature clippy, UI typecheck/lint/unit checks and real
+SQLite/service/browser workflows. See the [implementation](maintenance-implementation.md)
+and [preview](images/maintenance-implemented.png). Native mobile compilation and
+physical acceptance need a new binary; no maintenance release is launched. Android
+delivery remains deferred, and future release monitoring remains owner-managed.
+
+Still open: attachments, correction/deletion history, export/backup, automatic
+reminders/live engine hours, multi-vessel ownership and physical restart/update
+acceptance. Next thresholds are stored values, not scheduled notifications. Fire
+Safety continues to use explicitly labeled sample markers, without actual extinguisher
+records or condition measurement.
+
+## October 30 — Windows local-test executable
+
+Implemented a native Windows x64 executable for quicker shared UI/Rust/SQLite
+maintenance iteration without EAS/TestFlight. It embeds the UI and command service,
+uses a dedicated Edge app window, and stores records separately in Windows
+application data. No Expo, Node or WSL is required at runtime; Edge is required.
+No Bluetooth integration, cloud sync or public Windows distribution is claimed.
+
+The actual EXE passed Windows save/retry/restart persistence and session-token
+checks. Embedded UI integration, offline asset routing and host/UI checks pass.
+The app window was launched for owner inspection. See
+[build/run instructions](../desktop-app/README.md) and the
+[October 30 handoff](status/status-2026-10-30.md#windows-executable-for-local-feature-testing).
+This is a development/test harness, with unsigned artifacts under ignored builds;
+mobile-specific permissions, lifecycle and bindings still need phone acceptance.
+WEB-01 hosted access stays in the backlog. Android delivery remains deferred.
+
+
+## October 30 — separate Electrical and Engine maintenance logs
+
+Owner requested separate user-facing logs accessible from their respective Home
+widgets, while retaining common implementation. Removed cross-system tabs and
+scoped equipment selection/history to each named screen. New records carry
+Electrical/Engine ownership independently of shared equipment classification;
+backend validation rejects incompatible assignments. Existing records are
+preserved, with ambiguous earlier shared records under a labeled disclosure.
+No schema/table change or separate database is introduced.
+
+Rebuilding Windows local-test version 0.1.1 for the owner to install/run manually.
+Do not automatically launch it or alter McAfee exclusions. Mobile release and
+physical acceptance remain separate; Android delivery remains deferred.
+
+Windows 0.1.1 rebuild completed and checksum-verified package copied to
+`C:\Users\amanl\Downloads\aiNavLog-Windows-x64-0.1.1.zip`. The owner runs it
+manually. Separate-log/legacy preservation browser and core checks pass; no
+McAfee change or new mobile release was made.
+
+## VOICE-01 — Voice-activated app commands (backlog)
+
+Added October 30, 2026 at the owner's request. Remind the owner at the beginning
+of the next session to explore voice commands across aiNavLog. “Record completed
+work” and “Add equipment” are examples, not an exhaustive list or a restriction
+to maintenance. Define supported commands with the owner before implementation.
+Scope command navigation, speech recognition availability/offline behavior,
+microphone permissions and accessible feedback across Windows/iOS/Android. Reuse
+existing maintenance actions and validation; define explicit review/confirmation
+before any voice-initiated save. No speech library, implementation or release
+commitment has been selected. This is a next-session reminder, not a scheduled
+notification.
+
+## October 30 — iPhone build 9 launched
+
+Launched iOS 1.0.0/build 9 with the current maintenance/Fire Safety changes and
+existing history zoom. [EAS build](https://expo.dev/accounts/kode-komplete-software-services-ltd/projects/ainavlog-mobile/builds/d86c1411-9904-449f-8114-e3a1a73cc961)
+and [automatic TestFlight submission](https://expo.dev/accounts/kode-komplete-software-services-ltd/projects/ainavlog-mobile/submissions/581d30e5-c79d-4126-aa17-1fbe58df078b)
+were accepted; owner monitors completion. Preflight archive/source and UI/native
+host checks pass. Phone acceptance remains pending; Android delivery stays deferred.
+Next-session voice-command reminder remains in the handoff.

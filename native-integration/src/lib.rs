@@ -1,3 +1,4 @@
+pub mod maintenance;
 use ainavlog_data_capture::CaptureService;
 use ainavlog_local_storage::ObservationStore;
 #[cfg(feature = "desktop")]

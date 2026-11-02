@@ -21,7 +21,7 @@ Regenerate with `python3 docs/diagrams/render-user-interface.py`.
 | 3. Shared electrical state | [ElectricalProvider / useElectrical](../user-interface/src/electrical/use-electrical.tsx) | One shared context; one-second foreground polling; serialized receiver commands; connection intent and foreground resumption. |
 | 4. Data clients and native boundary | [native-client](../user-interface/src/electrical/native-client.ts), [sample validator](../user-interface/src/electrical/device-client.ts), HTTP fetch in the state hook | Native permissions/start/stop/snapshot, optional desktop HTTP path, sample validation. |
 | 5. Measurement rules and contract | [model.ts](../user-interface/src/electrical/model.ts) | Nullable sample contract, freshness, number formatting, demo generation; threshold helpers exist but configurable alert UI is not connected. |
-| 6. Preferences and unfinished views | [PreferencesProvider](../user-interface/src/preferences/Preferences.tsx), [ElectricalRecords](../user-interface/src/components/ElectricalRecords.tsx), [Engine](../user-interface/src/app/mech/index.tsx), [Routes](../user-interface/src/app/rout/index.tsx) | AsyncStorage settings persistence; explicit placeholders for unfinished feature screens. |
+| 6. Preferences and records | [PreferencesProvider](../user-interface/src/preferences/Preferences.tsx), [MaintenanceRecords](../user-interface/src/components/MaintenanceRecords.tsx), [Engine](../user-interface/src/app/mech/index.tsx), [Routes](../user-interface/src/app/rout/index.tsx) | AsyncStorage settings; shared equipment/service history; Engine/Routes telemetry placeholders. |
 
 ## Runtime and data modes
 
@@ -74,7 +74,7 @@ Boat name and white/black appearance persist in AsyncStorage under
 `ainavlog.preferences.v1`. This is separate from observation SQLite. There is no
 implemented account/sign-in screen, media/manual/voice entry, route capture or
 sharing, engine integration, maintenance recording. Historical queries/chart rendering are implemented in source; mobile runtime acceptance remains pending.
-Maintenance shows an empty state; Engine and Routes use `ComingSoon`. Historical Usage is implemented in source with native/HTTP persisted-data queries and a labelled illustrative demo mode. Mobile acceptance awaits replacement native builds.
+Maintenance records completed work through a shared Engine/Electrical component. Engine and Routes telemetry still use `ComingSoon`. Historical Usage is implemented in source with native/HTTP persisted-data queries and a labelled illustrative demo mode. Mobile acceptance awaits replacement native builds.
 
 Owner-confirmed iPhone build 6 simulator reception and Android code 7 emulator
 initialization are recorded in the [handoff](status/status-2026-10-26.md).
@@ -96,8 +96,7 @@ failures never create demo history; old native modules show an upgrade message.
 The bridge reads the existing database without starting the scanner. Chart samples
 retain packet timestamps and values; long ranges keep bucket endpoints and extrema.
 Segments split at gaps over five seconds or measurement availability changes.
-History is not subject to the live five-second hiding rule. Maintenance stays
-unimplemented. A replacement native binary is required for the new method.
+History is not subject to the live five-second hiding rule. Shared maintenance is now implemented in local source (October 30), with a new native method. A replacement native binary is required for the new method.
 
 Verified browser previews (temporary seeded SQLite through the real Rust service):
 [House](images/battery-history-implemented.png) ·
@@ -147,3 +146,27 @@ At windows of one hour or less, selected readings and axis/range labels include 
 The [five-minute zoom preview](images/battery-history-zoom.png) shows the implemented
 controls with SQLite-backed simulator readings. Browser touch integration and
 UI typecheck, lint and unit checks pass; physical iPhone acceptance remains pending.
+
+
+## Shared maintenance — October 30
+
+`/elec/maintenance` and `/mech/maintenance` render the same component with fixed
+log ownership. [maintenance/client.ts](../user-interface/src/maintenance/client.ts)
+uses native async commands or the configured local HTTP service; no demo records,
+AsyncStorage service-history fallback or Bluetooth session is needed.
+[maintenance/model.ts](../user-interface/src/maintenance/model.ts) validates form
+values and keeps optional hours distinct from zero. Both-system equipment is selectable in both views; each new entry stays in
+its selected log. Older unassigned shared records have a separate disclosure. History can also filter one equipment item.
+
+Completed records include work date/type/description, performer, optional hours,
+parts, exact two-decimal cost/currency, invoice/survey reference, findings and
+optional next date/hours. Creating equipment is supported. Save errors retain the
+form; stable entry IDs make acknowledgement-loss retries idempotent. Records are
+currently append-only with no correction UI. Attachments, exports, reminders and
+multi-vessel management remain pending. Initial built-in equipment names are
+selectable defaults, not proof those systems are installed or monitored.
+
+[Implemented service-history preview](images/maintenance-implemented.png) uses
+a temporary real SQLite database through the Rust service. Native Swift/Kotlin/JNI
+bindings are updated in source; a new binary and phone acceptance are still
+required. No maintenance build/deploy was requested.

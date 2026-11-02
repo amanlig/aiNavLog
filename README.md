@@ -190,3 +190,11 @@ See [SAD §5.2](architecture.md#52-building-block-responsibilities),
 [implementation image](docs/images/device-interface-implementation-view.png).
 
 Existing desktop databases are not moved by the package refactor. Pass their existing absolute path to monitor/query commands when reusing them; relative `data/…` paths resolve from the directory where the CLI is launched. Mobile app-private database paths remain unchanged.
+
+## Windows executable for maintenance testing
+
+The [Windows local-test app](desktop-app/README.md) packages the shared UI and
+Rust/SQLite maintenance flow without an Expo server or TestFlight build. Run the
+unsigned x64 executable from `desktop-app/builds/windows-x64/aiNavLog.exe`; it
+opens a dedicated Edge app window and saves to Windows application data.
+See the linked README for build instructions, artifacts and current limitations.

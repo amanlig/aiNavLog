@@ -41,3 +41,6 @@ credentials.json
 
 # Local Google Play submission service-account key.
 /ainavlog-641a352352eb.json
+
+# Embedded desktop web export, regenerated for each executable.
+/desktop-app/web/

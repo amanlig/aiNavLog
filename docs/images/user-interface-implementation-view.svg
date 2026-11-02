@@ -2,7 +2,7 @@
 <defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="none" stroke="#475569"/></marker></defs>
 <rect width="100%" height="100%" fill="#f8fafc"/>
 <text x="40" y="45" font-family="DejaVu Sans, sans-serif" font-size="30" font-weight="bold" fill="#0f172a">aiNavLog · User Interface implementation view</text>
-<text x="40" y="80" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="normal" fill="#0f172a">2026-10-28 · Boundaries match SAD §5.4.1 · Components, hooks, modules and types inside each logical block</text>
+<text x="40" y="80" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="normal" fill="#0f172a">2026-10-30 · Boundaries match SAD §5.4.1 · Components, hooks, modules and types inside each logical block</text>
 <text x="40" y="115" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#0f172a">Green: implemented scope     Amber: platform acceptance incomplete; orange: mixed implemented / placeholder scope     Arrows: selected dependencies / data paths</text>
 <rect x="40" y="160" width="600" height="590" rx="10" fill="#ecfdf5" stroke="#15803d" stroke-width="2"/>
 <text x="58" y="194" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#0f172a">1. Application shell</text>
@@ -71,7 +71,7 @@
 <rect x="55" y="1004" width="570" height="84" rx="5" fill="#ffffff" stroke="#b45309"/>
 <text x="67" y="1025" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#b45309">Swift / Kotlin / Android C++ integration</text>
 <text x="67" y="1049" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">AiNavLogModule / JNI</text>
-<text x="67" y="1073" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">start / stop / snapshot / history → native-integration</text>
+<text x="67" y="1073" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">receiver / history / maintenance → native-integration</text>
 <rect x="55" y="1100" width="570" height="84" rx="5" fill="#ffffff" stroke="#b45309"/>
 <text x="67" y="1121" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#b45309">Hook implementation · desktop development</text>
 <text x="67" y="1145" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">HTTP fetch in useElectricalState</text>
@@ -108,8 +108,8 @@
 <text x="707" y="1337" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">history.ts / history-viewport.ts</text>
 <text x="707" y="1361" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Calendar bounds; pinch/step zoom, pan, extrema, selection</text>
 <rect x="1320" y="820" width="600" height="590" rx="10" fill="#fff7ed" stroke="#c2410c" stroke-width="2"/>
-<text x="1338" y="854" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#0f172a">6. Preferences and unfinished views</text>
-<text x="1338" y="884" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#c2410c">Local settings persist · feature placeholders explicit</text>
+<text x="1338" y="854" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#0f172a">6. Preferences and records</text>
+<text x="1338" y="884" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#c2410c">Shared maintenance persists · remaining placeholders explicit</text>
 <rect x="1335" y="908" width="570" height="84" rx="5" fill="#ffffff" stroke="#c2410c"/>
 <text x="1347" y="929" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#c2410c">React provider / hook</text>
 <text x="1347" y="953" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">PreferencesProvider / usePreferences</text>
@@ -119,13 +119,13 @@
 <text x="1347" y="1049" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">AsyncStorage</text>
 <text x="1347" y="1073" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">ainavlog.preferences.v1; settings only</text>
 <rect x="1335" y="1100" width="570" height="84" rx="5" fill="#ffffff" stroke="#c2410c"/>
-<text x="1347" y="1121" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#c2410c">React component</text>
-<text x="1347" y="1145" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">ElectricalRecords</text>
-<text x="1347" y="1169" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Maintenance empty state; recording not implemented</text>
+<text x="1347" y="1121" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#c2410c">Shared component / command client</text>
+<text x="1347" y="1145" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">MaintenanceRecords / maintenance client</text>
+<text x="1347" y="1169" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Engine + Electrical: equipment, completed work, SQLite</text>
 <rect x="1335" y="1196" width="570" height="84" rx="5" fill="#ffffff" stroke="#c2410c"/>
-<text x="1347" y="1217" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#c2410c">React route components</text>
-<text x="1347" y="1241" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">EngineScreen / RoutesScreen</text>
-<text x="1347" y="1265" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">ComingSoon component; no engine or route capture</text>
+<text x="1347" y="1217" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="normal" fill="#c2410c">React route components / home widget</text>
+<text x="1347" y="1241" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="bold" fill="#0f172a">EngineScreen / RoutesScreen / FireSafetyCard</text>
+<text x="1347" y="1265" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="normal" fill="#0f172a">Manual service links; fire preview; no engine/route capture</text>
 <path d="M640,420 L680,420" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
 <path d="M1280,420 L1320,420" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
 <path d="M1620,750 L1620,785 L660,785 L660,1120 L640,1120" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
@@ -136,7 +136,7 @@
 <text x="58" y="1539" font-family="DejaVu Sans, sans-serif" font-size="18" font-weight="bold" fill="#0f172a">Native integration routes reads directly to Local data store. Receiver writes pass through Data capture; history needs no Bluetooth.</text>
 <text x="58" y="1566" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#0f172a">Rust composition lives in native-integration/. Latest/history read storage directly; Connect assembles Device Interface → capture → storage.</text>
 <text x="58" y="1591" font-family="DejaVu Sans, sans-serif" font-size="17" font-weight="normal" fill="#0f172a">Both external paths preserve packet receipt time. Starter amperage and charge are unavailable; stale readings are hidden on both screens.</text>
-<text x="40" y="1640" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="normal" fill="#be123c">Not implemented: account/sign-in screens; media/manual/voice entry; route capture/sharing; engine integration; maintenance recording.</text>
-<text x="40" y="1675" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="normal" fill="#0f172a">Zoom: local source after TestFlight build 7; new delivery and phone gesture acceptance pending. Android replacement remains deferred.</text>
+<text x="40" y="1640" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="normal" fill="#be123c">Not implemented: account/sign-in screens; media/voice entry; route capture/sharing; engine telemetry; maintenance attachments/reminders.</text>
+<text x="40" y="1675" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="normal" fill="#0f172a">Maintenance: source after build 8; new native delivery and physical acceptance pending. Android replacement stays deferred.</text>
 <text x="40" y="1705" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="normal" fill="#0f172a">Confirmed 2027 beta structured store: SQLite via bundled Rust rusqlite. UI preferences remain in AsyncStorage; broader storage APIs remain unfinished.</text>
 </svg>

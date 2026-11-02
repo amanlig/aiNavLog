@@ -95,8 +95,10 @@ Owner confirmed iPhone build 6 simulator reception October 26/28. Android code 7
 initialized in the emulator; physical tablet testing is deferred. Those results
 predate this refactor/history API. Replacement mobile binaries and physical-phone
 regression remain pending; no new release/submission is implied by source tests.
-Maintenance schema/CRUD, real BMV/Orion qualification and storage lifecycle policies
-remain unfinished. See the [phone checklist](bmv-phone-test.md),
+Real BMV/Orion qualification and storage lifecycle policies remain unfinished.
+Shared manual maintenance was added October 30 outside Device Interface, through
+Native Integration commands and schema-2 Local data store; it does not alter BLE
+decoding/capture responsibilities. See the [phone checklist](bmv-phone-test.md),
 [October 28 checkpoint](status/status-2026-10-28.md) and companion
 [UI implementation view](user-interface-implementation-view.md).
 

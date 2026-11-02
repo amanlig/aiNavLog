@@ -207,3 +207,30 @@ These zoom changes are local source work and are **not in TestFlight build 7**.
 A new app delivery and physical iPhone gesture acceptance are still required.
 
 At windows of one hour or less, selected readings and axis/range labels include seconds for individual-packet inspection.
+
+## Shared Engine/Electrical maintenance — source update after build 8
+
+`/elec/maintenance` and `/mech/maintenance` share `MaintenanceRecords` and the
+`src/maintenance/` command client/model. Add equipment, record completed work and
+review/filter history without Bluetooth. The installed app uses the new
+`AiNavLog.maintenance` native method and SQLite schema 2; older native builds show
+an upgrade message. Browser development requires the configured Rust HTTP service;
+there is no fake or AsyncStorage maintenance-record fallback.
+
+Save work date/type/description, optional provider/manual hours/parts/cost/currency,
+reference/notes and next-service thresholds. Equipment can belong to both systems.
+No receipts upload, export, correction UI or scheduled reminder is implemented.
+See [implementation and verification](../docs/maintenance-implementation.md).
+
+Browser integration (requires an export with endpoint
+`http://127.0.0.1:18787/electrical`, Playwright/Chromium and a desktop Rust build):
+`python3 user-interface/tests/integration/run-maintenance-ui.py <export-directory>`
+from the repository root. The test uses temporary storage and no radio.
+
+## Packaged Windows local testing
+
+[desktop-app](../desktop-app/README.md) embeds this UI and the shared Rust/SQLite
+maintenance service into an unsigned Windows x64 executable. Its dedicated Edge
+window uses an injected local endpoint/session token via `src/platform/desktop.ts`.
+No Expo development server is needed to run the package. This runtime uses its
+own Windows data directory and does not enable Bluetooth or cloud sync.

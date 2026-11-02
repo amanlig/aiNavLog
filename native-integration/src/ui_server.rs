@@ -1,4 +1,4 @@
-//! Read-only local UI bridge. Instrument reception remains Bluetooth-only.
+//! Local UI bridge (telemetry reads and origin-checked maintenance commands). Instrument reception remains Bluetooth-only.
 use ainavlog_local_storage::{ObservationStore, StoredObservation};
 use std::{
     io::{Read, Write},
@@ -27,7 +27,7 @@ fn sample_json(rows: &[StoredObservation], simulated: bool) -> String {
 }
 
 fn respond(stream: &mut TcpStream, status: &str, origin: &str, body: &str) -> std::io::Result<()> {
-    write!(stream, "HTTP/1.1 {status}\r\nContent-Type: application/json\r\nContent-Length: {}\r\nAccess-Control-Allow-Origin: {origin}\r\nVary: Origin\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n{body}", body.len())
+    write!(stream, "HTTP/1.1 {status}\r\nContent-Type: application/json\r\nContent-Length: {}\r\nAccess-Control-Allow-Origin: {origin}\r\nAccess-Control-Allow-Methods: GET, POST, OPTIONS\r\nAccess-Control-Allow-Headers: Content-Type\r\nVary: Origin\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n{body}", body.len())
 }
 fn handle(
     mut stream: TcpStream,
@@ -54,6 +54,54 @@ fn handle(
                 "{}",
             );
         }
+    }
+    let header_end = request.windows(4).position(|w| w == b"\r\n\r\n").unwrap() + 4;
+    let headers = String::from_utf8_lossy(&request[..header_end]).into_owned();
+    let line = headers.lines().next().unwrap_or("");
+    if line == "OPTIONS /maintenance HTTP/1.1" {
+        return respond(&mut stream, "204 No Content", origin, "");
+    }
+    if line == "POST /maintenance HTTP/1.1" {
+        let header = |name: &str| {
+            headers
+                .lines()
+                .skip(1)
+                .filter_map(|l| l.split_once(':'))
+                .filter(|(key, _)| key.eq_ignore_ascii_case(name))
+                .map(|(_, v)| v.trim())
+                .collect::<Vec<_>>()
+        };
+        let origins = header("Origin");
+        let types = header("Content-Type");
+        let lengths = header("Content-Length");
+        if origins != [origin]
+            || types != ["application/json"]
+            || lengths.len() != 1
+            || !header("Transfer-Encoding").is_empty()
+        {
+            return respond(
+                &mut stream,
+                "403 Forbidden",
+                origin,
+                "{\"error\":\"Maintenance writes require the configured UI origin and JSON\"}",
+            );
+        }
+        let length = lengths[0].parse::<usize>().ok().filter(|n| *n <= 32768);
+        let Some(length) = length else {
+            return respond(&mut stream, "413 Payload Too Large", origin, "{}");
+        };
+        while request.len() - header_end < length {
+            let count = stream.read(&mut chunk)?;
+            if count == 0 {
+                return respond(&mut stream, "400 Bad Request", origin, "{}");
+            }
+            request.extend_from_slice(&chunk[..count]);
+        }
+        let Ok(body) = std::str::from_utf8(&request[header_end..header_end + length]) else {
+            return respond(&mut stream, "400 Bad Request", origin, "{}");
+        };
+        let response = ainavlog_native_bridge::maintenance::execute(path, body);
+        return respond(&mut stream, "200 OK", origin, &response);
     }
     let request = String::from_utf8_lossy(&request);
     let first = request.lines().next().unwrap_or("");

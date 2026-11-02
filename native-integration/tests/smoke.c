@@ -51,5 +51,10 @@ int main(int argc, char **argv) {
     assert(ainavlog_history(argv[1], "bmv-simulator", 0, 1, NULL, 8, &count) == -1);
     assert(ainavlog_open(argv[1], "bmv-simulator", "invalid", &handle) == -2);
     assert(handle == 0);
+    uint8_t maintenance[8192];
+    assert(ainavlog_maintenance(argv[1], "{\"op\":\"list\"}", maintenance, sizeof maintenance - 1, &count) == 0);
+    maintenance[count] = 0;
+    assert(strstr((char *)maintenance, "house-battery") != NULL);
+    assert(strstr((char *)maintenance, "\"entries\":[]") != NULL);
     puts("C ABI: decode, identity filter, duplicate filter, timestamp, values, restart, invalid handles passed");
 }

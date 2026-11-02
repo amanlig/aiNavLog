@@ -51,7 +51,7 @@ classDiagram
     }
     note for nativeclientts "4. Data clients and native boundary: TypeScript module; startReceiver / stopReceiver / readReceiver; permissions"
     style nativeclientts fill:#fffbeb,stroke:#b45309,color:#0f172a
-    note for AiNavLogModuleJNI "4. Data clients and native boundary: Swift / Kotlin / Android C++ integration; start / stop / snapshot / history → native-integration"
+    note for AiNavLogModuleJNI "4. Data clients and native boundary: Swift / Kotlin / Android C++ integration; receiver / history / maintenance → native-integration"
     style AiNavLogModuleJNI fill:#fffbeb,stroke:#b45309,color:#0f172a
     note for HTTPfetchinuseElectricalState "4. Data clients and native boundary: Hook implementation · desktop development; GET /electrical; 3s abort; no demo fallback on failure"
     style HTTPfetchinuseElectricalState fill:#fffbeb,stroke:#b45309,color:#0f172a
@@ -79,17 +79,18 @@ classDiagram
     namespace Block6 {
         class PreferencesProviderusePreferences
         class AsyncStorage
-        class ElectricalRecords
-        class EngineScreenRoutesScreen
+        class MaintenanceRecordsmaintenanceclient
+        class EngineScreenRoutesScreenFireSafetyCard
     }
-    note for PreferencesProviderusePreferences "6. Preferences and unfinished views: React provider / hook; Boat name · white/black palette · load/save errors"
+    note for PreferencesProviderusePreferences "6. Preferences and records: React provider / hook; Boat name · white/black palette · load/save errors"
     style PreferencesProviderusePreferences fill:#fff7ed,stroke:#c2410c,color:#0f172a
-    note for AsyncStorage "6. Preferences and unfinished views: External local persistence library; ainavlog.preferences.v1; settings only"
+    note for AsyncStorage "6. Preferences and records: External local persistence library; ainavlog.preferences.v1; settings only"
     style AsyncStorage fill:#fff7ed,stroke:#c2410c,color:#0f172a
-    note for ElectricalRecords "6. Preferences and unfinished views: React component; Maintenance empty state; recording not implemented"
-    style ElectricalRecords fill:#fff7ed,stroke:#c2410c,color:#0f172a
-    note for EngineScreenRoutesScreen "6. Preferences and unfinished views: React route components; ComingSoon component; no engine or route capture"
-    style EngineScreenRoutesScreen fill:#fff7ed,stroke:#c2410c,color:#0f172a
+    note for MaintenanceRecordsmaintenanceclient "6. Preferences and records: Shared component / command client; Engine + Electrical: equipment, completed work, SQLite"
+    style MaintenanceRecordsmaintenanceclient fill:#fff7ed,stroke:#c2410c,color:#0f172a
+    note for EngineScreenRoutesScreenFireSafetyCard "6. Preferences and records: React route components / home widget; Manual service links; fire preview; no engine/route capture"
+    style EngineScreenRoutesScreenFireSafetyCard fill:#fff7ed,stroke:#c2410c,color:#0f172a
+    MaintenanceRecordsmaintenanceclient --> AiNavLogModuleJNI : manual storage commands
     Layout --> HomeScreen : navigation
     Layout --> ElectricalProvideruseElectrical : mounts
     Layout --> PreferencesProviderusePreferences : mounts

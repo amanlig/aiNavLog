@@ -1,4 +1,2 @@
-import { ElectricalRecords } from '../../components/ElectricalRecords';
-export default function MaintenanceLogsScreen() {
-  return <ElectricalRecords />;
-}
+import { MaintenanceRecords } from '../../components/MaintenanceRecords';
+export default function MaintenanceLogsScreen() { return <MaintenanceRecords system="electrical" />; }

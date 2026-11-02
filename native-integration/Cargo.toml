@@ -29,6 +29,8 @@ ainavlog-device-interface = { path = "../device-interface", default-features = f
 btleplug = { version = "0.13.3", optional = true }
 tokio = { version = "1.53.1", optional = true, features = ["rt-multi-thread", "sync", "time", "macros"] }
 
+serde_json = "1"
+
 [target.'cfg(target_os = "android")'.dependencies]
 jni = "0.22.4"
 

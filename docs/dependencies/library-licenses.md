@@ -356,3 +356,16 @@ Bluetooth libraries in the research document have not been added as dependencies
 Images and application-owned source are outside this library inventory. The Rust
 package currently declares no application license and uses `publish = false`;
 that setting is not a license grant and does not replace third-party obligations.
+
+
+### October 30 maintenance serialization dependency update
+
+Local data store now directly uses serde 1.0.229 (derive) and serde_json 1.0.154;
+Native Integration directly uses serde_json 1.0.154 for the maintenance command
+boundary. Locked supporting packages include serde_core/serde_derive 1.0.229,
+itoa 1.0.18, memchr 2.8.3 and zmij 1.0.23. serde/serde_json/itoa allow MIT or
+Apache-2.0, memchr allows Unlicense or MIT, and zmij is MIT; retain MIT notices.
+serde, serde_derive and serde_json are now reachable in the mobile graph, superseding
+older inventory rows that marked them outside reviewed mobile graphs.
+`native-notices.mjs` was exercised with current Cargo metadata and includes all
+these packages. No new JavaScript dependency was added.
