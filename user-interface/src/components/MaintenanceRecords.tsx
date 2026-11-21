@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppHeader } from './AppHeader';
+import { ElectricalDiagram } from './ElectricalDiagram';
 import { usePreferences } from '../preferences/Preferences';
 import { addEquipment, readMaintenance, saveService } from '../maintenance/client';
 import { costMinor, inSystem, recordSystem, localDate, newId, optionalNumber, validate, type Entry, type Snapshot } from '../maintenance/model';
@@ -10,7 +11,7 @@ import { costMinor, inSystem, recordSystem, localDate, newId, optionalNumber, va
 const kinds = ['Service','Inspection','Repair','Replacement'] as const;
 type Form = {id:string;equipmentId:string;date:string;kind:Entry['kind'];description:string;provider:string;hours:string;parts:string;cost:string;currency:string;reference:string;notes:string;nextDate:string;nextHours:string};
 const blank = ():Form => ({id:newId(),equipmentId:'',date:localDate(),kind:'Service',description:'',provider:'',hours:'',parts:'',cost:'',currency:'CAD',reference:'',notes:'',nextDate:'',nextHours:''});
-export function MaintenanceRecords({ system }: {system:'engine'|'electrical'}) {
+export function MaintenanceRecords({ system, initialEquipmentId = '', historyOnly = false }: {system:'engine'|'electrical';initialEquipmentId?:string;historyOnly?:boolean}) {
   const {colors:c}=usePreferences();
   const [data,setData]=useState<Snapshot>({equipment:[],entries:[]});
   const [showLegacy,setShowLegacy]=useState(false);
@@ -23,7 +24,7 @@ export function MaintenanceRecords({ system }: {system:'engine'|'electrical'}) {
   const [equipmentName,setEquipmentName]=useState('');
   const [equipmentId,setEquipmentId]=useState(newId);
   const [adding,setAdding]=useState(false);
-  const [equipmentFilter,setEquipmentFilter]=useState('');
+  const [equipmentFilter,setEquipmentFilter]=useState(initialEquipmentId);
   useEffect(()=>{let active=true;readMaintenance().then(result=>{if(active){setData(result);setLoaded(true);}}).catch(e=>{if(active)setError(String(e.message||e));});return()=>{active=false;};},[]);
   async function refresh() {setBusy(true);setError('');try {setData(await readMaintenance());setLoaded(true);}catch(e){setError(e instanceof Error?e.message:'Could not load records.');}finally{setBusy(false);}}
   const visibleEquipment=data.equipment.filter(e=>inSystem(e,system));
@@ -41,7 +42,7 @@ export function MaintenanceRecords({ system }: {system:'engine'|'electrical'}) {
       const {cost: _cost,...payload}=entry as Entry & {cost?:string};
       validate(payload);setBusy(true);
       await saveService(payload);
-      setEditing(false);setForm(blank());setEquipmentFilter('');
+      setEditing(false);setForm(blank());setEquipmentFilter(historyOnly?initialEquipmentId:'');
       setNotice('Service record saved on this device.');
       try {setData(await readMaintenance());} catch {setError('Record saved, but history could not refresh. Tap Refresh records.');}
     } catch(e) {setError(e instanceof Error?e.message:'Could not save. Your entry is still here.');}
@@ -56,11 +57,12 @@ export function MaintenanceRecords({ system }: {system:'engine'|'electrical'}) {
   function button(label:string,onPress:()=>void,selected=false) {return <Pressable key={label} accessibilityRole="button" accessibilityState={{selected,disabled:busy}} disabled={busy} onPress={onPress} style={[s.button,{borderColor:selected?c.accent:c.line,backgroundColor:selected?c.soft:c.panel,opacity:busy?.5:1}]}><Text style={{color:c.accent,fontWeight:'600'}}>{label}</Text></Pressable>;}
   function field(label:string,key:keyof Form,options:{multiline?:boolean;numeric?:boolean;max?:number}={}) {return <View style={s.field}><Text style={[s.label,{color:c.ink}]}>{label}</Text><TextInput accessibilityLabel={label} editable={!busy} value={form[key]} onChangeText={text=>patch(key,text)} multiline={options.multiline} keyboardType={options.numeric?'decimal-pad':'default'} autoCapitalize={key==='currency'?'characters':'sentences'} maxLength={options.max??200} placeholderTextColor={c.muted} style={[s.input,{color:c.ink,borderColor:c.line,backgroundColor:c.background},options.multiline&&s.multiline]} /></View>;}
   return <SafeAreaView edges={['top','bottom']} style={s.safe}><StatusBar style="light"/><AppHeader/><ScrollView keyboardShouldPersistTaps="handled" style={{backgroundColor:c.background}} contentContainerStyle={s.page}>
-    <Text accessibilityRole="header" style={[s.title,{color:c.ink}]}>{system==='electrical'?'Electrical Maintenance':'Engine Maintenance'}</Text>
+    <Text accessibilityRole="header" style={[s.title,{color:c.ink}]}>{historyOnly?'Equipment Service History':system==='electrical'?'Electrical Maintenance':'Engine Maintenance'}</Text>
     <Text style={[s.description,{color:c.muted}]}>Completed work for your {system==='electrical'?'electrical system':'engine equipment'}.</Text>
     {error!==''&&<Text accessibilityRole="alert" style={{color:c.amber,lineHeight:22}}>{error}</Text>}
     {notice!==''&&<Text accessibilityLiveRegion="polite" style={{color:c.accent}}>{notice}</Text>}
-    <View style={s.row}>{loaded&&button('Record completed work',()=>{setEditing(true);setNotice('');})}{button('Refresh records',refresh)}</View>
+    {system==='electrical'&&!historyOnly&&loaded&&<ElectricalDiagram data={data} onSaved={async()=>{setData(await readMaintenance());}}/>}
+    {(system!=='electrical'||historyOnly)&&<View style={s.row}>{loaded&&button('Record completed work',()=>{setEditing(true);setNotice('');})}{button('Refresh records',refresh)}</View>}
     {editing&&<View style={[s.panel,{borderColor:c.line,backgroundColor:c.panel}]}>
       <Text accessibilityRole="header" style={[s.heading,{color:c.ink}]}>Record completed work</Text>
       <Text style={[s.label,{color:c.ink}]}>Equipment *</Text>
@@ -83,7 +85,8 @@ export function MaintenanceRecords({ system }: {system:'engine'|'electrical'}) {
       <View style={s.row}>{button(busy?'Saving…':'Save service record',save)}{button('Cancel',()=>{setEditing(false);setAdding(false);setForm(blank());setError('');})}</View>
     </View>}
     <Text accessibilityRole="header" style={[s.heading,{color:c.ink}]}>Service history</Text>
-    {loaded&&<View style={s.row}>{button('All equipment',()=>setEquipmentFilter(''),!equipmentFilter)}{visibleEquipment.map(e=>button(`Show ${e.name}`,()=>setEquipmentFilter(e.id),equipmentFilter===e.id))}</View>}
+    {loaded&&system!=='electrical'&&!historyOnly&&<View style={s.row}>{button('All equipment',()=>setEquipmentFilter(''),!equipmentFilter)}{visibleEquipment.map(e=>button(`Show ${e.name}`,()=>setEquipmentFilter(e.id),equipmentFilter===e.id))}</View>}
+    {historyOnly&&<Text style={[s.heading,{color:c.ink}]}>{visibleEquipment.find(e=>e.id===equipmentFilter)?.name??'Equipment'}</Text>}
     {legacyEntries.length>0&&<View style={{gap:8}}>
       {button(`Earlier shared records (${legacyEntries.length})`,()=>setShowLegacy(value=>!value),showLegacy)}
       <Text style={[s.note,{color:c.muted}]}>These entries predate separate logs and have not been assigned to Engine or Electrical.</Text>

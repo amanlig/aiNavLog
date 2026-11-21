@@ -15,6 +15,7 @@ const path=require('node:path');
  await button('Earlier shared records (1)').click();
  await page.getByText('Earlier shared inspection',{exact:true}).waitFor();
  await button('Earlier shared records (1)').click();
+ await page.goto('http://127.0.0.1:18081/elec/service-history?equipmentId=alternator');
  await button('Record completed work').click();await button('Alternator').click();
  await field('Work performed *').fill('Checked alternator wiring 🛥️');
  await field('Work date * (YYYY-MM-DD)').fill('2026-02-29');await button('Save service record').click();

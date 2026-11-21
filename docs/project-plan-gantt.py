@@ -1,66 +1,61 @@
-"""Render the October 28 status against the October 16 planning baseline as a standalone SVG Gantt chart."""
-from datetime import date,timedelta
+"""Render the November 21, 2026 provisional project schedule as SVG."""
+from datetime import date, timedelta
 from html import escape
 from pathlib import Path
 
-ROOT=Path(__file__).resolve().parent
-START=date(2026,10,5)
-END=date(2027,2,1)
-LEFT=375
-SCALE=9.5
-WIDTH=LEFT+(END-START).days*SCALE+45
-ROWS=[
- ('Desktop/core/UI baseline','2026-10-05','2026-10-17','done'),
- ('Android + iPhone first installs','2026-10-16',None,'done'),
- ('Electrical: acceptance remaining','2026-10-19','2026-11-02','risk'),
- ('Native packaging delivered','2026-10-26',None,'done'),
- ('iPhone reception reconfirmed','2026-10-28',None,'done'),
- ('CI/CD implementation + delivery','2026-10-19','2026-10-21','done'),
- ('Both delivery paths accepted','2026-10-20',None,'done'),
- ('Failed-check proof / runner review','2026-10-23','2026-10-31','parallel'),
- ('Distribution / update qualification','2026-10-19','2027-02-01','parallel'),
- ('Engine','2026-11-02','2026-11-16','feature'),
- ('Route','2026-11-16','2026-11-30','feature'),
- ('Authentication / authorization','2026-11-30','2026-12-14','feature'),
- ('Review / holiday contingency','2026-12-14','2027-01-04','buffer'),
- ('Route story','2027-01-04','2027-01-18','feature'),
- ('Integration / beta-readiness review','2027-01-18','2027-02-01','feature'),
+ROOT = Path(__file__).resolve().parent
+START = date(2026, 11, 23)
+END = date(2027, 1, 30)  # Exclusive
+LEFT = 335
+SCALE = 10
+WIDTH = LEFT + (END - START).days * SCALE + 50
+ROWS = [
+    ('Electrical / mobile stabilization', '2026-11-23', '2026-12-05', 'feature', '2026-12-04'),
+    ('Engine', '2026-12-07', '2026-12-19', 'feature', '2026-12-18'),
+    ('Route', '2026-12-21', '2027-01-02', 'feature', '2026-12-31'),
+    ('Authentication / authorization', '2027-01-04', '2027-01-16', 'feature', '2027-01-15'),
+    ('Route story', '2027-01-18', '2027-01-30', 'feature', '2027-01-29'),
+    ('Distribution / CI follow-up', '2026-11-23', '2027-01-30', 'parallel', '2026-12-04'),
 ]
-COLORS={'done':'#258568','feature':'#285d99','parallel':'#7a58a1','buffer':'#b18a37','risk':'#b04444'}
+COLORS = {'feature':'#285d99', 'parallel':'#148576'}
 
-def x(day):return LEFT+(date.fromisoformat(day)-START).days*SCALE
+
+def x(day):
+    return LEFT + (date.fromisoformat(day) - START).days * SCALE
+
 
 def main():
-    top=180;rowheight=63;height=top+len(ROWS)*rowheight+130
-    s=[f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {WIDTH} {height}" role="img" aria-labelledby="title desc"><title id="title">aiNavLog implementation Gantt chart, October 2026 through January 2027</title><desc id="desc">Baseline, first installs and October 20 CI delivery are complete. Native packaging and iPhone simulator reception are demonstrated; Electrical acceptance remains open. Failed-check proof and runner review remain open. Engine, Route and Authentication follow. Holiday contingency precedes January Route Story and beta-readiness review.</desc><style>text{{font-family:Arial,sans-serif;fill:#193149}}.h{{font-size:26px;font-weight:bold}}.label{{font-size:16px}}.small{{font-size:13px;fill:#52697f}}</style><rect width="{WIDTH}" height="{height}" fill="white"/><text x="25" y="40" class="h">aiNavLog · revised implementation schedule</text><text x="25" y="70" class="label">Status and evidence: October 28, 2026 · October 16 baseline targets retained</text>']
-    for i,(key,label) in enumerate([('done','Completed evidence'),('feature','Planned feature'),('parallel','Open delivery follow-up'),('buffer','Holiday / review buffer'),('risk','Native target at risk')]):
-        a=25+i*285;s.append(f'<rect x="{a}" y="94" width="16" height="16" rx="3" fill="{COLORS[key]}"/><text x="{a+24}" y="108" class="small">{label}</text>')
-    # Weekly cells; the bar end dates below are exclusive.
-    day=START
-    while day<END:
-        xx=LEFT+(day-START).days*SCALE
+    top, rowheight = 180, 62
+    height = top + len(ROWS) * rowheight + 120
+    s = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {WIDTH} {height}" role="img" aria-labelledby="title desc"><title id="title">aiNavLog project schedule, November 2026 to January 2027</title><desc id="desc">Provisional schedule starts with electrical stabilization on November 23, followed by engine, route, authentication and route story. Distribution and CI follow-up run in parallel.</desc><style>text{{font-family:Arial,sans-serif;fill:#193149}}.h{{font-size:26px;font-weight:bold}}.label{{font-size:15px}}.small{{font-size:13px;fill:#52697f}}</style><rect width="{WIDTH}" height="{height}" fill="white"/><text x="25" y="40" class="h">aiNavLog · revised project schedule</text><text x="25" y="70" class="label">Rebaselined November 21, 2026 · planning targets, subject to review</text>']
+    for i, (key, label) in enumerate([('feature','Planned work'),('parallel','Parallel follow-up')]):
+        xx = 25 + i * 300
+        s.append(f'<rect x="{xx}" y="94" width="16" height="16" rx="3" fill="{COLORS[key]}"/><text x="{xx+24}" y="107" class="small">{label}</text>')
+    day = START
+    while day < END:
+        xx = LEFT + (day - START).days * SCALE
         s.append(f'<path d="M{xx} 150V{top+len(ROWS)*rowheight}" stroke="#e0e7ef"/><text transform="translate({xx+4},160) rotate(-35)" class="small">{day.strftime("%b %d")}</text>')
-        day+=timedelta(days=7)
-    for i,(label,start,end,kind) in enumerate(ROWS):
-        y=top+i*rowheight
-        if i%2==0:s.append(f'<rect x="15" y="{y}" width="{WIDTH-30}" height="{rowheight}" fill="#f5f8fb"/>')
+        day += timedelta(days=7)
+    for i, (label, start, end, kind, review) in enumerate(ROWS):
+        y = top + i * rowheight
+        if i % 2 == 0:
+            s.append(f'<rect x="15" y="{y}" width="{WIDTH-30}" height="{rowheight}" fill="#f5f8fb"/>')
         s.append(f'<text x="25" y="{y+33}" class="label">{escape(label)}</text>')
-        color=COLORS[kind]
-        if end is None:
-            xx=x(start);s.append(f'<path d="M{xx} {y+20}l10 10-10 10-10-10Z" fill="{color}"/><text x="{xx+18}" y="{y+35}" class="small">{date.fromisoformat(start).strftime("%b %d")} · achieved</text>')
-        else:
-            w=x(end)-x(start);s.append(f'<rect x="{x(start)}" y="{y+17}" width="{w}" height="27" rx="5" fill="{color}"/>')
-            last=date.fromisoformat(end)-timedelta(days=1)
-            caption=f'{date.fromisoformat(start).strftime("%b %d")}–{last.strftime("%b %d")}'
-            if w>100:s.append(f'<text x="{x(start)+8}" y="{y+36}" style="font:13px Arial;fill:white">{caption}</text>')
-            else:s.append(f'<text x="{x(end)+8}" y="{y+35}" class="small">{caption}</text>')
-    # Checkpoints sit on their relevant task bar; short symbols avoid crowded labels.
-    for row,day in [(2,'2026-10-30'),(9,'2026-11-13'),(10,'2026-11-27'),(11,'2026-12-11'),(13,'2027-01-15'),(14,'2027-01-29')]:
-        xx=x(day);yy=top+row*rowheight+30
-        s.append(f'<path d="M{xx} {yy-7}l7 7-7 7-7-7Z" fill="white" stroke="#193149"><title>Review {day}</title></path>')
-    y=top+len(ROWS)*rowheight+30
-    s.append(f'<text x="25" y="{y}" class="small">Diamonds on bars = reviews: Oct 30; Nov 13 / Nov 27; Dec 11; Jan 15 / Jan 29.</text><text x="25" y="{y+28}" class="small">CI delivery achieved Oct 20; native packaging delivered Oct 26; iPhone reception reconfirmed Oct 28. Physical Android deferred.</text><text x="25" y="{y+56}" class="small">Oct 30: lifecycle, restart/update retention and Electrical scope review. Engine start provisional; Jan 29 remains a review.</text></svg>')
-    output=ROOT/'images/project-plan-gantt.svg';output.write_text(''.join(s));print(output)
+        w = x(end) - x(start)
+        s.append(f'<rect x="{x(start)}" y="{y+17}" width="{w}" height="27" rx="5" fill="{COLORS[kind]}"/>')
+        last = date.fromisoformat(end) - timedelta(days=1)
+        caption = f'{date.fromisoformat(start).strftime("%b %d")}–{last.strftime("%b %d")}'
+        s.append(f'<text x="{x(start)+7}" y="{y+36}" style="font:12px Arial;fill:white">{caption}</text>')
+        if review:
+            xx = x(review) + SCALE / 2
+            yy = y + 30
+            s.append(f'<path d="M{xx} {yy-7}l7 7-7 7-7-7Z" fill="white" stroke="#193149"><title>Review {review}</title></path>')
+    y = top + len(ROWS) * rowheight + 28
+    s.append(f'<text x="25" y="{y}" class="small">Diamonds mark reviews. Distribution / CI is reviewed at each milestone; its first review is December 4.</text><text x="25" y="{y+25}" class="small">Dates are planning targets and may change as scope and capacity are reviewed.</text></svg>')
+    output = ROOT / 'images/project-plan-gantt.svg'
+    output.write_text(''.join(s))
+    print(output)
 
 
-if __name__=='__main__':main()
+if __name__ == '__main__':
+    main()

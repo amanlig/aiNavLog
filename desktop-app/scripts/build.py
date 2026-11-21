@@ -11,7 +11,7 @@ parser.add_argument('--llvm-mingw',type=Path,required=True)
 args=parser.parse_args()
 tools=args.llvm_mingw.resolve()
 assert (tools/'bin/x86_64-w64-mingw32-clang').is_file(), 'Expected LLVM-MinGW bin directory'
-env={**os.environ,'EXPO_NO_DOTENV':'1','EXPO_PUBLIC_NATIVE_BMV':'0','EXPO_PUBLIC_DEMO_MODE':'0','EXPO_PUBLIC_DEVICE_INTERFACE_URL':''}
+env={**os.environ,'EXPO_NO_DOTENV':'1','EXPO_PUBLIC_NATIVE_BMV':'0','EXPO_PUBLIC_DEMO_MODE':'0','EXPO_PUBLIC_DEVICE_INTERFACE_URL':'','EXPO_PUBLIC_DIAGRAM_SCAN_URL':'https://ainavlog.kodekomplete.com'}
 subprocess.run(['node','node_modules/expo/bin/cli','export','--platform','web','--clear','--output-dir',str(app/'web')],cwd=root/'user-interface',env=env,check=True)
 output=app/'builds/windows-x64';output.mkdir(parents=True,exist_ok=True)
 metadata=subprocess.check_output(['cargo','metadata','--manifest-path',str(app/'Cargo.toml'),'--locked','--offline','--filter-platform','x86_64-pc-windows-gnullvm','--format-version','1'],cwd=root)

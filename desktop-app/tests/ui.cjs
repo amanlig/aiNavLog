@@ -2,7 +2,7 @@ const {chromium}=require('playwright');const assert=require('node:assert/strict'
 (async()=>{const browser=await chromium.launch({headless:true,executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH,args:['--no-sandbox']});try{
  const page=await browser.newPage({viewport:{width:1200,height:1000}});const failures=[];page.on('pageerror',e=>failures.push(e.message));
  const remote=[];page.on('request',r=>{if(!r.url().startsWith('http://127.0.0.1:49380/')&&!r.url().startsWith('data:'))remote.push(r.url());});
- await page.goto('http://127.0.0.1:49380/elec/maintenance');
+ await page.goto('http://127.0.0.1:49380/elec/service-history?equipmentId=alternator');
  if(process.argv[2]==='record'){
   await page.getByRole('button',{name:'Record completed work',exact:true}).click();
   await page.getByRole('button',{name:'Alternator',exact:true}).click();

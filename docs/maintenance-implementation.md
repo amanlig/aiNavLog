@@ -1,8 +1,9 @@
 # Shared maintenance implementation
 
-Source baseline: October 30, 2026. This implementation is after iPhone build 8;
-it needs a replacement native binary and physical acceptance. Android delivery
-remains deferred. No maintenance release has been launched.
+Source baseline: November 4, 2026. Both iPhone and Android 1.0.0/build 10 have
+owner-reported test passes; see the [release handoff](status/status-2026-11-02.md).
+The new diagram viewer/online scan workflow is source work requiring a replacement
+native build, not part of build 10. See [diagram implementation and gateway setup](electrical-diagram-maintenance.md).
 
 ## User flow
 
@@ -60,16 +61,17 @@ Snapshots fail explicitly above 10,000 records; pagination remains future work.
 
 ## Persistence and migration
 
-`ObservationStore::initialize` accepts schema 0/1/2 for the app's application ID.
+`ObservationStore::initialize` accepts schema 0/1/2/3 for the app's application ID.
 Its transaction creates the existing telemetry tables as needed and adds:
 
 - `maintenance_equipment`: stable ID, name and engine/electrical/both classification.
 - `maintenance_entries`: stable idempotency ID, foreign-key equipment ID, service
   date, creation time and validated JSON record, with an equipment/date index.
 
-The transaction sets `user_version=2`. Version-1 telemetry is not rewritten or
-removed. Newer/unrelated databases are rejected. Schema-1 app binaries will reject
-schema 2; downgrade support is not implemented. The current app has one vessel
+The current transaction sets `user_version=3`, adding diagram asset/region storage
+and model/serial/type metadata; see the diagram implementation link above. Version-1 telemetry is not rewritten or
+removed. Newer/unrelated databases are rejected. Schema-1/2 app binaries will reject
+schema 3; downgrade support is not implemented. The current app has one vessel
 dataset; a rename in preferences does not create another vessel or partition.
 
 ## Current limits and next work
@@ -90,8 +92,8 @@ commands disconnected, caller buffers and real C linkage. Desktop+mobile-feature
 Rust clippy runs with warnings denied. Browser tests use real SQLite/service/UI
 and cover invalid dates, lost acknowledgement followed by retry, reload,
 Engine/Electrical shared visibility, custom equipment, filters and unknown hours.
-Phone Swift/Kotlin/JNI compilation and physical acceptance still require a new
-native build; host/browser tests do not establish them.
+Build 10 completed on both mobile platforms, with owner-reported passes on both.
+Diagram changes require a replacement native build and new device acceptance.
 
 
 ## Separate log update — October 30, Windows 0.1.1

@@ -22,6 +22,9 @@ pub fn execute(path: &Path, request: &str) -> String {
             .get("op")
             .and_then(Value::as_str)
             .ok_or("Missing maintenance operation")?;
+        if op.starts_with("diagram_") {
+            return execute_diagram(path, &value);
+        }
         if object.keys().any(|k| {
             k != "op"
                 && k != if op == "equipment" {
@@ -78,6 +81,73 @@ pub fn execute(path: &Path, request: &str) -> String {
     match result {
         Ok(value) => value.to_string(),
         Err(message) => json!({"error":message}).to_string(),
+    }
+}
+
+fn execute_diagram(path: &Path, value: &Value) -> Result<Value, String> {
+    use ainavlog_local_storage::diagram::Diagram;
+    let op = value["op"].as_str().ok_or("Missing diagram operation")?;
+    let allowed: &[&str] = match op {
+        "diagram_read" => &["op"],
+        "diagram_chunk" => &["op", "imageId", "index"],
+        "diagram_put" => &["op", "imageId", "index", "body"],
+        "diagram_discard" => &["op", "imageId"],
+        "diagram_save" => &["op", "diagram", "equipment", "baseRevision"],
+        _ => return Err("Unknown diagram operation".into()),
+    };
+    if value
+        .as_object()
+        .ok_or("Invalid diagram command")?
+        .keys()
+        .any(|k| !allowed.contains(&k.as_str()))
+    {
+        return Err("Unexpected diagram field".into());
+    }
+    let store = ObservationStore::open(path).map_err(|e| e.to_string())?;
+    let id = || value["imageId"].as_str().ok_or("Missing image ID");
+    let index = || {
+        value["index"]
+            .as_u64()
+            .and_then(|n| usize::try_from(n).ok())
+            .ok_or("Invalid chunk index")
+    };
+    match op {
+        "diagram_read" => Ok(json!({"diagram":store.read_diagram().map_err(|e|e.to_string())?})),
+        "diagram_chunk" => {
+            Ok(json!({"body":store.read_diagram_chunk(id()?,index()?).map_err(|e|e.to_string())?}))
+        }
+        "diagram_put" => {
+            store
+                .put_diagram_chunk(
+                    id()?,
+                    index()?,
+                    value["body"].as_str().ok_or("Missing image chunk")?,
+                )
+                .map_err(|e| e.to_string())?;
+            Ok(json!({"ok":true}))
+        }
+        "diagram_discard" => {
+            store
+                .discard_diagram_asset(id()?)
+                .map_err(|e| e.to_string())?;
+            Ok(json!({"ok":true}))
+        }
+        "diagram_save" => {
+            let diagram: Diagram =
+                serde_json::from_value(value["diagram"].clone()).map_err(|_| "Invalid diagram")?;
+            let equipment: Vec<Equipment> = serde_json::from_value(value["equipment"].clone())
+                .map_err(|_| "Invalid diagram equipment")?;
+            let base = match &value["baseRevision"] {
+                Value::Null => None,
+                Value::String(s) => Some(s.as_str()),
+                _ => return Err("Invalid base revision".into()),
+            };
+            store
+                .save_diagram(&diagram, &equipment, base)
+                .map_err(|e| e.to_string())?;
+            Ok(json!({"ok":true}))
+        }
+        _ => unreachable!(),
     }
 }
 

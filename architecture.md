@@ -1,14 +1,14 @@
-﻿# aiNavLog — Software Architecture Document
+# aiNavLog — Software Architecture Document
 
 | Document field | Value |
 | --- | --- |
 | Status | Draft — requirements and implemented Electrical architecture; broader features proposed |
-| Updated | 2026-10-28 (responsibilities separated in §5.2; implemented capture/storage/integration and matching views) |
+| Updated | 2026-11-04 (diagram maintenance implementation and AI scan gateway in §5.6; full editor remains deferred) |
 | Owner | TBD |
 | Structure | arc42 |
 | Format | GitHub Markdown with Mermaid diagrams |
 
-This document records the requirements established so far. **Confirmed** means stated by the product owner. **Proposed** identifies a design interpretation for review. **TBD** means no decision has been made. Diagrams describe logical responsibilities, not implemented services or deployment locations.
+This document records the requirements established so far. **Confirmed** means stated by the product owner. **Proposed** identifies a design interpretation for review. **TBD** means no decision has been made. Diagrams describe logical responsibilities unless explicitly labeled as implementation or deployment views. Proposed blocks are not claims of implemented functionality.
 
 Adapted from the [arc42 template](https://arc42.org/overview/). Official templates and guidance: [downloads](https://arc42.org/download/) and [documentation](https://docs.arc42.org/).
 
@@ -19,6 +19,8 @@ Adapted from the [arc42 template](https://arc42.org/overview/). Official templat
 3. [Context and Scope](#3-context-and-scope)
 4. [Solution Strategy](#4-solution-strategy)
 5. [Building Block View](#5-building-block-view)
+   - [Offline and online schematic AI assistance — proposed](#55-electrical-schematic-and-offlineonline-ai-assistance--proposed)
+   - [Electrical maintenance diagram and AI scan gateway](#56-electrical-maintenance-diagram-and-ai-scan-gateway)
 6. [Runtime View](#6-runtime-view)
 7. [Deployment View](#7-deployment-view)
 8. [Crosscutting Concepts](#8-crosscutting-concepts)
@@ -68,7 +70,7 @@ Reliable data capture, usability aboard a boat, handling interrupted connectivit
 
 | Constraint | Status |
 | --- | --- |
-| Application data is stored locally; cloud backup and general cloud upload are outside scope. User-initiated export of selected route content to Facebook or Instagram for story sharing is permitted by R-10. | Confirmed |
+| Application data is stored locally; cloud backup and general cloud upload are outside scope. User-initiated export of selected route content to Facebook or Instagram for story sharing is permitted by R-10. Optional online AI may send selected request context to an API (§5.5); this is not general backup or synchronization. | Confirmed local-storage baseline; online AI option requested November 2, integration proposed |
 | Heart Interface is an example external device; specific models and integration protocols are TBD. | Confirmed |
 | Rust is the implementation language for services within the aiNavLog system. | Confirmed |
 | Beta deployment targets are iOS and Android. Minimum OS versions, supported device architectures, budget, and delivery dates remain TBD. | Confirmed targets; details TBD |
@@ -243,6 +245,7 @@ not as separate servers.
 | Local data store | Own SQLite schema/version checks, transactions, indexes and latest/history query APIs. Own future migrations, retention, export/deletion and protection policy implementation. Serve UI reads directly, independently of Data capture and Bluetooth. | `local-storage/`: `ObservationStore`, `StoredObservation`, `BmvHistoryPoint`, bundled rusqlite. Schema 2 adds equipment and completed maintenance records while preserving telemetry and file paths. General storage lifecycle policies remain open. |
 | Native integration / application composition | Translate React Native calls/results to shared Rust APIs; provide private paths, platform permissions/lifecycle and background execution queues. Assemble receiver → capture → storage for writes; route latest/history reads straight to storage; validate and execute manual maintenance commands independently of Bluetooth. It contains no SQL or independent Bluetooth scanner implementation. | Swift/Kotlin/JNI in `user-interface/modules/ainavlog/`; Rust C ABI, session registry, mobile worker and desktop supervision/HTTP/CLI in top-level `native-integration/`. |
 | Shared data contracts | Define application record/error types and the injected capture interface without platform, vendor or database dependencies. | `data-model/`: `SampleMetadata`, `Observation`, `DecodedReading`, `QualityStatus`, `AppError`/`AppResult`, `ObservationSink`. |
+| Electrical diagram maintenance and AI assistance | Uploaded-image viewer, equipment regions, local identity matching and online component proposals; see §5.6. Full graph editor and offline AI remain deferred under §5.5. | Implemented in source, not build 10. Node/OpenAI gateway requires hosting/key setup and live validation; no local model/runtime is installed. |
 | Route story sharing | Read selected saved route/media, compose a preview, manage explicit export/handoff and cleanup without claiming publication. | Proposed; future consumer of Local data store and media files. R-10. |
 | Authentication | Provider identity/session flows and protected credentials; local-record access policy remains a separate design decision. | Proposed; credentials are not stored in the observation database. R-11. |
 | User device resources | Supply camera/microphone, app-private files, AsyncStorage preferences and protected credential facilities. These resources do not replace the Local data store responsibility. | iOS/Android beta targets; media-file layout, access/retention policies and browser/desktop handling remain open. |
@@ -548,6 +551,256 @@ These are proposed logical contracts except for the implemented electrical sampl
 
 Before implementation, prioritize the route source/model, local ownership and guest policy, persistence technology, authentication hosting, and one supported instrument/protocol combination. Each choice should refine these interfaces without moving provider or hardware details into the UI.
 
+### 5.5 Electrical schematic and offline/online AI assistance — proposed
+
+**Status — November 4, 2026:** Shelved at the owner's request; see the
+[backlog](docs/backlog.md#electrical-schematic-editor-and-ai-assistance).
+The following discovery is retained for reference when the owner resumes the
+full editor; it and offline AI have no delivery date. The owner subsequently
+authorized the narrower uploaded-image maintenance workflow with online component
+recognition, implemented in source under §5.6.
+
+**Discovery — November 2, 2026:** Product discovery and architecture proposal only.
+The owner requested offline schematic creation/editing and an optional online API
+path when connected, starting with power
+sources such as batteries and solar panels, with component maintenance visibility.
+No editor, local language model or AI runtime has been implemented or included in
+mobile build 10. This discussion does not change the current beta release scope
+or authorize an AI dependency/model selection.
+
+**Working user story:** As a recreational boater, I want to build and edit my
+boat's electrical schematic starting from its power sources, so that I can map
+how components connect and see which need maintenance.
+
+Illustrative connection path: solar panel → charge controller → house battery →
+main switch → distribution panel → loads. This is an explanatory example, not a
+verified vessel wiring plan. Manual add/edit, zoom/pan, electrical terminals and
+connections are proposed editor capabilities. Component identities should link
+to existing equipment and service records. Missing maintenance information should
+remain Unknown. Due/overdue rules are still to be defined; stored next-service
+thresholds do not currently implement status calculation or notifications.
+
+#### Logical placement and responsibilities
+
+Solid connections below show existing responsibilities. Dashed connections and
+all blocks marked PROPOSED describe future work. The provider and proposed
+credential-holding API gateway are explicitly outside the device boundary.
+
+```mermaid
+flowchart TB
+    Boater["Boater · manual input / typed requests"]
+    subgraph App["aiNavLog · on-device application boundary"]
+        UI["IMPLEMENTED · React Native UI<br/>Electrical / Engine maintenance / history"]
+        Native["IMPLEMENTED · native integration<br/>Swift / Kotlin / JNI + Rust application APIs"]
+        Maintenance["IMPLEMENTED · maintenance commands"]
+        Store["IMPLEMENTED · Local data store / SQLite<br/>equipment · service records · telemetry"]
+        Editor["PROPOSED · electrical schematic editor<br/>components · terminals · wires · maintenance overlay"]
+        Assist["PROPOSED · AI adapter / mode selection<br/>Offline local or Online API · selected context"]
+        Online["PROPOSED · online API client<br/>network availability · timeout / error handling"]
+        Runtime["CANDIDATE · llama.cpp runtime<br/>executes a compatible local model"]
+        Model["TBD · downloaded model weights<br/>e.g. suitable Llama or DeepSeek variant"]
+        Rules["PROPOSED · shared Rust schematic service<br/>graph validation · command execution · equipment links"]
+        Confirm["PROPOSED · review / clarify / confirm UI"]
+    end
+    Gateway["PROPOSED · trusted API gateway<br/>provider credentials · access and cost controls"]
+    Provider["EXTERNAL · hosted model API<br/>e.g. OpenAI or DeepSeek · provider TBD"]
+    Boater --> UI
+    UI --> Native --> Maintenance --> Store
+    Boater -.-> Editor
+    Editor -.->|"manual edits through native integration"| Rules
+    Editor -.->|"optional natural-language request"| Assist
+    Assist -.->|"Offline · local inference"| Runtime
+    Assist -.->|"Online selected and network available"| Online
+    Online -.->|"HTTPS · selected request context"| Gateway
+    Gateway -.->|"provider API request"| Provider
+    Provider -.->|"proposed structured commands / questions"| Gateway
+    Gateway -.-> Online
+    Online -.-> Assist
+    Model -.-> Runtime
+    Runtime -.->|"proposed structured commands"| Assist
+    Assist -.-> Confirm
+    Confirm -.->|"confirmed commands through native integration"| Rules
+    Rules -.->|"new schematic schema and transactions required"| Store
+    Store -.->|"queries through application APIs"| Editor
+```
+
+| Proposed responsibility | Placement and boundary |
+| --- | --- |
+| Schematic editor | React Native presentation/interaction; render components and wires, collect manual edits, show maintenance information. UI owns neither SQL nor electrical validation. |
+| Schematic application service | Shared Rust graph/command rules behind native integration. Validate references, terminals, connection constraints and changes before storage. A valid graph alone does not establish safe or compliant wiring. |
+| AI adapter / mode selection | Choose Offline local inference or optional Online API using user settings and connectivity; supply selected context, handle ambiguity/cancellation and translate responses into supported commands. Both paths share review and validation. Connectivity enables online use but is not itself consent to transmit data. |
+| Online API client and gateway | Proposed HTTPS client plus trusted gateway outside the device. Keep developer-owned provider secrets on the gateway rather than in the mobile binary; exact hosting, authentication, provider, quotas/costs and retention are TBD. The provider receives selected request context, not direct database or Bluetooth access. |
+| Inference runtime | llama.cpp is a C/C++ library candidate, callable through a native/C ABI bridge. It is not a Rust schematic library, electrical editor or model. Binding/package boundaries remain TBD; no new Rust crate has been selected. |
+| Model weights | Llama is Meta's model family; DeepSeek is another model family. A compatible model could run through the same runtime; both families need not be installed. Exact model, quantization, license, storage and device compatibility remain unselected. |
+| Local data store | Extend SQLite with versioned schematic persistence, stable equipment references and migration tests. Current schema 2 stores maintenance/telemetry, not schematic graphs or AI model weights. Model weights would be separate app-managed files. |
+
+Device Interface remains responsible for instrument communication and decoding.
+Data capture remains responsible for instrument ingestion. Neither becomes the
+AI/editor service; manual schematic and maintenance commands bypass the BLE
+capture pipeline. AI assistance does not authorize physical switching or device
+control.
+
+#### Proposed request routing and physical packaging
+
+1. The user edits manually or types a request such as “Add a solar panel connected
+   to an MPPT controller.”
+2. For AI requests, Offline mode supplies selected equipment/graph context to the
+   model on the device. Online mode, when enabled and connected, sends selected
+   context through the API client/gateway to the hosted provider. Either path
+   returns a proposed set of edits or questions.
+3. aiNavLog checks command shape and electrical graph rules and shows the proposed
+   change for review. Missing connection details require clarification, not invented
+   vessel wiring. Structured output alone does not guarantee correct content.
+4. Confirmed edits follow the shared application command boundary and commit to
+   SQLite; the UI then renders saved state and linked maintenance information.
+
+The proposed runtime library would be compiled into platform-specific iOS/Android
+builds alongside existing native integration, rather than installed as a separate
+user application or Rust/Python development environment. Weights must be bundled
+or provisioned before offline use; initial model delivery/import and updates are
+TBD. Once installed, Offline mode and supported manual edits must require no
+internet, cloud API, login or model-provider connection. Manual editing must remain
+usable if the model is absent, fails or is too slow.
+
+**Optional Online mode:** An internet connection makes hosted API use possible;
+llama.cpp is bypassed for these requests. The user can enable Online mode or a
+clearly explained preference to use it when connected. Request-specific prompt
+and selected vessel context may then leave the device. This is a narrow exception
+to the local-only data baseline (§2), not cloud backup/sync. Provider data handling,
+retention, credentials, costs and exact mode-selection UI require design review.
+Network availability does not guarantee API success. Timeout, connectivity or
+provider errors must preserve edits and offer an explicit local/manual path; do
+not silently upload Offline requests or replay pending edits. Both model paths
+feed the same review, Rust validation and transactional SQLite save boundary.
+
+Voice input is separate: it would require offline speech recognition, model/assets,
+permissions and confirmation behavior. A language model alone is not a microphone
+transcription engine. Voice commands remain backlog VOICE-01, across aiNavLog
+rather than limited to schematic/maintenance workflows.
+
+#### Research gates before adoption
+
+- Measure actual available RAM, CPU/GPU support, storage, latency, thermal/battery
+  impact and command accuracy on iPhone 13 and AUMI KB10/Android 16. OS version
+  alone is not sufficient evidence of model suitability.
+- Evaluate a small compatible model against representative boat descriptions,
+  ambiguous connections and invalid edits. No equivalence to hosted ChatGPT or
+  full-size DeepSeek capability is assumed.
+- Define online provider/gateway hosting, authentication, credential handling,
+  cost limits and selected-context/retention policy; validate mode switching and
+  failure handling without duplicate commands or unintended data transmission.
+- Review runtime/model licenses, redistribution terms and notices before adoption;
+  retain the existing small-download objective (§1.4) when choosing provisioning.
+- Define schematic contracts, migration/rollback behavior, undo/correction and
+  maintenance-status semantics before implementation. Hosted browser delivery
+  remains deferred; mobile local inference does not establish browser support.
+
+Technical references: [llama.cpp runtime and supported models](https://github.com/ggml-org/llama.cpp),
+[Android integration](https://github.com/ggml-org/llama.cpp/blob/master/docs/android.md),
+[Meta Llama](https://dev.meta.ai/llama),
+[DeepSeek-R1 model family](https://github.com/deepseek-ai/DeepSeek-R1).
+These references identify candidates, not accepted dependencies.
+
+### 5.6 Electrical maintenance diagram and AI scan gateway
+
+**Status — November 4, 2026:** Diagram UI is implemented in source and not delivered
+in build 10. The separate Docker gateway is deployed on the existing EC2 host at
+`https://ainavlog.kodekomplete.com`, with verified HTTPS, authentication and a real
+OpenAI example scan returning 10 component proposals. Broader model accuracy and
+physical-device acceptance of the new UI remain pending. This is an uploaded-image
+viewer with selectable equipment regions, not the full schematic/wiring editor
+proposed in §5.5. That editor and offline AI remain deferred.
+
+```mermaid
+flowchart LR
+    User["Boater"]
+    subgraph Device["User device · iPhone / Android / Windows"]
+        DiagramUI["Electrical maintenance<br/>Add/update diagram"]
+        ScanClient["Scan with AI<br/>explicit image submission"]
+        Review["Review detected equipment<br/>correct regions and details<br/>choose LiFePO₄ or other common type"]
+        Match["Local equipment matching<br/>propose existing record or create new"]
+        Bridge["Native integration / local desktop bridge"]
+        Rust["Rust maintenance commands<br/>validation and atomic save"]
+        DB[("Device SQLite · schema 3<br/>diagram image and regions<br/>equipment IDs, model and serial<br/>service records")]
+        Dialog["Hover or tap equipment<br/>latest service + history link<br/>× closes dialog"]
+    end
+    subgraph Server["Existing AWS EC2 · us-west-2"]
+        Proxy["Existing Caddy HTTPS proxy<br/>ainavlog.kodekomplete.com"]
+        subgraph Container["Separate Docker image · Node.js 24<br/>ainavlog-diagram-ai:2026-11-04-3"]
+            API["POST /scan-diagram<br/>authenticate access token<br/>validate image and limit requests"]
+            Key["Read-only runtime secret files<br/>OpenAI key + gateway token"]
+        end
+    end
+    OpenAI["OpenAI Responses API<br/>image-capable model<br/>structured component proposals"]
+    User --> DiagramUI
+    DiagramUI --> ScanClient
+    ScanClient -->|"HTTPS · diagram image only"| Proxy
+    Proxy -->|"Private Docker network · port 8788"| API
+    Key --> API
+    API -->|"Image + extraction instructions<br/>server-held API key"| OpenAI
+    OpenAI -->|"Names, types, readable model/serial<br/>proposed normalized regions"| API
+    API -->|"Proposals · no database writes"| Review
+    DiagramUI -->|"Manual region marking also available"| Review
+    DB -->|"Existing equipment stays local"| Match
+    Review --> Match
+    Match -->|"User confirms links and new equipment"| Bridge
+    Bridge --> Rust --> DB
+    DB -->|"Saved image and linked service records"| Dialog
+    DiagramUI --> Dialog
+```
+
+The gateway is `diagram-ai-server/server.mjs`, a standalone Node.js HTTP service
+with no required framework or database. It loads the provider key from a read-only runtime
+secret file (or environment for local development), authenticates an owner-managed scan access token, restricts browser
+origins, checks JPEG/PNG input up to 6 MB, limits requests and concurrent scans,
+and calls the Responses API with structured JSON output and `store: false`.
+The model returns bounded left/top/right/bottom corners, which the gateway validates
+and converts into normalized x/y/width/height regions. Only static failure codes
+are logged; provider bodies, image data and credentials are excluded.
+`OPENAI_VISION_MODEL` is configurable; the initial default is `gpt-4.1`, chosen
+as a supported image/structured-output baseline, not a measured accuracy winner.
+The server now has a separate tested Docker image (`diagram-ai-server/Dockerfile`)
+and an EC2 Compose definition with runtime-mounted secret files, non-root execution,
+resource limits and `/healthz`. The deployment target is the owner's existing EC2
+host behind its existing Caddy HTTPS proxy. DNS/TLS, protected runtime secrets,
+container health and a real sample scan have been verified. See [EC2 deployment](diagram-ai-server/deploy/README.md).
+HTTPS must terminate at a trusted reverse proxy or hosting platform for remote
+use. The local developer server binds to loopback by default. The current EC2
+deployment has no published backend port, a read-only filesystem, 256 MiB RAM
+and 0.5 CPU limits, non-root execution and an unless-stopped restart policy.
+The gateway token is provisioned privately; it is not embedded in mobile builds. The current single-owner token is not a multiuser
+authorization system. Image bodies are not persisted or logged by the gateway.
+
+Only the selected diagram is submitted for scanning. The provider receives no
+maintenance database, service records or direct Bluetooth access. The app keeps
+its gateway access token in screen-session memory; the OpenAI key is never shipped
+in the client. In a production installation the boater uses the app's configured
+scan endpoint, not the OpenAI developer API directly.
+
+`ElectricalDiagram.tsx` displays the example or saved diagram, offers upload and
+review, and renders normalized equipment regions. Unknown detections can be
+assigned common component types (including LiFePO₄, AGM and flooded batteries),
+a custom type or an existing equipment record. A chemistry/model is not inferred
+from appearance. A unique exact serial or name can suggest a match, but each
+link is reviewed; repeated model numbers are not identity. Components missing
+from a replacement diagram do not delete equipment or service history.
+
+`local-storage/src/diagram.rs` persists image chunks within the existing bridge
+request limit, checks region bounds and Electrical ownership, and commits the
+current diagram, new equipment and reviewed metadata atomically. A base revision
+check prevents stale updates; retrying an identical committed save is idempotent.
+Schema 3 adds equipment details, diagram assets and the current diagram without
+rewriting telemetry or service records. Older schema-2 binaries reject the newer
+database; install/update retention needs native-device verification.
+
+Offline use includes the saved image, equipment dialogs, service history and
+manual region linking. AI scans need connectivity and a configured gateway. The
+modal shows equipment name, model, serial number, latest Electrical service date
+and description, and links to `/elec/service-history?equipmentId=...`; legacy
+unassigned shared records stay explicitly disclosed in history.
+
+See [implementation, server setup and verification](docs/electrical-diagram-maintenance.md).
+
 ## 6. Runtime View
 
 ### 6.1 Share a route as a story (R-10)
@@ -599,15 +852,19 @@ See the [vertical implementation plan](docs/project-plan.md): Electrical and Sto
 ### 7.1 Android and iOS build/distribution physical architecture
 
 The shared Expo/React Native app is developed in Windows/WSL2 and built by Expo
-EAS cloud workers. Android uses Gradle/Android SDK and manual Google Play Console
-AAB upload; iOS uses Xcode/iOS SDK and EAS Submit to App Store Connect/TestFlight.
+EAS cloud workers. Android uses Gradle/Android SDK and EAS Submit to Google Play internal testing;
+iOS uses Xcode/iOS SDK and EAS Submit to App Store Connect/TestFlight.
 
 ![Physical build and deployment tools](docs/images/mobile-build-deployment.svg)
 
 See the [detailed mobile build/deployment architecture](docs/mobile-build-deployment.md)
 for signing, tools, commands, tester distribution and current verification status.
 This is a delivery infrastructure view, separate from the boat/instrument diagram.
-Latest delivered iPhone version is 1.0.0/build 7 (October 28); existing Android code 7 predates the history/storage refactor and replacement is deferred. Rust
+Both platforms were built as version 1.0.0/build 10 on November 2. The owner
+reports iPhone tests passed (individual cases unspecified). Android build 10
+finished; its submission was last observed queued, with physical KB10 acceptance
+pending. See the [November 2 handoff](docs/status/status-2026-11-02.md). No AI runtime
+or model is included in build 10; §5.5 is proposed architecture. Rust
 Bluetooth reception and phone-local SQLite are integrated for the public BMV
 simulator; iPhone reception is owner-confirmed and physical Android qualification
 remains pending. SQLite/rusqlite is the confirmed structured local beta store.

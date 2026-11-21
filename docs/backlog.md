@@ -2,6 +2,28 @@
 
 Deferred ideas and investigations to revisit as aiNavLog develops. These entries are not committed delivery plans. Explicit scope decisions are noted per entry.
 
+## Electrical schematic editor and AI assistance
+
+- [ ] **Create, view and edit an electrical schematic linked to equipment maintenance.**
+- **Status:** Shelved at the owner's request, November 4, 2026; no delivery date.
+- **Revisit when:** The owner explicitly resumes this feature.
+- **Proposed scope:** Start with power sources such as batteries and solar panels;
+  add equipment and connections, save/reopen the schematic and show linked
+  maintenance information. Preserve manual editing independently of AI.
+- **Deferred with this feature:** Offline AI assistance and full editor command
+  generation. Proposed changes require user review and shared Rust validation before
+  SQLite persistence; online transmission requires user authorization.
+- **Open decisions:** Editor/graph contracts, equipment links, schema migrations,
+  undo/correction, device performance, runtime/model licensing and size, and online
+  provider/gateway, authentication, costs and data handling for the full editor.
+  No full editor or offline model implementation/selection has been made. Draw.io remains excluded.
+
+Preserve the [architecture discovery in SAD §5.5](../architecture.md#55-electrical-schematic-and-offlineonline-ai-assistance--proposed)
+as reference for future scoping. The full editor remains outside active work. On November 4, the owner authorized
+an uploaded-image viewer, equipment regions and online AI identification/matching
+as a separate maintenance increment; see [implementation](electrical-diagram-maintenance.md).
+That work does not resume the full editor or offline model integration.
+
 ## In-app version checks and updates
 
 - [ ] **Add Profile → Check for updates.**

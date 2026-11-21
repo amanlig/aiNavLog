@@ -37,6 +37,20 @@ fn collect(root: &Path, dir: &Path, out: &mut String) {
     }
 }
 fn main() {
+    if env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("windows") {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+        let icon = root.join("app.ico");
+        println!("cargo:rerun-if-changed={}", icon.display());
+        let out = Path::new(&env::var("OUT_DIR").unwrap()).join("app-icon.o");
+        let rc = Path::new(&env::var("OUT_DIR").unwrap()).join("app-icon.rc");
+        fs::write(&rc, format!("1 ICON \"{}\"\n", icon.display())).unwrap();
+        let status = std::process::Command::new("x86_64-w64-mingw32-windres")
+            .args(["-i", rc.to_str().unwrap(), "-o", out.to_str().unwrap(), "-O", "coff"])
+            .status().expect("Windows resource compiler is required");
+        assert!(status.success(), "Could not compile Windows icon");
+        println!("cargo:rustc-link-arg={}", out.display());
+    }
+
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("web");
     println!("cargo:rerun-if-changed={}", root.display());
     let mut out = String::from("pub static ASSETS: &[(&str,&str,&[u8])] = &[\n");

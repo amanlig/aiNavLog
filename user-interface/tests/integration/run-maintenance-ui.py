@@ -7,7 +7,7 @@ root=Path(__file__).resolve().parents[3]
 export=Path(sys.argv[1] if len(sys.argv)>1 else '/tmp/ainavlog-maintenance-web')
 class Handler(SimpleHTTPRequestHandler):
     def do_GET(self):
-        if self.path.split('?')[0] in ['/', '/elec','/mech','/mech/maintenance','/elec/maintenance','/prefs']: self.path='/index.html'
+        if self.path.split('?')[0] in ['/', '/elec','/mech','/mech/maintenance','/elec/maintenance','/elec/service-history','/prefs']: self.path='/index.html'
         super().do_GET()
     def log_message(self,*_): pass
 with tempfile.TemporaryDirectory(prefix='ainavlog-maintenance-') as work:
@@ -26,6 +26,6 @@ with tempfile.TemporaryDirectory(prefix='ainavlog-maintenance-') as work:
         import sqlite3
         with sqlite3.connect(database) as db:
             assert db.execute('select count(*) from maintenance_entries').fetchone()[0]==3
-            assert db.execute('pragma user_version').fetchone()[0]==2
+            assert db.execute('pragma user_version').fetchone()[0]==3
     finally:
         service.terminate();service.wait(timeout=5);web.shutdown();web.server_close()

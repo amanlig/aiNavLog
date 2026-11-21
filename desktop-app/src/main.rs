@@ -45,6 +45,25 @@ fn open_window(url: &str, directory: &Path) -> Result<Child, String> {
         .spawn()
         .map_err(|e| e.to_string())
 }
+// Edge can hand a new window to an existing profile process and exit the
+// launched child immediately. The profile lock, not that child, owns the UI.
+#[cfg(windows)]
+fn wait_for_window(mut child: Child, directory: PathBuf) {
+    use std::os::windows::fs::OpenOptionsExt;
+    let _ = child.wait();
+    let lock = directory.join("Browser").join("lockfile");
+    // Allow the existing Edge process time to acquire its profile lock.
+    std::thread::sleep(Duration::from_secs(2));
+    loop {
+        let result = std::fs::OpenOptions::new().read(true).write(true).share_mode(0).open(&lock);
+        match result {
+            Err(e) if matches!(e.raw_os_error(), Some(32 | 33)) => std::thread::sleep(Duration::from_millis(500)),
+            _ => break,
+        }
+    }
+}
+#[cfg(not(windows))]
+fn wait_for_window(mut child: Child, _directory: PathBuf) { let _ = child.wait(); }
 #[cfg(not(windows))]
 fn open_window(_url: &str, _directory: &Path) -> Result<Child, String> {
     Err("Use --serve-only for host testing; the application window targets Windows.".into())
@@ -111,10 +130,11 @@ fn run() -> Result<(), String> {
     println!("aiNavLog ready at {url}\nDatabase: {}", database.display());
     let stop = Arc::new(AtomicBool::new(false));
     if !serve_only {
-        let mut window = open_window(&url, &directory)?;
+        let window = open_window(&url, &directory)?;
         let done = Arc::clone(&stop);
+        let profile_directory = directory.clone();
         std::thread::spawn(move || {
-            let _ = window.wait();
+            wait_for_window(window, profile_directory);
             done.store(true, Ordering::Release);
         });
     }

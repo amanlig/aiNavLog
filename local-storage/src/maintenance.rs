@@ -10,6 +10,18 @@ pub struct Equipment {
     pub id: String,
     pub name: String,
     pub system: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub category: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub model: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub serial_number: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub make: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub manufactured_date: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub installed_date: String,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -82,6 +94,12 @@ impl Equipment {
     pub fn validate(&self) -> AppResult<()> {
         if !text(&self.id, 80, true)
             || !text(&self.name, 120, true)
+            || !text(&self.category, 80, false)
+            || !text(&self.model, 120, false)
+            || !text(&self.serial_number, 120, false)
+            || !text(&self.make, 120, false)
+            || (!self.manufactured_date.is_empty() && !valid_date(&self.manufactured_date))
+            || (!self.installed_date.is_empty() && !valid_date(&self.installed_date))
             || !matches!(self.system.as_str(), "engine" | "electrical" | "both")
         {
             return Err(storage("invalid equipment"));
@@ -138,7 +156,7 @@ impl ObservationStore {
     pub fn maintenance_snapshot(&self) -> AppResult<Snapshot> {
         let mut equipment_query = self
             .connection
-            .prepare("SELECT id,name,system FROM maintenance_equipment ORDER BY name,id")
+            .prepare("SELECT e.id,e.name,e.system,COALESCE(d.category,''),COALESCE(d.model,''),COALESCE(d.serial_number,''),COALESCE(d.make,''),COALESCE(d.manufactured_date,''),COALESCE(d.installed_date,'') FROM maintenance_equipment e LEFT JOIN maintenance_equipment_details d ON d.equipment_id=e.id ORDER BY e.name,e.id")
             .map_err(storage)?;
         let equipment = equipment_query
             .query_map([], |r| {
@@ -146,6 +164,12 @@ impl ObservationStore {
                     id: r.get(0)?,
                     name: r.get(1)?,
                     system: r.get(2)?,
+                    category: r.get(3)?,
+                    model: r.get(4)?,
+                    serial_number: r.get(5)?,
+                    make: r.get(6)?,
+                    manufactured_date: r.get(7)?,
+                    installed_date: r.get(8)?,
                 })
             })
             .map_err(storage)?
@@ -172,19 +196,25 @@ impl ObservationStore {
     }
     pub fn save_equipment(&self, equipment: &Equipment) -> AppResult<()> {
         equipment.validate()?;
-        self.connection.execute("INSERT INTO maintenance_equipment(id,name,system) VALUES (?1,?2,?3) ON CONFLICT(id) DO NOTHING",params![equipment.id,equipment.name,equipment.system]).map_err(storage)?;
-        let saved = self
-            .connection
-            .query_row(
-                "SELECT name,system FROM maintenance_equipment WHERE id=?1",
-                [&equipment.id],
-                |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?)),
+        let tx = self.connection.unchecked_transaction().map_err(storage)?;
+        tx.execute("INSERT INTO maintenance_equipment(id,name,system) VALUES (?1,?2,?3) ON CONFLICT(id) DO NOTHING",params![equipment.id,equipment.name,equipment.system]).map_err(storage)?;
+        tx.execute("INSERT INTO maintenance_equipment_details(equipment_id,category,model,serial_number,make,manufactured_date,installed_date) VALUES(?1,?2,?3,?4,?5,?6,?7) ON CONFLICT(equipment_id) DO NOTHING",params![equipment.id,equipment.category,equipment.model,equipment.serial_number,equipment.make,equipment.manufactured_date,equipment.installed_date]).map_err(storage)?;
+        let saved = tx.query_row("SELECT e.name,e.system,d.category,d.model,d.serial_number,d.make,d.manufactured_date,d.installed_date FROM maintenance_equipment e JOIN maintenance_equipment_details d ON e.id=d.equipment_id WHERE e.id=?1",[&equipment.id],|r|Ok((r.get::<_,String>(0)?,r.get::<_,String>(1)?,r.get::<_,String>(2)?,r.get::<_,String>(3)?,r.get::<_,String>(4)?,r.get::<_,String>(5)?,r.get::<_,String>(6)?,r.get::<_,String>(7)?))).map_err(storage)?;
+        if saved
+            != (
+                equipment.name.clone(),
+                equipment.system.clone(),
+                equipment.category.clone(),
+                equipment.model.clone(),
+                equipment.serial_number.clone(),
+                equipment.make.clone(),
+                equipment.manufactured_date.clone(),
+                equipment.installed_date.clone(),
             )
-            .map_err(storage)?;
-        if saved != (equipment.name.clone(), equipment.system.clone()) {
+        {
             return Err(storage("equipment ID already belongs to another item"));
         }
-        Ok(())
+        tx.commit().map_err(storage)
     }
     pub fn save_service(&self, entry: &ServiceEntry) -> AppResult<()> {
         entry.validate()?;

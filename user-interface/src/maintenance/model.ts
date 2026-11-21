@@ -1,5 +1,5 @@
 export type System = 'engine' | 'electrical' | 'both';
-export type Equipment = { id: string; name: string; system: System };
+export type Equipment = { id: string; name: string; system: System; category?: string; model?: string; serialNumber?: string; make?: string; manufacturedDate?: string; installedDate?: string };
 export type Entry = {
   id: string; equipmentId: string; system?: 'engine' | 'electrical'; date: string; kind: 'Service' | 'Inspection' | 'Repair' | 'Replacement';
   description: string; provider: string; hours: number | null; parts: string;

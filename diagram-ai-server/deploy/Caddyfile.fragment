@@ -1,0 +1,12 @@
+# Replace SCAN_HOSTNAME with the chosen DNS name; append to existing Caddyfile.
+# Preserve the existing site's block, certificate volumes and network.
+SCAN_HOSTNAME {
+    request_body {
+        max_size 9MB
+    }
+    reverse_proxy ainavlog-diagram-api:8788 {
+        transport http {
+            response_header_timeout 90s
+        }
+    }
+}

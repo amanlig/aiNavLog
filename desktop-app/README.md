@@ -20,7 +20,11 @@ Open Maintenance Logs from Engine or Electrical. Record completed work, add
 equipment, verify new records stay in the selected Engine/Electrical log even for shared equipment, then close/reopen
 and check persistence. Home includes Fire Safety's sample layout and hover zoom.
 There is no Windows Bluetooth receiver, engine telemetry, cloud account/sync or
-new maintenance attachment/export/reminder feature in this package. Battery
+receipt upload/export/reminder feature in this package. Electrical maintenance
+now includes the example/uploaded diagram, equipment regions and service-history
+dialogs. Saved diagrams and records work offline; optional AI scanning uses
+`https://ainavlog.kodekomplete.com` and requires the private gateway access token.
+The scan URL is preconfigured; the token is entered for the current screen session. Battery
 history is empty until compatible observations are present in this Windows store;
 no synthetic readings are silently generated. It does not replace phone-specific
 permission/lifecycle/native-wrapper testing.
@@ -32,7 +36,9 @@ permission/lifecycle/native-wrapper testing.
 All UI assets are embedded in the executable; arbitrary filesystem paths are not
 served. The service listens only on `127.0.0.1:49378`, checks the Host and Origin,
 and requires a per-process random token for maintenance commands. It has no remote
-listener or external API. Third-party notices are included beside the executable
+listener. Its web security policy allows outbound scans only to the configured
+production gateway in addition to the local service; the gateway explicitly
+allows this app's `http://127.0.0.1:49378` Origin. Third-party notices are included beside the executable
 and at `http://127.0.0.1:49378/native-notices.txt` while the app runs.
 
 The window uses Edge app mode, not a Tauri/WebView2 binding or React Native Windows.
@@ -63,3 +69,17 @@ script saves/retries/reopens a test record using a caller-supplied isolated fold
 Version 0.1.1 separates maintenance logs. Older unassigned records on shared
 equipment remain under an explicit Earlier shared records disclosure. No records
 are deleted or silently assigned to a log.
+
+## Diagram test build — November 4, 2026
+
+The rebuilt 0.1.2 executable includes SQLite schema 3 and the diagram workflow.
+A copy of existing Windows database files was made under the app data directory's
+`Backups/before-diagram-*` before launch. Older schema-2 binaries cannot read the
+upgraded database. The new EXE passed isolated Windows save/retry, session-token
+and restart-retention smoke checks; UI typecheck/lint also passed.
+
+For testing: Electrical → Maintenance → Use example diagram (or Add diagram),
+then Scan with AI. Enter the gateway token from the ignored local
+`.secrets/diagram_scan_token`; do not enter an OpenAI key. This package's CSP
+permits the deployed scan hostname, and its exact loopback origin is allowed by
+the gateway.

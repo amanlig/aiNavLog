@@ -2,13 +2,49 @@
 
 **Confirmed storage decision — October 28, 2026:** SQLite, accessed through Rust `rusqlite` with bundled SQLite, is the local structured database for the 2027 iOS/Android beta. See [ADR-0001](decisions/0001-sqlite-local-storage.md) for scope, current implementation and remaining work. Existing AsyncStorage preferences and protected credential storage remain separate.
 
-**Created:** October 5, 2026. **Rebaselined:** October 16, 2026. **Status updated:** October 30, 2026,
-including shared maintenance source implementation; build-8 progress remains owner-monitored.
-**Target:** implementation foundation for the 2027 mobile beta. Dates use
-America/Vancouver. Feature windows are two calendar weeks, with Friday reviews.
-These are planning targets, not confirmed delivery or public-store release dates.
+**Created:** October 5, 2026. **Schedule rebaselined:** November 21, 2026.
+**Target:** complete and validate the current proof of concept, then develop the
+minimum viable product (MVP) as the beta version. Dates use
+America/Vancouver. The windows below are planning targets, not delivery promises;
+review scope and capacity at each scheduled checkpoint. Public-store release is not scheduled.
 
-## Completion checkpoint — October 30
+**Release terminology:** the current builds are the **proof of concept (POC)**.
+The **beta version is the MVP**, a later product stage; internal TestFlight and
+Google Play builds of the POC do not by themselves mean the MVP is complete or
+ready for beta. MVP scope and acceptance criteria remain to be agreed.
+
+**Current checkpoint:** the owner reports the diagram touch behavior verified on
+Windows, Android and iOS. Exact build numbers and individual test steps were not
+recorded. Android build 11 reached the Play internal track; build 13 submissions
+were scheduled for TestFlight and Play, but completion and tested versions were
+not independently verified. The online diagram scan gateway exists; seamless
+upload scanning and user authentication remain unfinished. The electrical schematic
+editor and offline AI are deferred. See the [latest handoff](status/status-2026-11-20.md).
+
+The October checkpoints, detailed slice notes and risk dates
+below are historical evidence where they conflict with the November 21 schedule.
+Open acceptance gaps remain open until verified or explicitly deferred.
+
+## Proof-of-concept success conditions
+
+The owner defines the POC as successful when all five conditions are met:
+
+1. Deploy the app to **iPhone, Android and Windows**.
+2. Authenticate with **Google and Facebook**.
+3. Provide **electrical status and maintenance**.
+4. Provide **engine status and maintenance**.
+5. Provide a **route log**.
+
+These are the POC acceptance conditions, not a statement that the POC is already
+complete. Deployment and diagram touch behavior have evidence on the three
+platforms, but that alone does not establish all five conditions. Authentication,
+engine status and route logging still need implementation and verification; the
+specific test cases and whether simulated or physical inputs satisfy each status
+condition remain to be agreed. MVP development follows a successful POC; the
+MVP is the version intended for beta testing. Route story is separately scheduled
+and is not one of these five POC success conditions.
+
+## Historical completion checkpoint — October 30
 
 **Where we are:** the native simulator-to-iPhone electrical path works. We are
 qualifying failure/recovery and persistence behaviour, rather than still building
@@ -46,71 +82,48 @@ No new build or store submission is needed merely to resume these checks.
 Visual references: [User Interface implementation view](user-interface-implementation-view.md)
 and [Device Interface implementation view](device-interface-implementation-view.md).
 
-## Schedule
+## Schedule — rebaselined November 21
 
-| Slice | Revised window | Demo / review milestone | Working outcome |
+The next working session is **Monday, November 23**. The plan reserves two weeks
+for stabilization and scope decisions before the next feature slice. Dates are
+provisional and assume one primary development stream;
+they do not assume simultaneous delivery of all features.
+
+| Workstream | Planned window | Review | Expected outcome / dependency |
 | --- | --- | --- | --- |
-| 1. Electrical — native completion | Oct 19–Nov 1, 2026; desktop/core/UI work from Oct 5–18 retained | Native packaging achieved by Oct 26; Fri Oct 30 acceptance review | BMV simulator Bluetooth → phone receiver → Rust decoder → phone SQLite → House/Starter UI, with failure and restart checks |
-| 2. Store deployment / beta distribution — parallel | Initial installs achieved Oct 16; demo CI delivery/update acceptance achieved Oct 20; native qualification ongoing | Fri Oct 30 native-build update review; Fri Nov 13 cross-platform evidence review | Reuse signed build paths; validate native updates and stored-reading retention; finish physical Android and native runtime checks |
-| 2a. Android + iOS CI/CD — delivery demonstrated | Oct 19–20, 2026 achieved; remaining acceptance open | Both delivery paths verified Oct 20; failed-check gate demonstration still pending | Hosted shared checks, signed builds, receipts and exact-build Play/TestFlight submissions complete; iPhone and emulator acceptance recorded |
-| 3. Engine | Nov 2–15, 2026 | Fri Nov 13 | Selected measurements through the shared pipeline; simulated-only scope if hardware/gateway remains unresolved |
-| 4. Route | Nov 16–29, 2026 | Fri Nov 27 | Record, save, reopen and display a route; permissions and location gaps explicit |
-| 5. Authentication / authorization | Nov 30–Dec 13, 2026 | Fri Dec 11 | Agreed ownership policy, provider/session flows and enforced local-record access |
-| Review / holiday contingency — no feature commitment | Dec 14, 2026–Jan 3, 2027 | Availability and remaining-scope review by Fri Dec 11 | Reviews, rework and optional hardening as capacity permits; no assumed full holiday staffing |
-| 6. Route story | Jan 4–17, 2027 | Fri Jan 15 | Select saved route/media, preview and explicitly export/share |
-| Integration / beta-readiness review | Jan 18–31, 2027 | Fri Jan 29 | Consolidated regression, installation/update, privacy/accessibility and hardware-evidence review; record remaining release blockers |
+| Electrical and mobile stabilization | Nov 23–Dec 4, 2026 | Fri Dec 4 | Review owner-reported touch acceptance and installed builds; verify store delivery, persistence, lifecycle and outstanding Electrical gaps, or explicitly defer them. Define the next slice and scope. |
+| Engine | Dec 7–18, 2026 | Fri Dec 18 | Agree measurements and source; demonstrate a simulated end-to-end path. Physical hardware compatibility remains a separate gate. |
+| Route | Dec 21, 2026–Jan 1, 2027 | Thu Dec 31 | Record, save, reopen and display a route; disclose location and offline limitations. |
+| Authentication / authorization | Jan 4–15, 2027 | Fri Jan 15 | Implement and verify both Google and Facebook sign-in; agree account ownership policy and access boundaries. |
+| Route story | Jan 18–29, 2027 | Fri Jan 29 | Preview and explicitly export/share a story from saved route data. |
+| Distribution / CI follow-up | Parallel, reviewed at each milestone | First review Dec 4 | Check actual TestFlight and Play availability, physical acceptance, failed-check gate and runner compatibility without assuming store processing succeeds. |
 
-### Gantt chart
+The remaining dates are provisional and may be revised as capacity, dependencies
+and acceptance evidence become clearer. No public-release date is scheduled.
 
-![aiNavLog revised schedule](images/project-plan-gantt.svg)
+![aiNavLog revised project schedule](images/project-plan-gantt.svg)
 
-[Open the full-size chart](images/project-plan-gantt.svg). The Mermaid version below
-is editable alongside this plan. Task end dates in Mermaid are exclusive, so
-Nov 2 represents work through Nov 1. Review diamonds occur within their windows.
+[Open the full-size Gantt chart](images/project-plan-gantt.svg). The editable Mermaid version follows.
 
 ```mermaid
 gantt
-    title aiNavLog — status and evidence October 28
+    title aiNavLog — provisional schedule from November 23, 2026
     dateFormat YYYY-MM-DD
     axisFormat %b %d
-    todayMarker off
-    section Achieved baseline
-    Desktop/core/UI foundation          :done, baseline, 2026-10-05, 2026-10-17
-    First Android and iPhone installs    :milestone, done, installed, 2026-10-16, 0d
-    section Parallel deployment
-    CI/CD implementation and delivery   :done, cicd, 2026-10-19, 2026-10-21
-    Both platform delivery accepted     :milestone, done, delivery_accepted, 2026-10-20, 0d
-    Failed-check proof and runner review :cicd_remaining, 2026-10-23, 2026-10-31
-    Distribution and update checks      :delivery, 2026-10-19, 2027-02-01
-    section Feature implementation
-    Electrical acceptance remaining :crit, electrical, 2026-10-19, 2026-11-02
-    Native packaging delivered          :milestone, done, native_gate, 2026-10-26, 0d
-    iPhone reception reconfirmed        :milestone, done, iphone_retest, 2026-10-28, 0d
-    Electrical demo                     :milestone, electrical_demo, 2026-10-30, 0d
-    Engine                              :engine, 2026-11-02, 2026-11-16
-    Engine demo                         :milestone, engine_demo, 2026-11-13, 0d
-    Route                               :route, 2026-11-16, 2026-11-30
-    Route demo                          :milestone, route_demo, 2026-11-27, 0d
-    Authentication and authorization    :auth, 2026-11-30, 2026-12-14
-    Authentication demo                 :milestone, auth_demo, 2026-12-11, 0d
-    section Contingency
-    Review and holiday buffer           :buffer, 2026-12-14, 2027-01-04
-    section January completion
-    Route story                         :story, 2027-01-04, 2027-01-18
-    Route story demo                    :milestone, story_demo, 2027-01-15, 0d
-    Integration and beta readiness      :readiness, 2027-01-18, 2027-02-01
-    Beta-readiness review               :milestone, readiness_review, 2027-01-29, 0d
+    section Foundation
+    Electrical stabilization            :electrical, 2026-11-23, 2026-12-05
+    Electrical review                   :milestone, 2026-12-04, 0d
+    Engine                              :engine, 2026-12-07, 2026-12-19
+    Engine review                       :milestone, 2026-12-18, 0d
+    section Feature slices
+    Route                               :route, 2026-12-21, 2027-01-02
+    Authentication and authorization    :auth, 2027-01-04, 2027-01-16
+    Route story                         :story, 2027-01-18, 2027-01-30
 ```
 
-The delivery bar spans the programme but does not assume full holiday staffing.
-CI/CD delivery was demonstrated Oct 20; failed-check blocking proof remains open.
-Native packaging and iPhone simulator reception are achieved as of Oct 26–28.
-Electrical Oct 30 acceptance and downstream dates remain provisional; reassess remaining scope/capacity
-before treating Engine Nov 2 as a committed start. No replacement dates are assumed.
-The Oct 23–30 CI follow-up bar is a review target, not completion evidence.
-Public-store release is outside these scheduled milestones.
+Mermaid end dates are exclusive. The prior October schedule is retained as historical evidence below.
 
-### October 16 checkpoint and reason for change
+### Historical October 16 checkpoint and reason for change
 
 - **Android distribution:** signed 1.0.0/code 1 accepted by Google Play internal
   testing; owner confirmed emulator installation and supplied Home launch evidence.
@@ -143,6 +156,8 @@ submission or purchase is triggered by this plan update.
 | Oct 30 | Deliver a native-enabled build through established distribution; verify updating the installed demo. Claim stored-reading retention only after phone storage exists and an update test passes |
 | Nov 13 | Review Android native/device evidence independently; do not treat the emulator's install or iPhone pass as Android radio qualification |
 
+The October 16 checkpoint and execution gates below are historical; use the November 21 schedule above for current planning.
+
 ## Delivery approach
 
 **Maritime alignment — agreed October 12:** extend Electrical and Engine with
@@ -163,9 +178,8 @@ and accepted; track distribution blockers separately.
 
 Existing HTML pages are design references. The product direction remains React
 Native on iOS and Android; Windows simulators and Rust CLI tools support development.
-Prove the first electrical path on the available iPhone, with Android build and
-functional verification included when a test device/emulator is available. Missing
-platform verification must stay visible as a beta qualification gap.
+Verify the POC on iPhone, Android and Windows, and keep missing platform evidence
+visible. Deployment on all three platforms is a POC success condition.
 
 ## 1. Electrical
 
@@ -300,7 +314,7 @@ See [architecture section 5.4.1](../architecture.md#541-user-interface) for comp
 responsibilities and the sample contract, and [the root README](../README.md#demonstrate-simulator-data-reaching-the-ui)
 for the repeatable demonstration and browser test.
 
-## 2. Store deployment and beta distribution
+## 2. POC distribution and future MVP beta distribution
 
 **Status — October 28, 2026:** signed distribution and both automated CI delivery
 paths are established. Latest recorded native versions are iPhone 1.0.0/build 6
@@ -382,7 +396,7 @@ account. Personal-account production-access testing requirements are not the
 current internal-testing blocker. Recheck applicable Play requirements before
 public release rather than imposing an unrelated waiting period on this plan.
 
-**Contingency:** account activation is resolved; certificate renewal, native build
+**Historical contingency:** account activation was resolved; certificate renewal, native build
 changes, processing/review and tester access remain operational risks. Keep those
 separate from feature completion. Dec 14–Jan 3 is review/holiday contingency;
 final integration/beta-readiness review targets Jan 18–31. Capacity and external
@@ -434,9 +448,8 @@ recording are validated or clearly identified as unsupported. No cloud log uploa
 ## 5. Authentication / authorization
 
 **Week 1:** finalize the ownership/access policy designed in slice 1 and choose the
-identity/session architecture. Implement the first verified provider flow and
-protected credential storage; add remaining Google, Facebook and Apple adapters
-within the agreed scope.
+identity/session architecture. Implement Google and Facebook sign-in and protected
+credential storage. Apple sign-in is not among the owner’s POC success conditions.
 
 **Week 2:** enforce authorization at data access boundaries, test provider callbacks,
 sign-out, expired sessions, account switching and policy-defined offline access.

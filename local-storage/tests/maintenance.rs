@@ -64,6 +64,12 @@ fn roundtrip_idempotency_equipment_integrity_and_validation() {
         id: "custom".into(),
         name: "Port engine".into(),
         system: "engine".into(),
+        category: String::new(),
+        model: String::new(),
+        serial_number: String::new(),
+        make: String::new(),
+        manufactured_date: String::new(),
+        installed_date: String::new(),
     };
     store.save_equipment(&custom).unwrap();
     store.save_equipment(&custom).unwrap();
@@ -100,7 +106,7 @@ fn migrates_v1_preserves_telemetry_and_reopens_service_history() {
     assert_eq!(
         db.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
             .unwrap(),
-        2
+        4
     );
     db.execute_batch("PRAGMA user_version=999").unwrap();
     drop(db);

@@ -3,7 +3,7 @@ import { requireOptionalNativeModule } from 'expo';
 import { Platform } from 'react-native';
 import { type Entry, type Equipment, type Snapshot } from './model';
 const native = Platform.OS==='web' ? null : requireOptionalNativeModule<{maintenance?(request: string): Promise<string>}>('AiNavLog');
-async function command(request: object): Promise<unknown> {
+export async function command(request: object): Promise<unknown> {
   let result: unknown;
   if (Platform.OS!=='web') {
     if (!native?.maintenance) throw Error('Maintenance requires a newer aiNavLog native build.');

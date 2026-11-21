@@ -57,7 +57,7 @@ pub fn existing_host(port: u16) -> bool {
     result.unwrap_or(false)
 }
 fn respond(stream: &mut TcpStream, status: &str, mime: &str, body: &[u8]) -> std::io::Result<()> {
-    write!(stream,"HTTP/1.1 {status}\r\nContent-Type: {mime}\r\nContent-Length: {}\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: DENY\r\nContent-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'\r\nConnection: close\r\n\r\n",body.len())?;
+    write!(stream,"HTTP/1.1 {status}\r\nContent-Type: {mime}\r\nContent-Length: {}\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: DENY\r\nContent-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://ainavlog.kodekomplete.com; frame-ancestors 'none'; base-uri 'self'\r\nConnection: close\r\n\r\n",body.len())?;
     stream.write_all(body)
 }
 pub fn handle(
@@ -243,6 +243,7 @@ pub fn handle(
                 "/" | "/elec"
                     | "/elec/history"
                     | "/elec/maintenance"
+                    | "/elec/service-history"
                     | "/mech"
                     | "/mech/maintenance"
                     | "/rout"

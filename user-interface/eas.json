@@ -13,7 +13,8 @@
       "env": {
         "EXPO_NO_DOTENV": "1",
         "EXPO_PUBLIC_DEMO_MODE": "0",
-        "EXPO_PUBLIC_NATIVE_BMV": "1"
+        "EXPO_PUBLIC_NATIVE_BMV": "1",
+        "EXPO_PUBLIC_DIAGRAM_SCAN_URL": "https://ainavlog.kodekomplete.com"
       },
       "android": {
         "buildType": "app-bundle"
@@ -35,7 +36,8 @@
       "env": {
         "EXPO_NO_DOTENV": "1",
         "EXPO_PUBLIC_DEMO_MODE": "0",
-        "EXPO_PUBLIC_NATIVE_BMV": "1"
+        "EXPO_PUBLIC_NATIVE_BMV": "1",
+        "EXPO_PUBLIC_DIAGRAM_SCAN_URL": "https://ainavlog.kodekomplete.com"
       },
       "ios": {
         "simulator": false

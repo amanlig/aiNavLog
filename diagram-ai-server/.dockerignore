@@ -1,0 +1,7 @@
+# Allowlist: no secrets, tests, image uploads, repository files or dependencies.
+**
+!Dockerfile
+!.dockerignore
+!server.mjs
+!healthcheck.mjs
+!package.json

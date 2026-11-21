@@ -1,5 +1,6 @@
 //! Local SQLite telemetry and maintenance. Packets and observations commit atomically.
 //! No advertisement keys are written to this database.
+pub mod diagram;
 pub mod maintenance;
 use ainavlog_data_model::{AppError, AppResult, Observation, SampleMetadata};
 use rusqlite::{params, Connection, OpenFlags};
@@ -163,7 +164,7 @@ impl ObservationStore {
         let application: i64 = connection
             .pragma_query_value(None, "application_id", |r| r.get(0))
             .map_err(storage)?;
-        if version > 2 || (application != 0 && application != 0x41494e4c) {
+        if version > 4 || (application != 0 && application != 0x41494e4c) {
             return Err(storage(
                 "database belongs to another application or newer schema",
             ));
@@ -202,9 +203,25 @@ impl ObservationStore {
                 ('main-engine','Main engine','engine'),('generator','Generator','both'),
                 ('house-battery','House battery','electrical'),('starter-battery','Starter battery','electrical'),
                 ('alternator','Alternator','both'),('charger','Battery charger','electrical');
-            PRAGMA application_id=1095323212; PRAGMA user_version=2; COMMIT;",
+            CREATE TABLE IF NOT EXISTS maintenance_equipment_details (
+                equipment_id TEXT PRIMARY KEY REFERENCES maintenance_equipment(id),
+                category TEXT NOT NULL, model TEXT NOT NULL, serial_number TEXT NOT NULL);
+            CREATE TABLE IF NOT EXISTS electrical_diagram_assets (
+                asset_id TEXT NOT NULL, chunk_index INTEGER NOT NULL, body TEXT NOT NULL,
+                PRIMARY KEY(asset_id,chunk_index));
+            CREATE TABLE IF NOT EXISTS electrical_diagram (
+                id INTEGER PRIMARY KEY CHECK(id=1), body TEXT NOT NULL CHECK(json_valid(body)));
+            PRAGMA application_id=1095323212; COMMIT;",
             )
             .map_err(storage)?;
+        if version < 4 {
+            let has_make: bool = connection.query_row("SELECT EXISTS(SELECT 1 FROM pragma_table_info('maintenance_equipment_details') WHERE name='make')", [], |r| r.get(0)).map_err(storage)?;
+            if !has_make {
+                connection.execute_batch("BEGIN IMMEDIATE; ALTER TABLE maintenance_equipment_details ADD COLUMN make TEXT NOT NULL DEFAULT ''; ALTER TABLE maintenance_equipment_details ADD COLUMN manufactured_date TEXT NOT NULL DEFAULT ''; ALTER TABLE maintenance_equipment_details ADD COLUMN installed_date TEXT NOT NULL DEFAULT ''; PRAGMA user_version=4; COMMIT;").map_err(storage)?;
+            } else {
+                connection.pragma_update(None, "user_version", 4).map_err(storage)?;
+            }
+        }
         Ok(Self { connection })
     }
     pub fn save(
