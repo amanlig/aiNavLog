@@ -23,3 +23,15 @@ test('review creates separate unknown records, preserves matched IDs, validates 
   assert.throws(()=>buildReviewed([{...review,equipmentId:'panel-a'},{...review,key:'other',equipmentId:'panel-a',model:'different'}],existing));
   assert.throws(()=>parseDetections({components:[{...component,width:Infinity}]}));
 });
+
+test('engine views link one equipment identity across images and reject electrical-only matches',()=>{
+  const engine={id:'oil-filter',name:'Oil filter',system:'engine',category:'Oil filter',model:'OF-1'};
+  const item={...review,name:'Oil filter',category:'Oil filter',model:'OF-1'};
+  assert.equal(suggestedMatch(item,[engine], 'engine'),'oil-filter');
+  assert.equal(suggestedMatch(item,[engine]),'');
+  const upper=buildReviewed([{...item,equipmentId:engine.id}],[engine],'engine');
+  const side=buildReviewed([{...item,equipmentId:engine.id,x:.4}],[engine],'engine');
+  assert.equal(upper.areas[0].equipmentId,side.areas[0].equipmentId);
+  assert.equal(buildReviewed([item],[],'engine').equipment[0].system,'engine');
+  assert.throws(()=>buildReviewed([{...item,equipmentId:'panel-a'}],existing,'engine'));
+});

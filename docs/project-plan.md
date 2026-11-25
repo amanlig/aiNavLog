@@ -25,6 +25,18 @@ The October checkpoints, detailed slice notes and risk dates
 below are historical evidence where they conflict with the November 21 schedule.
 Open acceptance gaps remain open until verified or explicitly deferred.
 
+## Engine maintenance source update — November 24
+
+Shared Electrical maintenance flow extended to Engine with multiple uploaded 2D
+views of the same 3D engine: upper, port side, starboard side and bottom (plus
+front/rear/custom). Electrical is the shared layout/control baseline; the Engine-specific
+interaction is horizontal finger swiping between saved views. Tap/hold/hover
+and equipment dialogs use the same implementation. Shared equipment IDs link
+all views to one Engine service history. SQLite schema 5 preserves the existing
+Electrical diagram and records. New native delivery and device acceptance remain
+pending; engine telemetry is still unfinished. See
+[implementation and validation](engine-maintenance-diagrams.md).
+
 ## Proof-of-concept success conditions
 
 The owner defines the POC as successful when all five conditions are met:

@@ -106,7 +106,7 @@ fn migrates_v1_preserves_telemetry_and_reopens_service_history() {
     assert_eq!(
         db.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
             .unwrap(),
-        4
+        5
     );
     db.execute_batch("PRAGMA user_version=999").unwrap();
     drop(db);

@@ -112,3 +112,14 @@ field requires no schema/table migration and keeps legacy retries compatible.
 Use the updated binary for the new field; older 0.1.0 readers cannot interpret
 new scoped JSON records. This is one shared implementation, not duplicate code or
 separate database files.
+
+
+## Engine multi-view diagrams — November 24
+
+Engine reuses the Electrical diagram/maintenance flow via `MaintenanceDiagram`,
+with separately uploaded upper, port/starboard side and bottom 2D views. View
+markers share equipment identities and Engine history; left/right finger swipes
+navigate saved views while tap/hold/mouse behavior follows Electrical. Schema 5
+preserves existing diagrams/records. See the
+[engine diagram implementation](engine-maintenance-diagrams.md). New native
+delivery and physical-device acceptance remain pending.

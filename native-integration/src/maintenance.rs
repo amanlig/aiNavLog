@@ -88,11 +88,20 @@ fn execute_diagram(path: &Path, value: &Value) -> Result<Value, String> {
     use ainavlog_local_storage::diagram::Diagram;
     let op = value["op"].as_str().ok_or("Missing diagram operation")?;
     let allowed: &[&str] = match op {
-        "diagram_read" => &["op"],
+        "diagram_list" => &["op", "system"],
+        "diagram_read" => &["op", "system", "diagramId"],
         "diagram_chunk" => &["op", "imageId", "index"],
         "diagram_put" => &["op", "imageId", "index", "body"],
         "diagram_discard" => &["op", "imageId"],
-        "diagram_save" => &["op", "diagram", "equipment", "baseRevision"],
+        "diagram_save" => &[
+            "op",
+            "diagram",
+            "equipment",
+            "baseRevision",
+            "system",
+            "diagramId",
+            "name",
+        ],
         _ => return Err("Unknown diagram operation".into()),
     };
     if value
@@ -103,6 +112,27 @@ fn execute_diagram(path: &Path, value: &Value) -> Result<Value, String> {
     {
         return Err("Unexpected diagram field".into());
     }
+    let system = match value.get("system") {
+        None => "electrical",
+        Some(Value::String(s)) if matches!(s.as_str(), "electrical" | "engine") => s,
+        _ => return Err("Invalid diagram system".into()),
+    };
+    let diagram_id = match value.get("diagramId") {
+        None => "main",
+        Some(Value::String(s)) => s,
+        _ => return Err("Invalid diagram ID".into()),
+    };
+    let name = match value.get("name") {
+        None => {
+            if system == "engine" {
+                "Engine diagram"
+            } else {
+                "Electrical diagram"
+            }
+        }
+        Some(Value::String(s)) => s,
+        _ => return Err("Invalid diagram name".into()),
+    };
     let store = ObservationStore::open(path).map_err(|e| e.to_string())?;
     let id = || value["imageId"].as_str().ok_or("Missing image ID");
     let index = || {
@@ -112,7 +142,12 @@ fn execute_diagram(path: &Path, value: &Value) -> Result<Value, String> {
             .ok_or("Invalid chunk index")
     };
     match op {
-        "diagram_read" => Ok(json!({"diagram":store.read_diagram().map_err(|e|e.to_string())?})),
+        "diagram_list" => {
+            Ok(json!({"diagrams":store.list_diagrams(system).map_err(|e|e.to_string())?}))
+        }
+        "diagram_read" => Ok(
+            json!({"diagram":store.read_system_diagram(system,diagram_id).map_err(|e|e.to_string())?}),
+        ),
         "diagram_chunk" => {
             Ok(json!({"body":store.read_diagram_chunk(id()?,index()?).map_err(|e|e.to_string())?}))
         }
@@ -143,7 +178,7 @@ fn execute_diagram(path: &Path, value: &Value) -> Result<Value, String> {
                 _ => return Err("Invalid base revision".into()),
             };
             store
-                .save_diagram(&diagram, &equipment, base)
+                .save_system_diagram(system, diagram_id, name, &diagram, &equipment, base)
                 .map_err(|e| e.to_string())?;
             Ok(json!({"ok":true}))
         }

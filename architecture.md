@@ -801,6 +801,30 @@ unassigned shared records stay explicitly disclosed in history.
 
 See [implementation, server setup and verification](docs/electrical-diagram-maintenance.md).
 
+### 5.7 Engine maintenance from multiple 2D views — November 24
+
+**Implemented in source; new native delivery/acceptance pending.** Engine reuses
+Electrical's maintenance command service, image upload/review, equipment dialogs
+and service-history form. The physical engine is represented by uploaded upper,
+port/starboard side and bottom 2D views (front/rear/custom also supported), without
+a 3D reconstruction. `MaintenanceDiagram` is shared by both systems; Engine uses
+the Electrical layout and controls, adding one-finger left/right navigation
+between saved views. No separate Engine view menu or arrow controls are added.
+Other tap, touch-and-hold,
+vertical scroll and mouse hover behavior follows Electrical. Draft review disables
+view swiping. Multiple regions across views refer to the same stable equipment
+ID and Engine service history rather than duplicating component records.
+
+SQLite schema 5 migrates the existing Electrical singleton to
+`maintenance_diagrams(system,id,name,body)` and preserves its image chunks,
+equipment metadata and service records. Shared command transport adds scoped
+list/read/save behavior without a new C ABI or platform-native method. UI reads
+and manual commands continue through Native integration → application service →
+Local data store, independently of instrument capture and Device Interface.
+Electrical retains its single-diagram UI; Engine telemetry and automatic diagram
+scanning are not included in this change. See
+[engine multi-view implementation](docs/engine-maintenance-diagrams.md).
+
 ## 6. Runtime View
 
 ### 6.1 Share a route as a story (R-10)

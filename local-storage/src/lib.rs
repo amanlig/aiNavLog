@@ -164,7 +164,7 @@ impl ObservationStore {
         let application: i64 = connection
             .pragma_query_value(None, "application_id", |r| r.get(0))
             .map_err(storage)?;
-        if version > 4 || (application != 0 && application != 0x41494e4c) {
+        if version > 5 || (application != 0 && application != 0x41494e4c) {
             return Err(storage(
                 "database belongs to another application or newer schema",
             ));
@@ -209,8 +209,6 @@ impl ObservationStore {
             CREATE TABLE IF NOT EXISTS electrical_diagram_assets (
                 asset_id TEXT NOT NULL, chunk_index INTEGER NOT NULL, body TEXT NOT NULL,
                 PRIMARY KEY(asset_id,chunk_index));
-            CREATE TABLE IF NOT EXISTS electrical_diagram (
-                id INTEGER PRIMARY KEY CHECK(id=1), body TEXT NOT NULL CHECK(json_valid(body)));
             PRAGMA application_id=1095323212; COMMIT;",
             )
             .map_err(storage)?;
@@ -219,8 +217,23 @@ impl ObservationStore {
             if !has_make {
                 connection.execute_batch("BEGIN IMMEDIATE; ALTER TABLE maintenance_equipment_details ADD COLUMN make TEXT NOT NULL DEFAULT ''; ALTER TABLE maintenance_equipment_details ADD COLUMN manufactured_date TEXT NOT NULL DEFAULT ''; ALTER TABLE maintenance_equipment_details ADD COLUMN installed_date TEXT NOT NULL DEFAULT ''; PRAGMA user_version=4; COMMIT;").map_err(storage)?;
             } else {
-                connection.pragma_update(None, "user_version", 4).map_err(storage)?;
+                connection
+                    .pragma_update(None, "user_version", 4)
+                    .map_err(storage)?;
             }
+        }
+        if version < 5 {
+            connection.execute_batch("BEGIN IMMEDIATE;
+                CREATE TABLE IF NOT EXISTS electrical_diagram (
+                    id INTEGER PRIMARY KEY CHECK(id=1), body TEXT NOT NULL CHECK(json_valid(body)));
+                CREATE TABLE IF NOT EXISTS maintenance_diagrams (
+                    system TEXT NOT NULL CHECK(system IN ('engine','electrical')),
+                    id TEXT NOT NULL, name TEXT NOT NULL, body TEXT NOT NULL CHECK(json_valid(body)),
+                    PRIMARY KEY(system,id));
+                INSERT OR IGNORE INTO maintenance_diagrams(system,id,name,body)
+                    SELECT 'electrical','main','Electrical diagram',body FROM electrical_diagram;
+                DROP TABLE electrical_diagram;
+                PRAGMA user_version=5; COMMIT;").map_err(storage)?;
         }
         Ok(Self { connection })
     }

@@ -1,14 +1,18 @@
-"""Build the Windows maintenance-test executable with an existing LLVM-MinGW toolchain.
-Example: python3 desktop-app/scripts/build.py --llvm-mingw /path/to/llvm-mingw
-Downloads/installs nothing. Requires Rust Windows gnullvm target and UI dependencies.
+"""Build the Windows app and standard NSIS setup EXE.
+Example: python3 desktop-app/scripts/build.py --llvm-mingw /path/to/llvm-mingw --makensis /path/to/makensis
+Downloads/installs nothing. Requires Rust Windows gnullvm target, UI dependencies and NSIS.
 """
 from pathlib import Path
-import argparse, hashlib, json, os, shutil, subprocess, zipfile
+import argparse, hashlib, json, os, shutil, subprocess, tomllib, sys
 app=Path(__file__).resolve().parents[1]
 root=app.parent
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--llvm-mingw',type=Path,required=True)
+parser.add_argument('--makensis',default=shutil.which('makensis'))
+parser.add_argument('--nsis-root',type=Path)
+parser.add_argument('--app-only',action='store_true',help='Build app files only; not a user-delivery artifact')
 args=parser.parse_args()
+if not args.app_only and not args.makensis:parser.error('NSIS makensis is required for the standard setup EXE. See docs/windows-delivery.md; do not substitute a ZIP.')
 tools=args.llvm_mingw.resolve()
 assert (tools/'bin/x86_64-w64-mingw32-clang').is_file(), 'Expected LLVM-MinGW bin directory'
 env={**os.environ,'EXPO_NO_DOTENV':'1','EXPO_PUBLIC_NATIVE_BMV':'0','EXPO_PUBLIC_DEMO_MODE':'0','EXPO_PUBLIC_DEVICE_INTERFACE_URL':'','EXPO_PUBLIC_DIAGRAM_SCAN_URL':'https://ainavlog.kodekomplete.com'}
@@ -29,9 +33,11 @@ executable=app/'target/x86_64-pc-windows-gnullvm/release/aiNavLog.exe'
 shutil.copy2(executable,output/'aiNavLog.exe')
 shutil.copy2(app/'web/native-notices.txt',output/'NativeNotices.txt')
 shutil.copy2(app/'README.md',output/'README.txt')
-receipt={'version':'0.1.2','target':'x86_64-pc-windows-gnullvm','exeSha256':hashlib.sha256(executable.read_bytes()).hexdigest(),'exeBytes':executable.stat().st_size,'purpose':'Local shared UI/Rust/SQLite maintenance testing; no BLE or cloud sync','signed':False}
+version=tomllib.loads((app/'Cargo.toml').read_text())['package']['version']
+receipt={'version':version,'target':'x86_64-pc-windows-gnullvm','exeSha256':hashlib.sha256(executable.read_bytes()).hexdigest(),'exeBytes':executable.stat().st_size,'purpose':'Local shared UI/Rust/SQLite maintenance testing; no BLE or cloud sync','signed':False}
 (output/'build-receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
-archive=app/'builds/aiNavLog-Windows-x64.zip'
-with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:
-    for name in ['aiNavLog.exe','NativeNotices.txt','README.txt','build-receipt.json']:z.write(output/name,'aiNavLog/'+name)
-print(f'Executable: {output / "aiNavLog.exe"}\nPackage: {archive}')
+print(f'App executable: {output / "aiNavLog.exe"}')
+if not args.app_only:
+    installer_command=[sys.executable,str(app/'scripts/build-installer.py'),'--makensis',args.makensis]
+    if args.nsis_root:installer_command.extend(['--nsis-root',str(args.nsis_root)])
+    subprocess.run(installer_command,cwd=root,check=True)

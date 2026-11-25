@@ -246,6 +246,7 @@ pub fn handle(
                     | "/elec/service-history"
                     | "/mech"
                     | "/mech/maintenance"
+                    | "/mech/service-history"
                     | "/rout"
             ) {
                 ASSETS.iter().find(|(name, _, _)| *name == "/index.html")

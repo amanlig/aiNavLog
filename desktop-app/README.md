@@ -1,6 +1,18 @@
 # aiNavLog Windows local-test app
 
-Double-click `aiNavLog.exe` on Windows 10/11 x64 with Microsoft Edge installed.
+Windows delivery is a single **`aiNavLog-Setup-<version>.exe` NSIS installer**.
+Double-click setup, follow the installer, then open the aiNavLog desktop/Start menu
+shortcut. No ZIP extraction, script execution or administrator access is required.
+The setup verifies the bundled app checksum, checks that aiNavLog is closed,
+backs up existing database files and retains existing data. It does not launch the
+app or change antivirus settings. See the permanent
+[Windows delivery procedure](../docs/windows-delivery.md).
+
+The current NSIS Modern UI 2 wizard is the fixed release template. Future app
+updates change the payload/version, preserving its appearance, page flow,
+shortcuts, installation location and upgrade/data behavior. Use the existing
+builder; do not recreate or restyle the installer for each release.
+
 The executable includes the exported React Native web UI and the shared Rust
 application/storage code. It opens an Edge app window and runs without Expo,
 Node, WSL, an internet connection or a separately started data service.
@@ -52,11 +64,11 @@ On Linux/WSL with UI dependencies, Rust, the Windows gnullvm Rust target and an
 existing LLVM-MinGW toolchain:
 
 ```
-python3 desktop-app/scripts/build.py --llvm-mingw /path/to/llvm-mingw
+python3 desktop-app/scripts/build.py --llvm-mingw /path/to/llvm-mingw --makensis /path/to/makensis
 ```
 
 The script exports the UI without local endpoint/demo overrides, generates native
-notices, builds and packages the EXE, and writes a receipt/checksum. It does not
+notices, builds the app and its NSIS setup EXE, and writes receipts/checksums. It does not
 install tooling or upload source. Outputs are ignored under `desktop-app/builds/`.
 The one-time cross compiler is available from the upstream LLVM-MinGW releases;
 install the Rust target with `rustup target add x86_64-pc-windows-gnullvm`.
@@ -83,3 +95,27 @@ then Scan with AI. Enter the gateway token from the ignored local
 `.secrets/diagram_scan_token`; do not enter an OpenAI key. This package's CSP
 permits the deployed scan hostname, and its exact loopback origin is allowed by
 the gateway.
+
+
+## Engine views test build — November 24, 2026
+
+Version 0.1.4 reuses the Electrical maintenance flow for multiple 2D views of the
+same engine: upper, port side, starboard side and bottom. Add each JPEG/PNG with
+**Add diagram / Add/update diagram**, mark components, and link existing equipment across views.
+Swipe left/right on a touchscreen to move between engine diagrams. Electrical
+is the layout/interaction baseline; Engine has no separate view menu or arrows.
+Tap for service, touch-and-hold to edit, and hover for the Electrical-style summary.
+Completed work uses the shared maintenance service and saves in the existing local
+database. Electrical diagrams and records are retained.
+
+The NSIS setup copies app files to `%LOCALAPPDATA%\Programs\aiNavLog`; data stays
+in `%LOCALAPPDATA%\aiNavLog\Desktop`. It creates a dated backup under
+`Desktop\Backups\before-update-*` when existing records are present.
+Storage upgrades to schema 5 on first use. Older app binaries cannot open that
+upgraded database; continue using this version. Running the app executable directly skips setup's backup step. No device connectivity or mobile store deployment is
+included in this package.
+
+
+The ZIP/Install.cmd delivery attempted during November 24 was superseded by the
+NSIS setup EXE. Future releases must use the setup format unless the owner explicitly
+requests another format. `aiNavLog.exe` is the application, not the installer.

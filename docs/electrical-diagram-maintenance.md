@@ -133,3 +133,56 @@ after validation. A regression test covers corner conversion and invalid boxes.
 The gateway logs static failure codes without image data, credentials or provider
 response bodies. Client build profiles include the public endpoint; new mobile
 builds and device acceptance remain required.
+
+
+## Shared viewer update — November 24
+
+The Electrical workflow now uses shared `MaintenanceDiagram` with an Electrical
+compatibility wrapper. Engine uses the same flow for multiple labeled 2D views of
+one 3D engine, linked to Engine equipment and history. Schema 5 migrates the
+Electrical singleton to scoped `maintenance_diagrams` without removing images,
+equipment or history; Electrical retains its single-diagram UI. Refer to
+[engine view implementation](engine-maintenance-diagrams.md) for current storage
+and command contracts. This source update needs replacement native delivery.
+
+
+## Electrical POC simplification — November 24
+
+The Electrical equipment form omits the linking explanation, Create separate
+equipment action and Link equipment buttons. New Electrical markers create their
+own equipment records; editing existing markers retains their equipment identity
+and service history. Engine retains cross-view linking so several 2D views can
+reference one component. No record, link or schema migration is part of this UI
+simplification.
+
+## Hover and editor save correction — November 24
+
+Mouse hover now also shows the latest service after the editor closes into an
+unsaved review. Current review metadata is displayed while service history stays
+linked by the existing equipment ID. Tooltip placement uses the hovered component's
+visible position and measured card height, avoiding an off-screen popup on tall
+images. Hover remains noninteractive and clears on pointer exit/scroll.
+
+The equipment editor now provides **Save changes** in the fixed top bar, visible
+while scrolling the fields or resizing the window. It commits through the existing atomic diagram/equipment
+save, closes only after success and shows validation/save errors inside the editor.
+Close review does not commit changes; the explicit save action does. The review's
+outer save remains available for batch image/equipment work. No storage schema or
+service-history identity change is involved. Regression coverage includes the
+hover → edit → close → hover sequence, lower-image popup visibility, save-button
+visibility while scrolling and record persistence across process restart.
+
+
+## Small-window layout correction — November 24
+
+The Save changes action is now beside the editor title and Close control, above
+the scrolling fields, shared by Electrical and Engine. Browser dialogs use the
+actual visible viewport, including scale and offsets, rather than only RN Web's
+scale-adjusted window dimensions. This avoids clipped actions in smaller/scaled
+windows. Native dialogs continue to use native window dimensions.
+
+Regression tests resize an open editor through 1000×650, 800×500, 640×480, 420×360
+and 320×480, verify draft preservation, and check the save action after scrolling.
+They also perform a real save at 800×500 with 150% emulated visual scaling, then
+verify reload and process-restart retention. See
+[compact editor screenshot](images/equipment-editor-compact.png).

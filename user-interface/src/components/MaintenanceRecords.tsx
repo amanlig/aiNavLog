@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppHeader } from './AppHeader';
-import { ElectricalDiagram } from './ElectricalDiagram';
+import { MaintenanceDiagram } from './MaintenanceDiagram';
 import { usePreferences } from '../preferences/Preferences';
 import { addEquipment, readMaintenance, saveService } from '../maintenance/client';
 import { costMinor, inSystem, recordSystem, localDate, newId, optionalNumber, validate, type Entry, type Snapshot } from '../maintenance/model';
@@ -61,8 +61,8 @@ export function MaintenanceRecords({ system, initialEquipmentId = '', historyOnl
     <Text style={[s.description,{color:c.muted}]}>Completed work for your {system==='electrical'?'electrical system':'engine equipment'}.</Text>
     {error!==''&&<Text accessibilityRole="alert" style={{color:c.amber,lineHeight:22}}>{error}</Text>}
     {notice!==''&&<Text accessibilityLiveRegion="polite" style={{color:c.accent}}>{notice}</Text>}
-    {system==='electrical'&&!historyOnly&&loaded&&<ElectricalDiagram data={data} onSaved={async()=>{setData(await readMaintenance());}}/>}
-    {(system!=='electrical'||historyOnly)&&<View style={s.row}>{loaded&&button('Record completed work',()=>{setEditing(true);setNotice('');})}{button('Refresh records',refresh)}</View>}
+    {!historyOnly&&loaded&&<MaintenanceDiagram key={system} system={system} data={data} onSaved={async()=>{setData(await readMaintenance());}}/>}
+    {historyOnly&&<View style={s.row}>{loaded&&button('Record completed work',()=>{setEditing(true);setNotice('');})}{button('Refresh records',refresh)}</View>}
     {editing&&<View style={[s.panel,{borderColor:c.line,backgroundColor:c.panel}]}>
       <Text accessibilityRole="header" style={[s.heading,{color:c.ink}]}>Record completed work</Text>
       <Text style={[s.label,{color:c.ink}]}>Equipment *</Text>
@@ -85,7 +85,6 @@ export function MaintenanceRecords({ system, initialEquipmentId = '', historyOnl
       <View style={s.row}>{button(busy?'Saving…':'Save service record',save)}{button('Cancel',()=>{setEditing(false);setAdding(false);setForm(blank());setError('');})}</View>
     </View>}
     <Text accessibilityRole="header" style={[s.heading,{color:c.ink}]}>Service history</Text>
-    {loaded&&system!=='electrical'&&!historyOnly&&<View style={s.row}>{button('All equipment',()=>setEquipmentFilter(''),!equipmentFilter)}{visibleEquipment.map(e=>button(`Show ${e.name}`,()=>setEquipmentFilter(e.id),equipmentFilter===e.id))}</View>}
     {historyOnly&&<Text style={[s.heading,{color:c.ink}]}>{visibleEquipment.find(e=>e.id===equipmentFilter)?.name??'Equipment'}</Text>}
     {legacyEntries.length>0&&<View style={{gap:8}}>
       {button(`Earlier shared records (${legacyEntries.length})`,()=>setShowLegacy(value=>!value),showLegacy)}

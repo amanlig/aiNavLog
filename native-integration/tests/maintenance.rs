@@ -54,3 +54,48 @@ fn commands_and_abi_work_disconnected_and_retry_without_duplicates() {
     );
     let _ = std::fs::remove_file(path);
 }
+
+#[test]
+fn scoped_diagram_commands_keep_multiple_engine_views_and_electrical_separate() {
+    let path =
+        std::env::temp_dir().join(format!("maintenance-views-{}.sqlite3", std::process::id()));
+    let _ = std::fs::remove_file(&path);
+    let call = |request: Value| -> Value {
+        serde_json::from_str(&execute(&path, &request.to_string())).unwrap()
+    };
+    let image="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l9sAAAAASUVORK5CYII=";
+    assert_eq!(
+        call(json!({"op":"diagram_put","imageId":"engine-image","index":0,"body":image}))["ok"],
+        true
+    );
+    for (id, name) in [
+        ("upper", "Upper view"),
+        ("port", "Port side view"),
+        ("starboard", "Starboard side view"),
+        ("bottom", "Bottom view"),
+    ] {
+        let request = json!({"op":"diagram_save","system":"engine","diagramId":id,"name":name,"baseRevision":null,"equipment":[],"diagram":{"revision":id,"imageId":"engine-image","imageChunks":1,"width":640,"height":480,"areas":[{"equipmentId":"main-engine","x":0.1,"y":0.1,"width":0.4,"height":0.4}]}});
+        assert_eq!(call(request.clone())["ok"], true);
+        assert_eq!(call(request)["ok"], true);
+        assert_eq!(
+            call(json!({"op":"diagram_read","system":"engine","diagramId":id}))["diagram"]
+                ["revision"],
+            id
+        );
+    }
+    assert_eq!(
+        call(json!({"op":"diagram_list","system":"engine"}))["diagrams"]
+            .as_array()
+            .unwrap()
+            .len(),
+        4
+    );
+    assert_eq!(
+        call(json!({"op":"diagram_list","system":"electrical"}))["diagrams"],
+        json!([])
+    );
+    assert!(call(json!({"op":"diagram_read"}))["diagram"].is_null());
+    assert!(call(json!({"op":"diagram_discard","imageId":"engine-image"}))["error"].is_string());
+    assert!(call(json!({"op":"diagram_list","system":"both"}))["error"].is_string());
+    let _ = std::fs::remove_file(path);
+}

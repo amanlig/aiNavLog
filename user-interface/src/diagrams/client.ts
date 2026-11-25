@@ -1,8 +1,13 @@
 import {command} from '../maintenance/client';
 import type {Equipment} from '../maintenance/model';
-import {parseDetections, type Diagram} from './model';
-export async function readDiagram():Promise<{diagram:Diagram;uri:string}|null> {
-  const result=await command({op:'diagram_read'}) as {diagram:Diagram|null};
+import {parseDetections, type Diagram,type DiagramSystem,type DiagramSummary} from './model';
+export async function listDiagrams(system:DiagramSystem):Promise<DiagramSummary[]> {
+  const result=await command({op:'diagram_list',system}) as {diagrams:DiagramSummary[]};
+  if(!Array.isArray(result.diagrams)||result.diagrams.length>50||result.diagrams.some(d=>typeof d.id!=='string'||typeof d.name!=='string'))throw Error('Could not load saved diagrams.');
+  return result.diagrams;
+}
+export async function readDiagram(system:DiagramSystem = 'electrical',diagramId = 'main'):Promise<{diagram:Diagram;uri:string}|null> {
+  const result=await command({op:'diagram_read',system,diagramId}) as {diagram:Diagram|null};
   if(!result.diagram)return null;
   const diagram=result.diagram;
   if(!Number.isInteger(diagram.imageChunks)||diagram.imageChunks<1||diagram.imageChunks>512)throw Error('Invalid saved diagram.');
@@ -14,7 +19,7 @@ export async function readDiagram():Promise<{diagram:Diagram;uri:string}|null> {
   }
   return {diagram,uri:parts.join('')};
 }
-export async function saveDiagram(diagram:Diagram,uri:string,equipment:Equipment[],baseRevision:string|null,onProgress:(message:string)=>void) {
+export async function saveDiagram(diagram:Diagram,uri:string,equipment:Equipment[],baseRevision:string|null,onProgress:(message:string)=>void,scope:{system:DiagramSystem;diagramId:string;name:string} = {system:'electrical',diagramId:'main',name:'Electrical diagram'}) {
   const chunkSize=16000;
   if(!/^data:image\/(png|jpeg);base64,/.test(uri)||uri.length>8_000_030)throw Error('Choose a JPEG or PNG smaller than 6 MB.');
   const count=Math.ceil(uri.length/chunkSize);
@@ -24,7 +29,7 @@ export async function saveDiagram(diagram:Diagram,uri:string,equipment:Equipment
     await command({op:'diagram_put',imageId:diagram.imageId,index,body:uri.slice(index*chunkSize,(index+1)*chunkSize)});
   }
   onProgress('Saving reviewed equipment…');
-  await command({op:'diagram_save',diagram,equipment,baseRevision});
+  await command({op:'diagram_save',diagram,equipment,baseRevision,...scope});
 }
 export async function scanDiagram(uri:string,endpoint:string,token:string) {
   const url=new URL(endpoint);

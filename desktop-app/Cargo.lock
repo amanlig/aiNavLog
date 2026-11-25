@@ -28,7 +28,7 @@ version = "0.1.0"
 
 [[package]]
 name = "ainavlog-desktop"
-version = "0.1.2"
+version = "0.1.8"
 dependencies = [
  "ainavlog-local-storage",
  "ainavlog-native-bridge",

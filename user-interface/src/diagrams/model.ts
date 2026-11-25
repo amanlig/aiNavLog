@@ -1,5 +1,9 @@
 import type { Equipment } from '../maintenance/model';
 
+export type DiagramSystem = 'engine'|'electrical';
+export type DiagramSummary = {id:string;name:string};
+export const engineViews = ['Upper view','Port side view','Starboard side view','Bottom view','Front view','Rear view','Other view'] as const;
+export const engineComponentTypes = ['Unknown / custom','Engine','Oil filter','Fuel filter','Fuel pump','Fuel injector','Water pump','Impeller','Heat exchanger','Coolant reservoir','Thermostat','Belt','Hose','Alternator','Starter motor','Air filter','Exhaust elbow','Turbocharger','Transmission','Engine mount','Anode','Sensor'] as const;
 export const componentTypes = ['Unknown / custom', 'LiFePO₄ battery', 'AGM battery', 'Flooded lead-acid battery', 'Gel battery', 'Battery bank', 'Solar panel', 'MPPT solar charge controller', 'PWM solar charge controller', 'Alternator', 'DC–DC charger', 'Battery charger', 'Inverter', 'Inverter/charger', 'Battery monitor', 'Battery-monitor shunt', 'Solar system monitor', 'DC distribution panel', 'AC distribution panel', 'Busbar', 'Fuse / fuse holder', 'Circuit breaker', 'Battery isolation switch', 'BMS', 'DC load'] as const;
 export type Box = {x:number;y:number;width:number;height:number};
 export type Detection = Box & {name:string;category:string;model:string;serialNumber:string};
@@ -8,15 +12,15 @@ export type Area = Box & {equipmentId:string};
 export type Diagram = {revision:string;imageId:string;imageChunks:number;width:number;height:number;areas:Area[]};
 export type ImageDraft = {uri:string;width:number;height:number};
 export const normalized = (s:string) => s.toLocaleLowerCase().replace(/[^\p{L}\p{N}]/gu,'');
-export function suggestedMatch(item: Detection, equipment: Equipment[]): string {
-  const electrical=equipment.filter(e=>e.system!=='engine');
+export function suggestedMatch(item: Detection, equipment: Equipment[], system:DiagramSystem = 'electrical'): string {
+  const candidates=equipment.filter(e=>e.system===system||e.system==='both');
   // Repeated models and pictures do not prove identity. Only unambiguous exact
   // serial/name matches are proposed; the user still confirms every link.
   if(item.serialNumber.trim()) {
-    const hits=electrical.filter(e=>e.serialNumber && normalized(e.serialNumber)===normalized(item.serialNumber));
+    const hits=candidates.filter(e=>e.serialNumber && normalized(e.serialNumber)===normalized(item.serialNumber));
     if(hits.length>0) return hits.length===1 && (!item.model || !hits[0].model || normalized(hits[0].model!)===normalized(item.model)) ? hits[0].id : '';
   }
-  const hits=electrical.filter(e=>normalized(e.name)===normalized(item.name) && !(item.serialNumber && e.serialNumber && normalized(item.serialNumber)!==normalized(e.serialNumber)));
+  const hits=candidates.filter(e=>normalized(e.name)===normalized(item.name) && !(item.serialNumber && e.serialNumber && normalized(item.serialNumber)!==normalized(e.serialNumber)));
   return hits.length===1 ? hits[0].id : '';
 }
 export function validBox(b:Box) {
@@ -33,14 +37,14 @@ export function parseDetections(value:unknown):Detection[] {
     return {...b,name:o.name as string,category:o.category as string,model:o.model as string,serialNumber:o.serialNumber as string};
   });
 }
-export function buildReviewed(items:ReviewItem[], existing:Equipment[]) {
+export function buildReviewed(items:ReviewItem[], existing:Equipment[], system:DiagramSystem = 'electrical') {
   const equipment=new Map<string,Equipment>();
   const areas:Area[]=[];
   for(const item of items.filter(i=>!i.ignored)) {
     if(!validBox(item))throw Error('Each equipment area must fit inside the diagram.');
-    const match=item.equipmentId?existing.find(e=>e.id===item.equipmentId&&e.system!=='engine'):undefined;
+    const match=item.equipmentId?existing.find(e=>e.id===item.equipmentId&&(e.system===system||e.system==='both')):undefined;
     if(item.equipmentId&&!match)throw Error('Selected equipment no longer exists. Reload records.');
-    const record:Equipment=match?{...match}:{id:item.newId,name:item.name.trim(),system:'electrical'};
+    const record:Equipment=match?{...match}:{id:item.newId,name:item.name.trim(),system};
     if(!record.name||record.name.length>120)throw Error('Enter an equipment name (up to 120 characters).');
     Object.assign(record,{category:item.category.trim(),model:item.model.trim(),serialNumber:item.serialNumber.trim(),make:(item.make??'').trim(),manufacturedDate:(item.manufacturedDate??'').trim(),installedDate:(item.installedDate??'').trim()});
     if(record.category!.length>80||record.model!.length>120||record.serialNumber!.length>120)throw Error('Equipment details are too long.');
